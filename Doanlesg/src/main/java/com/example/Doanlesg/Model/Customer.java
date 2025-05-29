@@ -1,0 +1,102 @@
+package com.example.Doanlesg.Model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "KhachHang") // Ánh xạ tới bảng KhachHang
+public class Customer {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Phù hợp với IDENTITY(1,1) của SQL Server
+    @Column(name = "customer_id") // Ánh xạ tới cột customer_id
+    private Integer id; // Hoặc Long nếu bạn muốn
+
+    @Column(name = "full_name", nullable = false, length = 100)
+    private String fullName;
+
+    @Column(name = "email", nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash; // Luôn mã hóa mật khẩu
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT GETDATE()", insertable = false, updatable = false)
+    // insertable = false, updatable = false nếu DB tự quản lý giá trị này
+    // Hoặc bạn có thể dùng @CreationTimestamp của Hibernate
+    private LocalDateTime createdAt;
+
+    // Mối quan hệ một khách hàng có nhiều địa chỉ
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // mappedBy = "customer": trỏ tới thuộc tính 'customer' trong entity Address
+    // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
+    // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
+    // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
+    private List<Address> addresses;
+
+    // Constructors, Getters, and Setters
+
+    public Customer() {
+    }
+
+    // Getters and Setters cho tất cả các trường
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+}
