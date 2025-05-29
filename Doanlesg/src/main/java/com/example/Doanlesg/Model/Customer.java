@@ -2,6 +2,7 @@ package com.example.Doanlesg.Model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -25,10 +26,9 @@ public class Customer {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT GETDATE()", insertable = false, updatable = false)
-    // insertable = false, updatable = false nếu DB tự quản lý giá trị này
-    // Hoặc bạn có thể dùng @CreationTimestamp của Hibernate
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
+    @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
+    private java.util.Date createdAt;
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -84,16 +84,17 @@ public class Customer {
         this.phoneNumber = phoneNumber;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public List<Address> getAddresses() {
         return addresses;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setAddresses(List<Address> addresses) {

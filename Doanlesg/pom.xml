@@ -75,7 +75,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>3.4.2</version>
         </dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
@@ -84,7 +83,6 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

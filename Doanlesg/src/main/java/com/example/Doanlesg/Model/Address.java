@@ -31,7 +31,7 @@ public class Address {
     @Column(name = "country", nullable = false, length = 50)
     private String country;
 
-    @Column(name = "is_default", columnDefinition = "BIT DEFAULT 0")
+    @Column(name = "is_default", columnDefinition = "0")
     private boolean isDefault;
 
     // Constructors, Getters, and Setters
