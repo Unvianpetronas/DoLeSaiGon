@@ -70,12 +70,6 @@ public class CustomerServices {
             return false;
         }
     }
-    public boolean checkLogin (Integer id) {
-        if(customerRepository.existsById(id)){
-            return true;
-        }else {
-            return false;
-        }
-    }
+
 }
 

@@ -11,7 +11,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Integer id;
+    private Long id;
 
     @Column(name ="product_name", nullable = false, length = 255)
     private String productName;
@@ -36,15 +36,11 @@ public class Product {
     @JoinColumn(name = "category_id") // nullable = true là mặc định, khớp với SQL
     private Category danhMuc; // Hoặc Category nếu bạn đặt tên Entity là Category
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id",nullable = false)
-    private WareHouse warehouseId;
-
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -94,14 +90,6 @@ public class Product {
 
     public void setDanhMuc(Category danhMuc) {
         this.danhMuc = danhMuc;
-    }
-
-    public WareHouse getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(WareHouse warehouseId) {
-        this.warehouseId = warehouseId;
     }
 
     public boolean isStatus() {

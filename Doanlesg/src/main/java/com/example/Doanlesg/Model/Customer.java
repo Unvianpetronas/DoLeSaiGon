@@ -11,7 +11,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Phù hợp với IDENTITY(1,1) của SQL Server
     @Column(name = "customer_id") // Ánh xạ tới cột customer_id
-    private Integer id; // Hoặc Long nếu bạn muốn
+    private Long id; // Hoặc Long nếu bạn muốn
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -29,6 +29,7 @@ public class Customer {
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
     private java.util.Date createdAt;
 
+
     @Column(name = "status", columnDefinition = "1")
     private boolean status;
 
@@ -41,17 +42,27 @@ public class Customer {
     // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
     private List<Address> addresses;
 
-    // Constructors, Getters, and Setters
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id",nullable = false)
+    private Role role;
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
 
     public Customer() {
     }
 
-    // Getters and Setters cho tất cả các trường
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

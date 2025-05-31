@@ -12,7 +12,7 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "category_name", nullable = false)
     private String categoryName;
@@ -22,6 +22,7 @@ public class Category {
 
     @Column(name = "status",nullable = false,columnDefinition = "1")
     private boolean status;
+    // 1 category have many product
     @OneToMany(
             mappedBy = "danhMuc", // This MUST match the field name in Product entity that maps to Category
             fetch = FetchType.LAZY // LAZY is default for collections, good for performance
@@ -52,11 +53,11 @@ public class Category {
     }
 
     // Getters and Setters
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

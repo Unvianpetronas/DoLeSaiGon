@@ -9,7 +9,7 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "address_id")
-    private Integer id;
+    private Long id;
 
     // Mối quan hệ nhiều địa chỉ thuộc về một khách hàng
     @ManyToOne(fetch = FetchType.LAZY) // fetch = FetchType.LAZY: chỉ tải Customer khi cần
@@ -37,11 +37,11 @@ public class Address {
     public Address() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
