@@ -2,6 +2,9 @@ package com.example.Doanlesg.Model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "Kho")
 public class WareHouse {
@@ -16,6 +19,31 @@ public class WareHouse {
 
     @Column(name = "location")
     private String location;
+
+    @Column(name = "status",nullable = false,columnDefinition = "1")
+    private boolean status;
+    @OneToMany(
+            mappedBy = "warehouseId", // This MUST match the field name in Product entity that maps to Warehouse
+            fetch = FetchType.LAZY
+            // Avoid CascadeType.ALL or orphanRemoval=true here
+    )
+    private List<Product> products = new ArrayList<>();
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
 
     public Integer getId() {
         return id;

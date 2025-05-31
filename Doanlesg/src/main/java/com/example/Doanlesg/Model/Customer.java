@@ -1,7 +1,6 @@
 package com.example.Doanlesg.Model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +28,10 @@ public class Customer {
     @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
     private java.util.Date createdAt;
+
+    @Column(name = "status", columnDefinition = "1")
+    private boolean status;
+
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -99,5 +102,12 @@ public class Customer {
 
     public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
+    }
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }

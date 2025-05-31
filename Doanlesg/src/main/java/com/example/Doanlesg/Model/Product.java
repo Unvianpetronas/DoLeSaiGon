@@ -3,6 +3,7 @@ package com.example.Doanlesg.Model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Table(name = "Product")
@@ -24,6 +25,9 @@ public class Product {
     @Column(name = "stock_quantity", nullable = false )
     private int stockQuantity;
 
+    @Column(name = "status",nullable = false,columnDefinition = "1")
+    private boolean status;
+
     @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
     private java.util.Date createdAt;
@@ -35,5 +39,77 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id",nullable = false)
     private WareHouse warehouseId;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Category getDanhMuc() {
+        return danhMuc;
+    }
+
+    public void setDanhMuc(Category danhMuc) {
+        this.danhMuc = danhMuc;
+    }
+
+    public WareHouse getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(WareHouse warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 
 }

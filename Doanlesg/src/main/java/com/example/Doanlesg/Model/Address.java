@@ -34,12 +34,8 @@ public class Address {
     @Column(name = "is_default", columnDefinition = "0")
     private boolean isDefault;
 
-    // Constructors, Getters, and Setters
-
     public Address() {
     }
-
-    // Getters and Setters cho tất cả các trường
 
     public Integer getId() {
         return id;
