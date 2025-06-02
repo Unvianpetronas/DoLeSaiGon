@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: address_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_address
+                    nullable: false
+              - column:
+                  name: customer_id # Khóa ngoại tới bảng user
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_address_customer_id
+                    references: user(customer_id)
+              - column:
+                  name: street_address
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false

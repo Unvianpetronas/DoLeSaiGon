@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: product_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_product
+                    nullable: false
+              - column:
+                  name: product_name
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stock_quantity
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category_id # Khóa ngoại tới category
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_product_category_id
+                    references: category(category_id)
+              - column:
+                  name: status
+                  type: BIT
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

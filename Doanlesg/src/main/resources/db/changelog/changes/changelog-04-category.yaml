@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: category
+            columns:
+              - column:
+                  name: category_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_category
+                    nullable: false
+              - column:
+                  name: category_name
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: parent_category_id
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_category_parent_category_id
+                    references: category(category_id)
+              - column:
+                  name: status
+                  type: BIT
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

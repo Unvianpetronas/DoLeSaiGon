@@ -1,0 +1,25 @@
+databaseChangeLog:
+  # ChangeSet 1: Tạo bảng role
+  - changeSet:
+      id: 1 # Giữ nguyên ID và author nếu đã chạy rồi
+      author: DoleSaiGon # Hoặc tên của bạn
+      changes:
+        - createTable:
+            tableName: role # snake_case
+            columns:
+              - column:
+                  name: role_id # snake_case
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_role # snake_case
+                    nullable: false
+              - column:
+                  name: role_name # snake_case
+                  type: NVARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    # constraintName: uq_role_role_name
+

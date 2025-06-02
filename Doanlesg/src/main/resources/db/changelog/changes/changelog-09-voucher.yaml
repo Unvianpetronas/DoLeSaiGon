@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: voucher
+            columns:
+              - column:
+                  name: voucher_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_voucher
+                    nullable: false
+              - column:
+                  name: voucher_code
+                  type: NVARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: discount_type
+                  type: NVARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: discount_value
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false

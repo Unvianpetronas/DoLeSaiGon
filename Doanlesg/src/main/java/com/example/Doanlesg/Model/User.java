@@ -5,12 +5,12 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "KhachHang") // Ánh xạ tới bảng KhachHang
-public class Customer {
+@Table(name = "user") // Ánh xạ tới bảng KhachHang
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Phù hợp với IDENTITY(1,1) của SQL Server
-    @Column(name = "customer_id") // Ánh xạ tới cột customer_id
+    @Column(name = "user_id") // Ánh xạ tới cột customer_id
     private Long id; // Hoặc Long nếu bạn muốn
 
     @Column(name = "full_name", nullable = false, length = 100)
@@ -35,8 +35,8 @@ public class Customer {
 
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // mappedBy = "customer": trỏ tới thuộc tính 'customer' trong entity Address
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
     // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
     // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
     // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
@@ -55,7 +55,7 @@ public class Customer {
     }
 
 
-    public Customer() {
+    public User() {
     }
 
     public Long getId() {

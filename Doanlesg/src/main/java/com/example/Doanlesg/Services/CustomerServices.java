@@ -1,7 +1,7 @@
 package com.example.Doanlesg.Services;
 
 import com.example.Doanlesg.Model.Address;
-import com.example.Doanlesg.Model.Customer;
+import com.example.Doanlesg.Model.User;
 import com.example.Doanlesg.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +21,7 @@ public class CustomerServices {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Customer createCustomer(Customer customer) {
+    public User createCustomer(User customer) {
         customer.setPasswordHash(passwordEncoder.encode(customer.getPasswordHash()));
         if (customer.getAddresses() != null && customer.getAddresses().size() > 0) {
             for (Address address : customer.getAddresses()) {
@@ -32,15 +32,15 @@ public class CustomerServices {
         }
         return customerRepository.save(customer);
     }
-   public Optional<Customer> findById(Integer id) {
+   public Optional<User> findById(Integer id) {
         return customerRepository.findById(id);
    }
 
-    public List<Customer> getByLastName(String LastName) {
+    public List<User> getByLastName(String LastName) {
         return customerRepository.findCustomerByLastName(LastName);
     }
 
-    public Optional<Customer> updateCustomer(Integer id, Customer customerDetails) {
+    public Optional<User> updateCustomer(Integer id, User customerDetails) {
         return customerRepository.findById(id)
                 .map(existingCustomer -> {
                     existingCustomer.setFullName(customerDetails.getFullName());

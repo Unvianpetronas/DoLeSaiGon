@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: order
+            columns:
+              - column:
+                  name: order_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_order
+                    nullable: false
+              - column:
+                  name: user_id # Khóa ngoại tới khach_hang
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_user_id
+                    references: user(user_id)
+              - column:
+                  name: order_date
+                  type: DATETIME
+                  defaultValueComputed: GETDATE()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: grand_total
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payment_method_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orders_payment_method_id
+                    references: payment_method(payment_method_id)
+              - column:
+                  name: shipping_method_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orders_shipping_method_id
+                    references: shipping_method(shipping_method_id)
+              - column:
+                  name: voucher_id
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_orders_voucher_id
+                    references: vouchers(voucher_id)
+              - column:
+                  name: shipping_address_id # Khóa ngoại tới dia_chi
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_shipping_address_id
+                    references: dia_chi(address_id)
