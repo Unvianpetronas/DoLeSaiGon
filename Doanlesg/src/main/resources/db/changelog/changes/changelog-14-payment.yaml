@@ -26,17 +26,17 @@ databaseChangeLog:
                   type: INT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_payments_payment_method_id
-                    references: payment_methods(payment_method_id)
+                    foreignKeyName: fk_payment_payment_method_id
+                    references: payment_method(payment_method_id)
+              - column:
+                  name: amount
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
               - column:
                   name: payment_date
                   type: DATETIME
                   defaultValueComputed: GETDATE()
-                  constraints:
-                    nullable: false
-              - column:
-                  name: amount
-                  type: DECIMAL(18, 2)
                   constraints:
                     nullable: false
               - column:

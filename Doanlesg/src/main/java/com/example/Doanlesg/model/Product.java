@@ -1,9 +1,8 @@
-package com.example.Doanlesg.Model;
+package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 @Entity
 @Table(name = "product")

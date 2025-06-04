@@ -15,10 +15,18 @@ databaseChangeLog:
                     primaryKeyName: pk_cart
                     nullable: false
               - column:
-                  name: user_id # Khóa ngoại tới user
+                  name: customer_id # Khóa ngoại tới customers
                   type: INT
                   constraints:
                     nullable: false
-                    unique: true
-                    foreignKeyName: fk_cart_user_id
-                    references: user(user_id)
+                    unique: true # Thường 1 customer có 1 active cart
+                    foreignKeyName: fk_carts_customer_id
+                    references: customers(customer_id)
+              - column:
+                  name: created_at
+                  type: DATETIME
+                  defaultValueComputed: GETDATE()
+              - column:
+                  name: updated_at
+                  type: DATETIME
+                  defaultValueComputed: GETDATE()

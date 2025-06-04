@@ -15,18 +15,22 @@ databaseChangeLog:
                     primaryKeyName: pk_voucher
                     nullable: false
               - column:
-                  name: voucher_code
-                  type: NVARCHAR(50)
+                  name: category_id # Khóa ngoại tới category
+                  type: INT
                   constraints:
-                    nullable: false
-                    unique: true
-              - column:
-                  name: discount_type
-                  type: NVARCHAR(50)
-                  constraints:
-                    nullable: false
+                    nullable: true
+                    foreignKeyName: fk_product_category_id
+                    references: category(category_id)
               - column:
                   name: discount_value
                   type: DECIMAL(18, 2)
                   constraints:
                     nullable: false
+              - column:
+                  name: start_date
+                  type: DATETIME
+              - column:
+                  name: end_date
+                  type: DATETIME
+
+

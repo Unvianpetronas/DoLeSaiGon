@@ -20,12 +20,22 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: short_description
+                  type: NVARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: detail_description
+                  type: NVARCHAR(max)
+                  constraints:
+                    nullable: true
+              - column:
                   name: price
                   type: DECIMAL(18, 2)
                   constraints:
                     nullable: false
               - column:
-                  name: stock_quantity
+                  name: quantity
                   type: INT
                   defaultValueNumeric: 0
                   constraints:
@@ -37,6 +47,10 @@ databaseChangeLog:
                     nullable: true
                     foreignKeyName: fk_product_category_id
                     references: category(category_id)
+              - column:
+                  name: created_at
+                  type: DATETIME
+                  defaultValueComputed: GETDATE() # SQL Server
               - column:
                   name: status
                   type: BIT

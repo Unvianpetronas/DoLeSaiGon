@@ -38,3 +38,8 @@ databaseChangeLog:
                   type: DECIMAL(18, 2)
                   constraints:
                     nullable: false
+              - column:
+                  name: total
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false

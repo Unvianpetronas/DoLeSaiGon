@@ -20,3 +20,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
+              - column:
+                  name: cost
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: BIT
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

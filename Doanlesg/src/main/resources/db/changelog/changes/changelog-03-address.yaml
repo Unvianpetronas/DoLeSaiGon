@@ -15,14 +15,20 @@ databaseChangeLog:
                     primaryKeyName: pk_address
                     nullable: false
               - column:
-                  name: customer_id # Khóa ngoại tới bảng user
+                  name: customer_id # Khóa ngoại tới customers
                   type: INT
                   constraints:
-                    nullable: false
+                    nullable: false # Một địa chỉ phải thuộc về một customer
                     foreignKeyName: fk_address_customer_id
-                    references: user(customer_id)
+                    references: customer(customer_id)
               - column:
                   name: street_address
                   type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_default
+                  type: BIT
+                  defaultValueBoolean: false
                   constraints:
                     nullable: false

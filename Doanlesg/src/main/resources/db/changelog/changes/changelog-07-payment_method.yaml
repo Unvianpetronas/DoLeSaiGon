@@ -20,3 +20,10 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
+              - column:
+                  name: status
+                  type: BIT
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+

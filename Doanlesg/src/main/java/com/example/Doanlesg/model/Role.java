@@ -1,4 +1,4 @@
-package com.example.Doanlesg.Model;
+package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
 
@@ -17,7 +17,7 @@ public class Role {
     private String roleName;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<User>  customers;
+    private List<Account>  accounts;
 
     // Constructors
     public Role() {
@@ -42,5 +42,13 @@ public class Role {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public List<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 }

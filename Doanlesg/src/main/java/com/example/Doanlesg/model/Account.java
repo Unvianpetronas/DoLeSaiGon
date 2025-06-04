@@ -1,29 +1,29 @@
-package com.example.Doanlesg.Model;
+package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "user") // Ánh xạ tới bảng KhachHang
-public class User {
+@Table(name = "account") // Ánh xạ tới bảng KhachHang
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Phù hợp với IDENTITY(1,1) của SQL Server
-    @Column(name = "user_id") // Ánh xạ tới cột customer_id
+    @Column(name = "account_id") // Ánh xạ tới cột customer_id
     private Long id; // Hoặc Long nếu bạn muốn
 
-    @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
+    @Column(name = "username", nullable = false, length = 100)
+    private String username;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash; // Luôn mã hóa mật khẩu
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash; // Luôn mã hóa mật khẩu
-
-    @Column(name = "phone_number", length = 20)
-    private String phoneNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id",nullable = false)
+    private Role role;
 
     @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
@@ -35,16 +35,12 @@ public class User {
 
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
     // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
     // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
     // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
     private List<Address> addresses;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id",nullable = false)
-    private Role role;
 
     public Role getRole() {
         return role;
@@ -55,7 +51,7 @@ public class User {
     }
 
 
-    public User() {
+    public Account() {
     }
 
     public Long getId() {
@@ -66,13 +62,7 @@ public class User {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
 
     public String getEmail() {
         return email;
@@ -89,15 +79,6 @@ public class User {
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
 
     public List<Address> getAddresses() {
         return addresses;

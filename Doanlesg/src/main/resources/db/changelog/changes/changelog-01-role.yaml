@@ -5,21 +5,21 @@ databaseChangeLog:
       author: DoleSaiGon # Hoặc tên của bạn
       changes:
         - createTable:
-            tableName: role # snake_case
+            tableName: role
             columns:
               - column:
-                  name: role_id # snake_case
+                  name: role_id
                   type: INT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_role # snake_case
+                    primaryKeyName: pk_role
                     nullable: false
               - column:
-                  name: role_name # snake_case
+                  name: role_name
                   type: NVARCHAR(50)
                   constraints:
                     nullable: false
                     unique: true
-                    # constraintName: uq_role_role_name
+
 
