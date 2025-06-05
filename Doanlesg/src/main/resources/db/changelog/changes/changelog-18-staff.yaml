@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 18
+      author: DoleSaiGon
+      changes:
+        - createTable:
+            tableName: staff
+            columns:
+              - column:
+                  name: account_id # Khóa ngoại tới account
+                  type: INT
+                  constraints:
+                    nullable: false
+                    unique: true # Mỗi account chỉ nên là 1 staff member
+                    foreignKeyName: fk_staff_account_id
+                    references: accounts(account_id)
+              - column:
+                  name: full_name
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: NVARCHAR(100)
+              - column:
+                  name: employee_id
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department
+                  type: NVARCHAR(100)
+                  constraints:
+                    nullable: false

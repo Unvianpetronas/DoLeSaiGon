@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 17
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: admin
+            columns:
+              - column:
+                  name: account_id # Khóa ngoại tới accounts
+                  type: INT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_admin_account_id
+                    references: accounts(account_id)
+              - column:
+                  name: full_name
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: NVARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: level
+                  type: NVARCHAR(50)
+                  constraints:
+                    nullable: false

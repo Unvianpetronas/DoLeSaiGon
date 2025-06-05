@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 15
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: account_id # Khóa ngoại tới accounts
+                  type: INT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_customer_account_id
+                    references: accounts(account_id)
+              - column:
+                  name: full_name
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: NVARCHAR(20)
+

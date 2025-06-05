@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2 # ID này phải là duy nhất (khác với ID trong file khác)
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: account
+            columns:
+              - column:
+                  name: account_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_accounts
+                    nullable: false
+              - column:
+                  name: username # Dựa trên ERD
+                  type: NVARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password_hash # Giả định bạn lưu mật khẩu đã hash
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status # Ví dụ: active, inactive, banned
+                  type: BIT # Hoặc BIT nếu chỉ có active/inactive
+                  defaultValue: "1"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: DATETIME
+                  defaultValueComputed: GETDATE()
