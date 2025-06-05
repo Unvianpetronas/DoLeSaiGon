@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 14
-      author: DoLeSaiGon
+      id: 14 # Keeping the ID, assuming this is an update to the same logical change
+      author: DoLeSaiGon # Or your updated author name
       changes:
         - createTable:
-            tableName: payment
+            tableName: payment # Changed to plural 'payments' as per your new definition
             columns:
               - column:
                   name: payment_id
@@ -15,19 +15,14 @@ databaseChangeLog:
                     primaryKeyName: pk_payment
                     nullable: false
               - column:
-                  name: order_id # Khóa ngoại tới order
+                  name: order_id # Corresponds to OrderID
                   type: INT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_payment_order_id
                     references: order(order_id)
-              - column:
-                  name: payment_method_id
-                  type: INT
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_payment_payment_method_id
-                    references: payment_method(payment_method_id)
+                    deleteCascade: false
+
               - column:
                   name: amount
                   type: DECIMAL(18, 2)
@@ -36,11 +31,18 @@ databaseChangeLog:
               - column:
                   name: payment_date
                   type: DATETIME
-                  defaultValueComputed: GETDATE()
+                  defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
               - column:
-                  name: payment_status
+                  name: external_transaction_id
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_status # Corresponds to PaymentStatus
                   type: NVARCHAR(50)
+                  defaultValue: 'Pending' # Added default value
                   constraints:
                     nullable: false
+

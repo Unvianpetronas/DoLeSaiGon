@@ -4,67 +4,87 @@ databaseChangeLog:
       author: DoLeSaiGon
       changes:
         - createTable:
-            tableName: orders
+            tableName: order
             columns:
               - column:
-                  name: order_id
+                  name: order_id # Corresponds to OrderID
                   type: INT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_order
+                    primaryKeyName: pk_orders # Updated pk name
                     nullable: false
               - column:
-                  name: customer_id
+                  name: customer_account_id # Corresponds to CustomerAccountID
                   type: INT
                   constraints:
-                    nullable: false
-                    foreignKeyName: fk_order_customer_id
-                    references: customer(customer_id)
+                    nullable: false # Assuming a customer is always required for an order
+                    foreignKeyName: fk_order_customer_account_id
+                    references: account(account_id) # Assuming CustomerAccountID links to the main account table
               - column:
-                  name: order_date
+                  name: receiver_full_name # New
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_phone_number # New
+                  type: VARCHAR(20) # VARCHAR is fine for phone numbers
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_email # New
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: true # Email can be optional for receiver
+              - column:
+                  name: full_shipping_address # New, replaces individual address FKs
+                  type: NVARCHAR(MAX)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_date # Corresponds to OrderDate
                   type: DATETIME
-                  defaultValueComputed: GETDATE()
+                  defaultValueComputed: GETDATE() # Or CURRENT_TIMESTAMP for other DBs
                   constraints:
                     nullable: false
               - column:
-                  name: voucher_id
-                  type: INT
-                  constraints:
-                    nullable: true
-                    foreignKeyName: fk_order_voucher_id
-                    references: voucher(voucher_id)
-              - column:
-                  name: total_amount
+                  name: subtotal
                   type: DECIMAL(18, 2)
                   constraints:
                     nullable: false
               - column:
-                  name: order_status # e.g., 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
-                  type: NVARCHAR(50)
+                  name: voucher_id # Corresponds to VoucherID
+                  type: INT
+                  constraints:
+                    nullable: true # Voucher is optional
+                    foreignKeyName: fk_order_voucher_id
+                    references: voucher(voucher_id)
+              - column:
+                  name: discount_amount
+                  type: DECIMAL(18, 2)
+                  defaultValueNumeric: 0.00 # Default to 0
                   constraints:
                     nullable: false
               - column:
-                  name: payment_method_id # Khóa ngoại
-                  type: INT
+                  name: grand_total
+                  type: DECIMAL(18, 2)
                   constraints:
-                    nullable: true # Hoặc false
-                    foreignKeyName: fk_order_payment_method_id
-                    references: payment_method(payment_method_id)
+                    nullable: false
               - column:
-                  name: shipping_method_id # Khóa ngoại
+                  name: shipping_method_id # Corresponds to ShippingMethodID
                   type: INT
                   constraints:
-                    nullable: true # Hoặc false
+                    nullable: true # Shipping method might be optional or set later
                     foreignKeyName: fk_order_shipping_method_id
-                    references: shipping_method(shipping_method_id)
+                    references: shipping_method(shipping_method_id) # Assuming 'shipping_methods' table
               - column:
-                  name: order_status # e.g., 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
+                  name: order_status # Corresponds to OrderStatus
                   type: NVARCHAR(50)
+                  defaultValue: 'PendingConfirmation' # Added default
                   constraints:
                     nullable: false
               - column:
-                  name: notes
+                  name: notes # Corresponds to Notes
                   type: NVARCHAR(MAX)
-
-
+                  constraints:
+                    nullable: true
