@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "admin")
 public class Admin {
-    @OneToOne
+    @Id
+    private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "account_id",nullable = false)
     private Account account;
 
@@ -48,5 +51,13 @@ public class Admin {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

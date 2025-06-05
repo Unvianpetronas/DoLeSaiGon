@@ -6,7 +6,10 @@ import jakarta.persistence.*;
 @Table(name = "staff")
 public class Staff {
 
-    @OneToOne
+    @Id
+    private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "account_id",nullable = false)
     private Account account;
 
@@ -16,8 +19,8 @@ public class Staff {
     @Column(name = "phone_number",nullable = false)
     private String phoneNumber;
 
-    @Column(name = "id", nullable = false)
-    private String id;
+    @Column(name = "employee_id", nullable = false)
+    private String employeeId;
 
     @Column(name = "department",nullable = false)
     private String department;
@@ -46,12 +49,20 @@ public class Staff {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
     }
 
     public String getDepartment() {
@@ -61,4 +72,5 @@ public class Staff {
     public void setDepartment(String department) {
         this.department = department;
     }
+
 }

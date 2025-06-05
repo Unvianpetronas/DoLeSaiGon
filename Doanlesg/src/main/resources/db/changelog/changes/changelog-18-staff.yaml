@@ -23,7 +23,7 @@ databaseChangeLog:
                   name: phone_number
                   type: NVARCHAR(100)
               - column:
-                  name: id
+                  name: employee_id
                   type: NVARCHAR(255)
                   constraints:
                     nullable: false

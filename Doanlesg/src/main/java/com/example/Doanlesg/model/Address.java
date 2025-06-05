@@ -11,12 +11,12 @@ public class Address {
     @Column(name = "address_id")
     private Long id;
 
-    // Mối quan hệ nhiều địa chỉ thuộc về một khách hàng
+    // Mối quan hệ nhiều địa chỉ thuộc về một account
     @ManyToOne(fetch = FetchType.LAZY) // fetch = FetchType.LAZY: chỉ tải Customer khi cần
     @JoinColumn(name = "account_id", nullable = false) // Cột khóa ngoại trong bảng DiaChi
     private Account account;
 
-    @Column(name = "street_address", nullable = false, length = 255)
+    @Column(name = "street_address", nullable = true, length = 255)
     private String streetAddress;
 
     @Column(name = "is_default", nullable = false)

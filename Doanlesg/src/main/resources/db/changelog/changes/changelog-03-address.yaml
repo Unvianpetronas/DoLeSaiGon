@@ -25,7 +25,7 @@ databaseChangeLog:
                   name: street_address
                   type: NVARCHAR(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: is_default
                   type: BIT

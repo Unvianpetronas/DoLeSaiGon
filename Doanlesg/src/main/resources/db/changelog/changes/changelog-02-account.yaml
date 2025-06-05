@@ -32,13 +32,6 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
-                  name: role_id # Khóa ngoại tới bảng roles
-                  type: INT # Phải khớp với kiểu của roles.role_id
-                  constraints:
-                    nullable: false # Hoặc true nếu tài khoản có thể không có vai trò
-                    foreignKeyName: fk_account_role_id
-                    references: roles(role_id)
-              - column:
                   name: status # Ví dụ: active, inactive, banned
                   type: BIT # Hoặc BIT nếu chỉ có active/inactive
                   defaultValue: "1"

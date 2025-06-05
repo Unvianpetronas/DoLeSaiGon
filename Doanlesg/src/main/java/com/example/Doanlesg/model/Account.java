@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "account") // Ánh xạ tới bảng KhachHang
+@Table(name = "account") // Ánh xạ tới bảng account
 public class Account {
 
     @Id
@@ -13,17 +13,15 @@ public class Account {
     @Column(name = "account_id") // Ánh xạ tới cột customer_id
     private Long id; // Hoặc Long nếu bạn muốn
 
-    @Column(name = "username", nullable = false, length = 100)
-    private String username;
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash; // Luôn mã hóa mật khẩu
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id",nullable = false)
-    private Role role;
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "role_id",nullable = false)
+    //private Role role;
 
     @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
@@ -42,14 +40,14 @@ public class Account {
     // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
     private List<Address> addresses;
 
-    public Role getRole() {
-        return role;
-    }
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    private Admin admin;
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    private Staff staff;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    private Customer customer;
 
     public Account() {
     }
@@ -61,7 +59,6 @@ public class Account {
     public void setId(Long id) {
         this.id = id;
     }
-
 
 
     public String getEmail() {
@@ -101,5 +98,30 @@ public class Account {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
+    }
+
+    public Staff getStaff() {
+        return staff;
+    }
+
+    public void setStaff(Staff staff) {
+        this.staff = staff;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
