@@ -49,7 +49,6 @@ public class AccountServices {
     }
 
 
-@Transactional
     public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
         if(validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
@@ -72,30 +71,25 @@ public class AccountServices {
         }
         return null;
     }
+    
+    
+    public boolean updateCustomerAccount(Long id , Account accountUpdateDetail, Customer customerUpdateDetail) {
+        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
+        Customer customerOld = existAccount.getCustomer();
+        try{
+            if(existAccount == null || customerOld == null){
+                return false;
+            } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
+                existAccount.setEmail(accountUpdateDetail.getEmail());
+                existAccount.setCustomer(customerUpdateDetail);
+                accountRepository.save(existAccount);
 
-
-    private boolean validateNewAccount(String email){
-        if(accountRepository.existsByEmail(email)){
-            return false;
-        }
+            }
             return true;
-    }
-
-/*@Transactional
-    public boolean UpdateAccount (Long accountId, Account updateAccount){
-        Account existingAccount = accountRepository.findById(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + accountId));
-        if(updateAccount.getEmail() != null && !updateAccount.getEmail().isEmpty()
-                || updateAccount.getEmail().equals(existingAccount.getEmail())){
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-
     }
-
- */
-
-
 
     public boolean deleteAccount(Account accountDetail) {
         if(accountRepository.existsById(accountDetail.getId())){
@@ -107,5 +101,33 @@ public class AccountServices {
     }
 
 
+    private boolean validateNewAccount(String email){
+        if(accountRepository.existsByEmail(email)){
+            return false;
+        }
+            return true;
+    }
+
+
+    public boolean checkEmail(long id, String email){
+        Account existingAccount = accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
+        if(existingAccount.getEmail().equals(email)||accountRepository.existsByEmail(email)){
+            return false;
+            }
+        return true;
+    }
+    public boolean checkLogin(String email, String password){
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        if(passwordEncoder.matches(password, account.getPasswordHash())){
+            return true; // Passwords match
+        }else {
+            return false;
+        }
+    }
+
+
+    
 }
 

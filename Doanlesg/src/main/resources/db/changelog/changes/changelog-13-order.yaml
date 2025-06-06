@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 13
+      id: 12
       author: DoLeSaiGon
       changes:
         - createTable:
@@ -15,12 +15,12 @@ databaseChangeLog:
                     primaryKeyName: pk_order
                     nullable: false
               - column:
-                  name: customer_account_id
+                  name: customer_id
                   type: INT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_order_customer_id
-                    references: customer(account_id)
+                    references: customer(customer_id)
               - column:
                   name: order_date
                   type: DATETIME
@@ -59,5 +59,12 @@ databaseChangeLog:
                     foreignKeyName: fk_order_shipping_method_id
                     references: shipping_method(shipping_method_id)
               - column:
+                  name: order_status # e.g., 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
+                  type: NVARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
                   name: notes
                   type: NVARCHAR(MAX)
+
+
