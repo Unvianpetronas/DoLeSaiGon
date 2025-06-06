@@ -1,67 +1,114 @@
-package com.example.Doanlesg.config; // Make sure this package matches your project structure
+package com.example.Doanlesg.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Configuration
-@Profile("!test") // Optional: Prevents this from running during tests
-public class DatabaseInitializer implements ApplicationRunner {
+public class DatabaseInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
 
-    @Value("${spring.datasource.url}")
-    private String mainDatasourceUrl;
+    private final String mainDatasourceUrl;
+    private final String username;
+    private final String password;
+    private final String driverClassName;
 
-    @Value("${spring.datasource.username}")
-    private String username;
+    public DatabaseInitializer(String mainDatasourceUrl, String username, String password, String driverClassName) {
+        this.mainDatasourceUrl = mainDatasourceUrl;
+        this.username = username;
+        this.password = password;
+        this.driverClassName = driverClassName;
+    }
 
-    @Value("${spring.datasource.password}")
-    private String password;
+    public void initialize() {
+        String targetDbName;
+        try {
+            targetDbName = getDatabaseNameFromUrl(mainDatasourceUrl);
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed to initialize database: Could not determine target database name from URL '{}'. Please check your 'spring.datasource.url' configuration.", mainDatasourceUrl, e);
+            // Critical failure, re-throw to stop application startup if DB name is essential
+            throw new IllegalStateException("Cannot proceed without a valid target database name from URL: " + mainDatasourceUrl, e);
+        }
 
-    @Value("${spring.datasource.driverClassName}")
-    private String driverClassName;
+        String masterUrl;
+        try {
+            masterUrl = getMasterDatasourceUrl(mainDatasourceUrl, targetDbName);
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed to initialize database: Could not construct master database URL from '{}' to target '{}'.", mainDatasourceUrl, targetDbName, e);
+            throw new IllegalStateException("Cannot construct master database URL for target: " + targetDbName, e);
+        }
 
-    // Optional: if you need to pass specific properties like encrypt/trustServerCertificate
-    // to the master connection, you can define them.
-    // For simplicity, this example assumes they might be part of the main URL
-    // and getMasterDatasourceUrl will try to preserve them.
-    // If not, you might need to parse them separately or add them explicitly.
+        logger.info("Attempting to ensure database '{}' exists using master URL: {}", targetDbName, masterUrl);
 
+        DriverManagerDataSource masterDataSource = new DriverManagerDataSource();
+        masterDataSource.setDriverClassName(this.driverClassName);
+        masterDataSource.setUrl(masterUrl);
+        masterDataSource.setUsername(this.username);
+        masterDataSource.setPassword(this.password);
 
-    /**
-     * Extracts the database name from a JDBC URL.
-     * Example: "jdbc:sqlserver://host;databaseName=MyDb;otherParam=val" -> "MyDb"
-     *
-     * @param url The JDBC URL string.
-     * @return The extracted database name.
-     * @throws IllegalArgumentException if the databaseName parameter cannot be found or extracted.
-     */
+        // Note: If encrypt=true and trustServerCertificate=true are required for the master connection,
+        // and they are part of the original URL, getMasterDatasourceUrl should preserve them.
+        // If not, you might need to parse them from mainDatasourceUrl and add them to masterDataSource connection properties.
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(masterDataSource);
+
+        // SQL Server specific query to check if a database exists
+        String checkDbExistsSql = "SELECT name FROM sys.databases WHERE name = N'" + targetDbName + "'";
+        // Use brackets for safety if database name could contain special characters or keywords
+        String createDbSql = "CREATE DATABASE [" + targetDbName + "]";
+
+        try {
+            String dbNameResult = jdbcTemplate.queryForObject(checkDbExistsSql, String.class);
+            // queryForObject will throw EmptyResultDataAccessException if no rows are found.
+            // If it returns a result, and it matches, the DB exists.
+            if (dbNameResult != null && dbNameResult.equalsIgnoreCase(targetDbName)) {
+                logger.info("Database '{}' already exists. No action needed.", targetDbName);
+            } else {
+                // This case should ideally not be hit if queryForObject works as expected,
+                // as a non-match would still mean a row was returned.
+                // But good for defensive coding.
+                logger.warn("Database check for '{}' returned an unexpected result: '{}'. Assuming it does not exist and attempting creation.", targetDbName, dbNameResult);
+                attemptDbCreation(jdbcTemplate, createDbSql, targetDbName);
+            }
+        } catch (EmptyResultDataAccessException e) {
+            // This is the expected path if the database does not exist.
+            logger.info("Database '{}' does not exist. Attempting to create it...", targetDbName);
+            attemptDbCreation(jdbcTemplate, createDbSql, targetDbName);
+        } catch (Exception ex) {
+            logger.error("Error during database existence check or creation for '{}': {}. Please ensure SQL Server is accessible and user '{}' has necessary permissions on the master database.",
+                    targetDbName, ex.getMessage(), this.username, ex);
+            throw new RuntimeException("Critical error during database initialization for: " + targetDbName, ex);
+        }
+    }
+
+    private void attemptDbCreation(JdbcTemplate jdbcTemplate, String createDbSql, String targetDbName) {
+        try {
+            jdbcTemplate.execute(createDbSql);
+            logger.info("Database '{}' created successfully.", targetDbName);
+        } catch (Exception createEx) {
+            logger.error("Failed to create database '{}'. User: '{}'. Error: {}",
+                    targetDbName, this.username, createEx.getMessage(), createEx);
+            // Re-throw to halt application startup if DB creation is critical.
+            throw new RuntimeException("Failed to create database: " + targetDbName, createEx);
+        }
+    }
+
     private String getDatabaseNameFromUrl(String url) {
-        final String DBNAME_MARKER = "databaseName="; // The key we are looking for
-
+        final String DBNAME_MARKER = "databaseName=";
         String urlLower = url.toLowerCase();
         String markerLower = DBNAME_MARKER.toLowerCase();
-
         int markerStartIndexInLower = urlLower.indexOf(markerLower);
 
         if (markerStartIndexInLower != -1) {
             int valueStartIndexInOriginalUrl = markerStartIndexInLower + DBNAME_MARKER.length();
-
             if (valueStartIndexInOriginalUrl < url.length()) {
                 int valueEndIndexInOriginalUrl = url.indexOf(';', valueStartIndexInOriginalUrl);
-                if (valueEndIndexInOriginalUrl == -1) {
+                if (valueEndIndexInOriginalUrl == -1) { // It's the last parameter
                     return url.substring(valueStartIndexInOriginalUrl);
                 } else {
                     return url.substring(valueStartIndexInOriginalUrl, valueEndIndexInOriginalUrl);
@@ -72,108 +119,18 @@ public class DatabaseInitializer implements ApplicationRunner {
                 ". Ensure 'databaseName' parameter is present and correctly formatted.");
     }
 
-    /**
-     * Modifies the original JDBC URL to point to the 'master' database,
-     * attempting to preserve other parameters.
-     *
-     * @param originalUrl  The original JDBC URL for the target database.
-     * @param targetDbName The name of the target database to be replaced.
-     * @return A new JDBC URL string pointing to the 'master' database.
-     * @throws IllegalArgumentException if the databaseName parameter cannot be found or replaced.
-     */
     private String getMasterDatasourceUrl(String originalUrl, String targetDbName) {
-        // This pattern will find "databaseName=<targetDbName>" case-insensitively
-        // and replace it with "databaseName=master".
-        // Pattern.quote is used for targetDbName in case it contains special regex characters.
+        // Using regex for case-insensitive replacement of databaseName parameter
         Pattern pattern = Pattern.compile(
                 Pattern.quote("databaseName=") + Pattern.quote(targetDbName),
                 Pattern.CASE_INSENSITIVE
         );
         Matcher matcher = pattern.matcher(originalUrl);
         if (matcher.find()) {
-            // It's generally safer to use a fixed case for the key in the replacement string.
             return matcher.replaceFirst("databaseName=master");
         }
         throw new IllegalArgumentException(
-                "Could not modify URL to point to master database. Pattern not found for: databaseName=" + targetDbName + " in URL: " + originalUrl
+                "Could not modify URL to point to master database. Pattern 'databaseName=" + targetDbName + "' not found in URL: " + originalUrl
         );
-    }
-
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        String targetDbName;
-        try {
-            targetDbName = getDatabaseNameFromUrl(mainDatasourceUrl);
-        } catch (IllegalArgumentException e) {
-            logger.error("Failed to initialize database: Could not determine target database name from URL '{}'. Please check your 'spring.datasource.url' configuration.", mainDatasourceUrl, e);
-            // Optionally re-throw or exit if this is critical
-            // throw new IllegalStateException("Cannot proceed without a valid target database name.", e);
-            return; // Stop further processing
-        }
-
-        String masterUrl;
-        try {
-            masterUrl = getMasterDatasourceUrl(mainDatasourceUrl, targetDbName);
-        } catch (IllegalArgumentException e) {
-            logger.error("Failed to initialize database: Could not construct master database URL from '{}'.", mainDatasourceUrl, e);
-            return; // Stop further processing
-        }
-
-        logger.info("Attempting to ensure database '{}' exists.", targetDbName);
-        logger.debug("Master Datasource URL for check: {}", masterUrl);
-
-
-        DriverManagerDataSource masterDataSource = new DriverManagerDataSource();
-        masterDataSource.setDriverClassName(this.driverClassName); // Use configured driver
-        masterDataSource.setUrl(masterUrl);
-        masterDataSource.setUsername(this.username);
-        masterDataSource.setPassword(this.password);
-
-        // For SQL Server, if encrypt=true and trustServerCertificate=true are needed for the master connection,
-        // and they are part of the original URL, the getMasterDatasourceUrl should preserve them.
-        // If they need to be set explicitly:
-        // Properties connectionProps = new Properties();
-        // if (mainDatasourceUrl.toLowerCase().contains("encrypt=true")) {
-        //     connectionProps.setProperty("encrypt", "true");
-        // }
-        // if (mainDatasourceUrl.toLowerCase().contains("trustservercertificate=true")) {
-        //     connectionProps.setProperty("trustServerCertificate", "true");
-        // }
-        // if (!connectionProps.isEmpty()) {
-        //     masterDataSource.setConnectionProperties(connectionProps);
-        // }
-
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(masterDataSource);
-
-        // SQL Server specific query to check if a database exists
-        String checkDbExistsSql = "SELECT name FROM sys.databases WHERE name = N'" + targetDbName + "'";
-        String createDbSql = "CREATE DATABASE [" + targetDbName + "]"; // Use brackets for safety with special chars
-
-        try {
-            String dbNameResult = jdbcTemplate.queryForObject(checkDbExistsSql, String.class);
-            if (dbNameResult != null && dbNameResult.equalsIgnoreCase(targetDbName)) {
-                logger.info("Database '{}' already exists. No action needed.", targetDbName);
-            }
-            // If queryForObject returns a result, it means the DB exists.
-            // If it throws EmptyResultDataAccessException, it means it doesn't.
-        } catch (EmptyResultDataAccessException e) {
-            logger.info("Database '{}' does not exist. Attempting to create it...", targetDbName);
-            try {
-                jdbcTemplate.execute(createDbSql);
-                logger.info("Database '{}' created successfully.", targetDbName);
-            } catch (Exception createEx) {
-                logger.error("Failed to create database '{}'. Please check permissions for user '{}' and SQL Server logs. Error: {}",
-                        targetDbName, this.username, createEx.getMessage(), createEx);
-                // Depending on your application's needs, you might want to re-throw this
-                // to prevent the application from starting if the DB is essential.
-                throw new RuntimeException("Failed to create database: " + targetDbName, createEx);
-            }
-        } catch (Exception ex) {
-            logger.error("Error checking for database existence for '{}': {}. Please ensure SQL Server is accessible and user '{}' has necessary permissions on the master database.",
-                    targetDbName, ex.getMessage(), this.username, ex);
-            throw new RuntimeException("Error checking for database existence: " + targetDbName, ex);
-        }
     }
 }
