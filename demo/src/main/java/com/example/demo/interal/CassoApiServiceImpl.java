@@ -30,7 +30,6 @@ public class CassoApiServiceImpl implements CassoService {
 
     @Override
     public Mono<TransactionResponseWrapper> getTransactionFiltered(int page, int pageSize, LocalDateTime fromDate) {
-        // ✅ SỬA Ở ĐÂY: Thay đổi định dạng ngày tháng
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         return this.webClient.get()
