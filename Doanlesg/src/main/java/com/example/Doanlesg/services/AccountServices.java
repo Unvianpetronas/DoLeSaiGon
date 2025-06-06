@@ -49,7 +49,6 @@ public class AccountServices {
     }
 
 
-@Transactional
     public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
         if(validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
@@ -118,6 +117,16 @@ public class AccountServices {
             }
         return true;
     }
+    public boolean checkLogin(String email, String password){
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        if(passwordEncoder.matches(password, account.getPasswordHash())){
+            return true; // Passwords match
+        }else {
+            return false;
+        }
+    }
+
 
     
 }

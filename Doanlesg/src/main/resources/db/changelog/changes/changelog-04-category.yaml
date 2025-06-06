@@ -4,7 +4,7 @@ databaseChangeLog:
       author: DoLeSaiGon
       changes:
         - createTable:
-            tableName: categories
+            tableName: category
             columns:
               - column:
                   name: category_id
@@ -12,7 +12,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_categorie
+                    primaryKeyName: pk_category
                     nullable: false
               - column:
                   name: category_name
