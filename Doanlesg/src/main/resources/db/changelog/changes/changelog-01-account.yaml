@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 2 # ID này phải là duy nhất (khác với ID trong file khác)
+      id: 1 # ID này phải là duy nhất (khác với ID trong file khác)
       author: DoLeSaiGon
       changes:
         - createTable:
@@ -12,7 +12,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_accounts
+                    primaryKeyName: pk_account
                     nullable: false
               - column:
                   name: username # Dựa trên ERD

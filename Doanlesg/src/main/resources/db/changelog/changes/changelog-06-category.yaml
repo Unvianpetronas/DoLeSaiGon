@@ -1,33 +1,32 @@
 databaseChangeLog:
   - changeSet:
-      id: 8
+      id: 6
       author: DoLeSaiGon
       changes:
         - createTable:
-            tableName: shipping_method
+            tableName: category
             columns:
               - column:
-                  name: shipping_method_id
+                  name: category_id
                   type: INT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_shipping_method
+                    primaryKeyName: pk_category
                     nullable: false
               - column:
-                  name: method_name
-                  type: NVARCHAR(100)
+                  name: category_name
+                  type: NVARCHAR(255)
                   constraints:
                     nullable: false
                     unique: true
               - column:
-                  name: cost
-                  type: DECIMAL(18, 2)
-                  constraints:
-                    nullable: false
+                  name: description
+                  type: NVARCHAR(MAX)
               - column:
-                  name: status
-                  type: BIT
-                  defaultValueBoolean: true
+                  name: parent_category_id
+                  type: INT
                   constraints:
-                    nullable: false
+                    nullable: true
+                    foreignKeyName: fk_categories_parent_category_id
+                    references: category(category_id)

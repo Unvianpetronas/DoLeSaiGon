@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 18
+      id: 3
       author: DoleSaiGon
       changes:
         - createTable:
@@ -13,7 +13,7 @@ databaseChangeLog:
                     nullable: false
                     unique: true # Mỗi account chỉ nên là 1 staff member
                     foreignKeyName: fk_staff_account_id
-                    references: accounts(account_id)
+                    references: account(account_id)
               - column:
                   name: full_name
                   type: NVARCHAR(255)

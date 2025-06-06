@@ -1,19 +1,19 @@
 databaseChangeLog:
   - changeSet:
-      id: 17
+      id: 04
       author: DoLeSaiGon
       changes:
         - createTable:
             tableName: admin
             columns:
               - column:
-                  name: account_id # Khóa ngoại tới accounts
+                  name: account_id # Khóa ngoại tới account
                   type: INT
                   constraints:
                     nullable: false
                     unique: true
                     foreignKeyName: fk_admin_account_id
-                    references: accounts(account_id)
+                    references: account(account_id)
               - column:
                   name: full_name
                   type: NVARCHAR(255)
