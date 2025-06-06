@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 13
+      id: 15
       author: DoLeSaiGon
       changes:
         - createTable:
@@ -20,7 +20,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: fk_order_item_order_id
-                    references: order(order_id)
+                    references: orders(order_id)
               - column:
                   name: product_id # Khóa ngoại tới product
                   type: INT

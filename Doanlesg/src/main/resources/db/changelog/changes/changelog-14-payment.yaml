@@ -20,7 +20,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: fk_payment_order_id
-                    references: order(order_id)
+                    references: orders(order_id)
               - column:
                   name: payment_method_id
                   type: INT

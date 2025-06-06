@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 9
+      id: 10
       author: DoLeSaiGon
       changes:
         - createTable:
@@ -19,7 +19,7 @@ databaseChangeLog:
                   type: INT
                   constraints:
                     nullable: true
-                    foreignKeyName: fk_product_category_id
+                    foreignKeyName: fk_voucher_product_category_id
                     references: category(category_id)
               - column:
                   name: discount_value
