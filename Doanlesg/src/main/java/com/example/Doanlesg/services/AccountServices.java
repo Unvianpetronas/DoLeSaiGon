@@ -91,6 +91,24 @@ public class AccountServices {
         }
     }
 
+    public boolean updateStaffAccount(Long id , Account accountUpdateDetail, Staff staffUpdateDetail) {
+        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
+        Customer customerOld = existAccount.getCustomer();
+        try{
+            if(existAccount == null || customerOld == null){
+                return false;
+            } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
+                existAccount.setEmail(accountUpdateDetail.getEmail());
+                existAccount.setStaff(staffUpdateDetail);
+                accountRepository.save(existAccount);
+
+            }
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean deleteAccount(Account accountDetail) {
         if(accountRepository.existsById(accountDetail.getId())){
             accountRepository.delete(accountDetail);
@@ -121,7 +139,7 @@ public class AccountServices {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
         if(passwordEncoder.matches(password, account.getPasswordHash())){
-            return true; // Passwords match
+            return true;
         }else {
             return false;
         }
