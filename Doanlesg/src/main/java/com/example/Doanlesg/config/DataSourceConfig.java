@@ -21,7 +21,7 @@ public class DataSourceConfig {
      * but its construction and the call to initialize() are key.
      */
     @Bean(name = "databaseInitializerExecutor")
-    @Profile("!test") // Optional: Prevents this from running during tests unless configured otherwise
+    @Profile("!test")
     public DatabaseInitializer databaseInitializerExecutor(
             @Value("${spring.datasource.url}") String mainDatasourceUrl,
             @Value("${spring.datasource.username}") String username,
@@ -48,9 +48,6 @@ public class DataSourceConfig {
         HikariDataSource dataSource = properties.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
-        // You can further configure HikariDataSource here if needed, e.g.,
-        // dataSource.setPoolName("MyApplicationPool");
-        // dataSource.setMaximumPoolSize(10);
         return dataSource;
     }
 }
