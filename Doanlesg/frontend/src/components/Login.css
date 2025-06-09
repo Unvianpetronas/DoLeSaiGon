@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f5f7fa;
+  background-color: #f0e8d8; /* Beige background like the form area */
   margin: 0;
   padding: 0;
   display: flex;
@@ -10,17 +10,20 @@ body {
 }
 
 .login-container {
-  background-color: white;
+  background-color: #ffffff; /* White background for the form card */
   padding: 30px 40px;
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   width: 350px;
   text-align: center;
+  border: 1px solid #ccc; /* Subtle border like in the image */
 }
 
 .login-container h2 {
   margin-bottom: 25px;
-  color: #333;
+  color: #800000; /* Maroon color for heading */
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .login-form input {
@@ -31,16 +34,17 @@ body {
   border-radius: 5px;
   font-size: 16px;
   transition: border-color 0.3s ease;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
 .login-form input:focus {
-  border-color: #4a90e2;
+  border-color: #355E3B; /* Dark green focus color */
   outline: none;
 }
 
 .login-form button {
   width: 100%;
-  background-color: #4a90e2;
+  background-color: #355E3B; /* Dark green button */
   color: white;
   font-size: 18px;
   padding: 12px;
@@ -51,5 +55,37 @@ body {
 }
 
 .login-form button:hover {
-  background-color: #357ab7;
+  background-color: #2A4A2D; /* Darker green on hover */
+}
+
+/* Add social login buttons similar to Facebook and Google */
+.social-login {
+  margin-top: 20px;
+}
+
+.social-login button {
+  width: 48%;
+  padding: 10px;
+  margin: 0 1% 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.social-login .fb-btn {
+  background-color: #3b5998; /* Facebook blue */
+}
+
+.social-login .fb-btn:hover {
+  background-color: #2d4373;
+}
+
+.social-login .gg-btn {
+  background-color: #dd4b39; /* Google red */
+}
+
+.social-login .gg-btn:hover {
+  background-color: #c23321;
 }
