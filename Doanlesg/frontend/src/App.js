@@ -1,5 +1,7 @@
 import React from 'react';
 import './App.css';
+import { CiSearch } from "react-icons/ci";
+import Login from './components/Login/Login'; // 🔹 Import component Login
 
 function App() {
   return (
@@ -7,12 +9,13 @@ function App() {
       {/* Header */}
       <header className="header">
         <div className="logo">
-          <img src="%PUBLIC_URL%/logo.png" alt="DoleSaigon Logo" />
-          <h1>DoleSaigon</h1>
+          <img src="/logo.png" alt="Logo" />
         </div>
         <div className="search-bar">
           <input type="text" placeholder="Tìm sản phẩm..." />
-          <button>🔍</button>
+          <button>
+            <CiSearch size={20} />
+          </button>
         </div>
         <nav className="nav">
           <a href="#">Cửa hàng</a>
@@ -22,68 +25,58 @@ function App() {
         </nav>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - Trang Login */}
       <main className="main">
-        <div className="breadcrumb">Trang chủ > Đăng nhập tài khoản</div>
-        <div className="login-container">
-          <h2>ĐĂNG NHẬP</h2>
-          <form className="login-form">
-            <input type="email" placeholder="Email" required />
-            <input type="password" placeholder="Mật khẩu" required />
-            <button type="submit">Đăng nhập</button>
-          </form>
-          <div className="social-login">
-            <button className="fb-btn">Facebook</button>
-            <button className="gg-btn">Google</button>
-          </div>
-          <p>Quên mật khẩu? <a href="#">Đăng ký tại đây</a></p>
-        </div>
+        <div className="breadcrumb">Trang chủ &gt; Đăng nhập tài khoản</div>
+        <Login /> {/* 🔹 Dùng component Login ở đây */}
       </main>
 
       {/* Footer */}
       <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <img src="%PUBLIC_URL%/logo.png" alt="DoleSaigon Logo" />
-            <h2>DoleSaigon</h2>
+        <div className="footer-columns">
+          {/* Cột 1: Logo + Địa chỉ */}
+          <div className="footer-column">
+            <img src="/logo.png" alt="Logo" className="footer-logo" />
+            <p>Công ty Dole Saigon</p>
+            <p>Đường D1, Long Thạnh Mỹ, TP.Thủ Đức, TP.HCM</p>
+            <p>Email: contact@dolesaigon.vn</p>
+            <p>Hotline: 0123 456 789</p>
           </div>
-          <div className="footer-sections">
-            <div className="footer-section">
-              <h3>CHÍNH SÁCH</h3>
-              <p>Chính sách mua hàng</p>
-              <p>Chính sách thanh toán</p>
-              <p>Chính sách vận chuyển</p>
-              <p>Chính sách bảo mật</p>
-              <p>Chính sách trả hàng</p>
-            </div>
-            <div className="footer-section">
-              <h3>HƯỚNG DẪN</h3>
-              <p>Hướng dẫn mua hàng</p>
-              <p>Hướng dẫn đổi trả</p>
-              <p>Hướng dẫn thanh toán</p>
-              <p>Hướng dẫn bảo hành</p>
-            </div>
-            <div className="footer-section">
-              <h3>HỖ TRỢ THANH TOÁN</h3>
-              <div className="payment-methods">
-                <img src="%PUBLIC_URL%/momo.png" alt="Momo" />
-                <img src="%PUBLIC_URL%/zalo.png" alt="ZaloPay" />
-                <img src="%PUBLIC_URL%/vnpay.png" alt="VNPAY" />
-                <img src="%PUBLIC_URL%/visa.png" alt="Visa" />
-                <img src="%PUBLIC_URL%/mastercard.png" alt="Mastercard" />
-              </div>
-            </div>
+
+          {/* Cột 2: Chính sách */}
+          <div className="footer-column">
+            <h4>Chính sách</h4>
+            <ul>
+              <li><a href="#">Chính sách bảo mật</a></li>
+              <li><a href="#">Chính sách đổi trả</a></li>
+              <li><a href="#">Chính sách giao hàng</a></li>
+              <li><a href="#">Điều khoản dịch vụ</a></li>
+            </ul>
           </div>
-          <div className="footer-contact">
-            <p>Địa chỉ: 7D, Long Thạnh Mỹ, Thủ Đức, Hồ Chí Minh</p>
-            <p>Điện thoại: 028 7300 5588</p>
-            <p>Email: support@sapo.vn</p>
+
+          {/* Cột 3: Hướng dẫn */}
+          <div className="footer-column">
+            <h4>Hướng dẫn</h4>
+            <ul>
+              <li><a href="#">Hướng dẫn mua hàng</a></li>
+              <li><a href="#">Hướng dẫn thanh toán</a></li>
+              <li><a href="#">Câu hỏi thường gặp</a></li>
+            </ul>
+          </div>
+
+          {/* Cột 4: Hỗ trợ thanh toán */}
+          <div className="footer-column">
+            <h4>Hỗ trợ thanh toán</h4>
+            <img src="/payment-methods.png" alt="Phương thức thanh toán" style={{ width: '100%' }} />
+            {/* Bạn có thể dùng ảnh chứa các logo Visa, Momo, v.v. */}
           </div>
         </div>
-        <div className="footer-bottom">
-          <p>© Bản quyền thuộc về DOLESAIGON</p>
-        </div>
+
+        <p style={{ textAlign: 'center', marginTop: '20px' }}>
+          © 2025 Dole Saigon. All rights reserved.
+        </p>
       </footer>
+
     </div>
   );
 }
