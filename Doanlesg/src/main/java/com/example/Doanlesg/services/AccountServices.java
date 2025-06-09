@@ -6,16 +6,21 @@ import com.example.Doanlesg.model.Customer;
 import com.example.Doanlesg.model.Staff;
 import com.example.Doanlesg.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
-public class AccountServices {
+public class AccountServices implements UserDetailsService /* User Detail la phong quan li nhan su dung trong spring security*/ {
     private AccountRepository accountRepository;
     private PasswordEncoder passwordEncoder;
 
@@ -91,6 +96,24 @@ public class AccountServices {
         }
     }
 
+    public boolean updateStaffAccount(Long id , Account accountUpdateDetail, Staff staffUpdateDetail) {
+        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
+        Customer customerOld = existAccount.getCustomer();
+        try{
+            if(existAccount == null || customerOld == null){
+                return false;
+            } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
+                existAccount.setEmail(accountUpdateDetail.getEmail());
+                existAccount.setStaff(staffUpdateDetail);
+                accountRepository.save(existAccount);
+
+            }
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean deleteAccount(Account accountDetail) {
         if(accountRepository.existsById(accountDetail.getId())){
             accountRepository.delete(accountDetail);
@@ -99,6 +122,7 @@ public class AccountServices {
             return false;
         }
     }
+
 
 
     private boolean validateNewAccount(String email){
@@ -117,17 +141,53 @@ public class AccountServices {
             }
         return true;
     }
-    public boolean checkLogin(String email, String password){
+    public Account checkLogin(String email, String password){
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
         if(passwordEncoder.matches(password, account.getPasswordHash())){
-            return true; // Passwords match
+            return account;
         }else {
-            return false;
+            return null;
         }
+    } // neu xai userDetail cua spring thi khong can dung thang nay
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Not found account with email: " + email));
+
+        if (!account.isStatus()) {
+            throw new UsernameNotFoundException("Tài khoản đã bị vô hiệu hóa: " + email);
+
+        }
+        List<GrantedAuthority> authorities = new ArrayList<>();   // dai dien cho cac vai tro chuc vu trong UserDetailService
+
+        if (account.getCustomer() != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        } else if (account.getStaff() != null) {
+            Staff staff = account.getStaff();
+            if ("MANAGER".equalsIgnoreCase(staff.getEmployeeId())) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+            } else {
+                authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
+            }
+        } else if (account.getAdmin() != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        }
+        if (authorities.isEmpty()) {
+            throw new UsernameNotFoundException("Tài khoản " + email + " không được gán vai trò hợp lệ (Customer/Staff/Admin).");
+        }
+
+        return new org.springframework.security.core.userdetails.User(
+                account.getEmail(),
+                account.getPasswordHash().replaceAll(account.getPasswordHash(),"*********************************"),
+                account.isStatus(), // enabled
+                true, // accountNonExpired
+                true, // credentialsNonExpired
+                true, // accountNonLocked
+                authorities // Danh sách vai trò
+        );
     }
-
-
-    
 }
 
