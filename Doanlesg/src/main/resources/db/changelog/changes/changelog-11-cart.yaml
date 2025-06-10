@@ -21,7 +21,7 @@ databaseChangeLog:
                     nullable: false
                     unique: true # Thường 1 customer có 1 active cart
                     foreignKeyName: fk_carts_customer_id
-                    references: customer(account_id)
+                    references: account(account_id)
               - column:
                   name: created_at
                   type: DATETIME
