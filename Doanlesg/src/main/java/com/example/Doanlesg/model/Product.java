@@ -1,8 +1,9 @@
 package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
+import java.util.List;
+
 
 @Entity
 @Table(name = "product")
@@ -31,6 +32,9 @@ public class Product {
 
     @Column(name = "status",nullable = false,columnDefinition = "1")
     private boolean status;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
+    private List<CartItem> cartItem;
 
     public int getId() {
         return id;

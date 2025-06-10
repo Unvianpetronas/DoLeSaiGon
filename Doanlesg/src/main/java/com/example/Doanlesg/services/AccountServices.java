@@ -1,9 +1,6 @@
 package com.example.Doanlesg.services;
 
-import com.example.Doanlesg.model.Account;
-import com.example.Doanlesg.model.Address;
-import com.example.Doanlesg.model.Customer;
-import com.example.Doanlesg.model.Staff;
+import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -18,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class AccountServices implements UserDetailsService /* User Detail la phong quan li nhan su dung trong spring security*/ {
@@ -30,12 +28,13 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    @Transactional
     public Account createCustomerAccount(Account accountDetail, Customer customerDetail) {
        if(validateNewAccount(accountDetail.getEmail())){
            String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
            accountDetail.setPasswordHash(encodedPassword);
            accountDetail.setStatus(true);
-           accountDetail.setCreatedAt(new Date());
+           accountDetail.setCreatedAt(LocalDateTime.now());
            if(accountDetail.getAddresses().size() > 0 && !accountDetail.getAddresses().isEmpty()){
                for(Address address : accountDetail.getAddresses()){
                   address.setAccount(accountDetail);
@@ -48,18 +47,23 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
            }
            accountDetail.setCustomer(customerDetail);
            customerDetail.setAccount(accountDetail);
+           if(accountDetail.getCart() == null) {
+               Cart cart = new Cart();
+               cart.setAccount(accountDetail);
+               accountDetail.setCart(cart);
+           }
            return accountRepository.save(accountDetail);
        }
        return null;
     }
 
-
+    @Transactional
     public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
         if(validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
             accountDetail.setPasswordHash(encodedPassword);
             accountDetail.setStatus(true);
-            accountDetail.setCreatedAt(new Date());
+            accountDetail.setCreatedAt(LocalDateTime.now());
             if(accountDetail.getAddresses().size() > 0 && !accountDetail.getAddresses().isEmpty()){
                 for(Address address : accountDetail.getAddresses()){
                     address.setAccount(accountDetail);
@@ -77,7 +81,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
         return null;
     }
     
-    
+    @Transactional
     public boolean updateCustomerAccount(Long id , Account accountUpdateDetail, Customer customerUpdateDetail) {
         Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
         Customer customerOld = existAccount.getCustomer();
@@ -95,7 +99,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             throw new RuntimeException(e);
         }
     }
-
+    @Transactional
     public boolean updateStaffAccount(Long id , Account accountUpdateDetail, Staff staffUpdateDetail) {
         Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
         Customer customerOld = existAccount.getCustomer();
@@ -113,7 +117,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             throw new RuntimeException(e);
         }
     }
-
+    @Transactional
     public boolean deleteAccount(Account accountDetail) {
         if(accountRepository.existsById(accountDetail.getId())){
             accountRepository.delete(accountDetail);
@@ -125,7 +129,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
 
 
 
-    private boolean validateNewAccount(String email){
+    public boolean validateNewAccount(String email){
         if(accountRepository.existsByEmail(email)){
             return false;
         }
@@ -136,9 +140,10 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
     public boolean checkEmail(long id, String email){
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
+        // This returns false if the email is unchanged OR if it's taken by another user.
         if(existingAccount.getEmail().equals(email)||accountRepository.existsByEmail(email)){
             return false;
-            }
+        }
         return true;
     }
     public Account checkLogin(String email, String password){
@@ -158,7 +163,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
 
         if (!account.isStatus()) {
             throw new UsernameNotFoundException("Tài khoản đã bị vô hiệu hóa: " + email);
-
         }
         List<GrantedAuthority> authorities = new ArrayList<>();   // dai dien cho cac vai tro chuc vu trong UserDetailService
 
@@ -181,7 +185,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
 
         return new org.springframework.security.core.userdetails.User(
                 account.getEmail(),
-                account.getPasswordHash().replaceAll(account.getPasswordHash(),"*********************************"),
+                account.getPasswordHash(),
                 account.isStatus(), // enabled
                 true, // accountNonExpired
                 true, // credentialsNonExpired
