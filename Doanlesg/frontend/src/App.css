@@ -15,67 +15,89 @@ html, body {
 
 /* ========== Header ========== */
 .header {
-  background-color: #6E0707;
+  background-image: url('D:\project\DoLeSaiGon\Doanlesg\frontend\public\background.png');
+  background-repeat: repeat;
+  background-size: auto;
   color: white;
-  padding: 15px 30px;
+  font-family: Arial, sans-serif;
+}
+
+/* Phần trên của Header */
+.top-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 20px;
 }
 
 .logo img {
-  height: 100px;
-  margin-right: 50px;
+  height: 70px;
 }
 
 .search-bar {
-  position: relative;
-  width: 300px;
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  margin: 10px 20px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ccc;
 }
-
 .search-bar input {
-  width: 100%;
-  padding: 10px 40px 10px 12px;
+  flex: 1;
+  padding: 10px;
   border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
+  font-size: 16px;
 }
-
 .search-bar button {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  background: transparent;
+  background-color: #d4a249;
   border: none;
+  padding: 0 15px;
   cursor: pointer;
-  font-size: 18px;
-  color: #666;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.search-bar button:hover {
-  color: #000;
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+}
+.icon-item svg {
+  font-size: 20px;
+  margin-bottom: 4px;
 }
 
-.nav a {
+/* Thanh menu bên dưới */
+.bottom-menu {
+  display: flex;
+  background-color: #004E3E;
+  padding: 10px 20px;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bottom-menu .menu-item {
   color: white;
-  margin-left: 25px;
   text-decoration: none;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
 }
-
-.nav a:hover {
+.bottom-menu .menu-item:hover {
   text-decoration: underline;
 }
 
@@ -166,84 +188,54 @@ html, body {
 .footer {
   background-color: #6E0707;
   color: white;
-  padding: 40px 20px 20px;
+  padding: 30px 20px;
   font-size: 14px;
   line-height: 1.4;
 }
-
-/* Container chứa các cột */
 .footer-columns {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
   gap: 30px;
   max-width: 1200px;
   margin: 0 auto;
 }
-
-/* Các cột con */
 .footer-column {
   flex: 1;
   min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 }
-
-/* Cột 1: logo căn giữa */
-.footer-column:first-child .footer-logo {
-  width: 250px;
-  margin: 0 auto 15px auto; /* căn giữa logo, cách dưới 15px */
-  display: block;
-}
-
-/* Cột 1 các đoạn text căn trái, cách dưới */
-.footer-column:first-child p {
-  margin: 4px 0;
-  line-height: 1.3;
-  color: #ddd;
-}
-
-/* Tiêu đề cột */
 .footer-column h4 {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-size: 16px;
   color: #f1f1f1;
 }
-
-/* Danh sách */
 .footer-column ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  width: 100%;
 }
-
 .footer-column ul li {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
-
 .footer-column ul li a {
   color: #ddd;
   text-decoration: none;
   transition: color 0.3s;
 }
-
 .footer-column ul li a:hover {
   color: #fff;
 }
-
-/* Ảnh phương thức thanh toán */
-.footer-column:last-child img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+.footer-column:first-child img {
+  width: 200px;
+  display: block;
+  margin-bottom: 10px;
 }
-
-/* Footer bottom text */
+.footer-column p {
+  margin: 4px 0;
+  color: #ddd;
+}
 .footer > p {
+  text-align: center;
   color: #ccc;
   font-size: 13px;
-  text-align: center;
-  margin-top: 30px;
+  margin-top: 20px;
 }
