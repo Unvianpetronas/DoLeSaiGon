@@ -1,0 +1,80 @@
+/* style.css */
+
+@font-face {
+    font-family: 'Noto Sans Vietnamese'; /* Đặt một tên dễ nhận biết */
+    src: url('/fonts/NotoSans-Vietnamese.ttf'); /* <<< Sửa lại tên file ở đây */
+}
+
+body {
+    /* Đặt Noto Sans làm font mặc định cho toàn bộ tài liệu */
+    font-family: 'Noto Sans', sans-serif;
+    color: #555;
+    line-height: 1.5;
+}
+
+.invoice-box {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    font-size: 16px;
+}
+
+.invoice-box table {
+    width: 100%;
+    line-height: inherit;
+    text-align: left;
+    border-collapse: collapse; /* Thêm để đường kẻ đẹp hơn */
+}
+
+.invoice-box table td {
+    padding: 8px;
+    vertical-align: top;
+}
+
+.invoice-box .top .title {
+    font-size: 45px;
+    line-height: 45px;
+    color: #333;
+}
+
+.invoice-box .top .invoice-details {
+    text-align: right;
+}
+
+.invoice-box .information {
+    padding-bottom: 20px;
+}
+
+.invoice-box .heading td {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+}
+
+.invoice-box .item td {
+    border-bottom: 1px solid #eee;
+}
+
+.invoice-box .total td {
+    border-top: 1px solid #eee;
+}
+
+.invoice-box .total.final td {
+    border-top: 2px solid #333;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #000;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* Giúp thẻ <pre> hiển thị xuống dòng tự động */
+pre {
+    font-family: inherit;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
