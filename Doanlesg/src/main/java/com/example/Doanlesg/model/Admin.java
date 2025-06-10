@@ -6,10 +6,11 @@ import jakarta.persistence.*;
 @Table(name = "admin")
 public class Admin {
     @Id
+    @Column(name = "account_id")
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "account_id",nullable = false)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     @Column(name = "full_name",nullable = false)

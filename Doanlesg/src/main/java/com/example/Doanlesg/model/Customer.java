@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "customer")
 public class Customer {
     @Id
+    @Column(name = "account_id")
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
