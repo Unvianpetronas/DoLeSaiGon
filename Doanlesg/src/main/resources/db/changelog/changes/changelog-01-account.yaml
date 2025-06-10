@@ -15,12 +15,6 @@ databaseChangeLog:
                     primaryKeyName: pk_account
                     nullable: false
               - column:
-                  name: username # Dựa trên ERD
-                  type: NVARCHAR(100)
-                  constraints:
-                    nullable: false
-                    unique: true
-              - column:
                   name: password_hash # Giả định bạn lưu mật khẩu đã hash
                   type: NVARCHAR(255)
                   constraints:

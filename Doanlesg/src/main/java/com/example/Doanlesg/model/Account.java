@@ -10,7 +10,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Phù hợp với IDENTITY(1,1) của SQL Server
-    @Column(name = "account_id") // Ánh xạ tới cột customer_id
+    @Column(name = "account_id") // Ánh xạ tới cột account_id
     private Long id; // Hoặc Long nếu bạn muốn
 
     @Column(name = "password_hash", nullable = false, length = 255)
