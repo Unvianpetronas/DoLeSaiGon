@@ -1,7 +1,7 @@
 package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,7 +25,7 @@ public class Account {
 
     @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
-    private java.util.Date createdAt;
+    private LocalDateTime createdAt;
 
 
     @Column(name = "status", columnDefinition = "1")
@@ -48,6 +48,9 @@ public class Account {
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
     private Customer customer;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    private Cart cart;
 
     public Account() {
     }
@@ -81,11 +84,11 @@ public class Account {
         return addresses;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -123,5 +126,13 @@ public class Account {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }

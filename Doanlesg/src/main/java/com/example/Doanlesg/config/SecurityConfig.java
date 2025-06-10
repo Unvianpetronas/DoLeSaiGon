@@ -1,4 +1,4 @@
-package com.example.Doanlesg.config;
+package com.example.Doanlesg.config; // Or your actual package for SecurityConfig
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -19,29 +20,39 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Common for development, consider CSRF protection for production
                 .authorizeHttpRequests(authorize -> authorize
-                        // Add "/login.html" to the permitAll list
-                        .requestMatchers("/", "/home", "/login.html", "/css/**", "/js/**", "/images/**", "/vendor/**","/login","/api/**").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/css/**",
+                                "index.html",
+                                "/js/**",
+                                "/images/**",
+                                "/vendor/**", // If you have a vendor folder for static resources
+                                "/login",
+                                "/register.html",// Explicitly permit direct access to register.html
+                                "/register/createAccount",
+                                "/createAccount",
+                                "/register"
+                                // Permit all paths under RegisterController (e.g., /registerController/register, /registerController/createAccount)
+                                // Add any other public paths here
+                        ).permitAll()
+                        .requestMatchers("/error","error.html").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Example: restrict /admin/** to ADMIN role
+                        .anyRequest().authenticated() // All other requests require authentication
                 )
-                // config login
                 .formLogin(form -> form
-                        // CORRECTED: Remove /static. Spring finds it automatically.
-                        .loginPage("/login.html")
-                        .usernameParameter("EMAIL")
-                        .passwordParameter("PASSWORD")
-                        .loginProcessingUrl("/LoginController") // This is where the form should POST to
-                        .defaultSuccessUrl("/home",true)
-                        .failureUrl("/login?error=true")
+                        .loginPage("/login.html") // Your custom login page
+                        .loginProcessingUrl("/perform_login") // URL to submit username and password to
+                        .defaultSuccessUrl("/home/home", true) // Redirect after successful login
+                        .failureUrl("/login.html?error=true") // Redirect after failed login
+                        .permitAll()
                 )
-            // CẤU HÌNH ĐĂNG XUẤT
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // Đường dẫn để thực hiện đăng xuất
-                        .logoutSuccessUrl("/login?logout") // Trang chuyển đến sau khi đăng xuất thành công
+                        .logoutUrl("/perform_logout")
+                        .logoutSuccessUrl("/login.html?logout")
                         .invalidateHttpSession(true)
-                        .deleteCookies("CUSTOMER_ID") // Xóa cookie JSESSIONID sau khi đăng xuất
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
         return http.build();
