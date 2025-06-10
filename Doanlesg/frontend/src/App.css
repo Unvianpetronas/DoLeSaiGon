@@ -15,7 +15,7 @@ html, body {
 
 /* ========== Header ========== */
 .header {
-  background-image: url('D:\project\DoLeSaiGon\Doanlesg\frontend\public\background.png');
+background-image: url('./assets/background.png');
   background-repeat: repeat;
   background-size: auto;
   color: white;
@@ -32,7 +32,7 @@ html, body {
 }
 
 .logo img {
-  height: 70px;
+  height: 80px;
 }
 
 .search-bar {
@@ -64,7 +64,7 @@ html, body {
 .icon-group {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 30px;
 }
 .icon-item {
   display: flex;
@@ -83,7 +83,7 @@ html, body {
 .bottom-menu {
   display: flex;
   background-color: #004E3E;
-  padding: 10px 20px;
+  padding: 5px 20px;
   gap: 25px;
   justify-content: center;
   flex-wrap: wrap;
@@ -96,9 +96,38 @@ html, body {
   align-items: center;
   gap: 5px;
   font-size: 15px;
+  padding: 0px 12px;
 }
 .bottom-menu .menu-item:hover {
   text-decoration: underline;
+}
+
+/* Style riêng cho DANH MỤC SẢN PHẨM */
+.bottom-menu .category-menu {
+  background-color: #042924;
+  border: 1px solid white;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 15px; /* Thêm khoảng cách bên trái */
+}
+
+.bottom-menu .category-menu .menu-icon {
+  font-size: 18px;
+}
+
+.bottom-menu .category-menu .menu-arrow {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+/* Optional: hover effect */
+.bottom-menu .category-menu:hover {
+  background-color: #083a30;
 }
 
 /* ========== Main ========== */
@@ -120,76 +149,14 @@ html, body {
   text-align: left;
 }
 
-.login-container {
-  background-color: #fff;
-  padding: 35px 40px;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-.login-container h2 {
-  margin-bottom: 25px;
-  color: #800000;
-  font-size: 26px;
-  font-weight: bold;
-}
-
-.login-form input {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 20px;
-  border: 1.5px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-.login-form input:focus {
-  border-color: #355E3B;
-  outline: none;
-}
-
-.login-form button {
-  width: 100%;
-  background-color: #355E3B;
-  color: white;
-  font-size: 18px;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.login-form button:hover {
-  background-color: #2A4A2D;
-}
-
-.login-container p {
-  margin-top: 15px;
-  font-size: 14px;
-}
-
-.login-container p a {
-  color: #355E3B;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.login-container p a:hover {
-  text-decoration: underline;
-}
 /* ========== Footer ========== */
 .footer {
-  background-color: #6E0707;
+background-image: url('./assets/background.png');
+background-repeat: repeat;
+  background-size: auto;
   color: white;
   padding: 30px 20px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
 }
 .footer-columns {
@@ -205,7 +172,7 @@ html, body {
 }
 .footer-column h4 {
   margin-bottom: 10px;
-  font-size: 16px;
+  font-size: 18px;
   color: #f1f1f1;
 }
 .footer-column ul {
@@ -215,6 +182,7 @@ html, body {
 }
 .footer-column ul li {
   margin-bottom: 8px;
+  line-height: 1.8
 }
 .footer-column ul li a {
   color: #ddd;
@@ -239,3 +207,9 @@ html, body {
   font-size: 13px;
   margin-top: 20px;
 }
+.footer-column:first-child p {
+  margin: 4px 0;
+  line-height: 1.6; /* tăng khoảng cách giữa các dòng địa chỉ */
+  color: #ddd;
+}
+

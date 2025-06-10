@@ -1,0 +1,269 @@
+Index: Doanlesg/frontend/src/components/Login/Login.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>login.css\r\n//body\r\nbody {\r\n  font-family: Arial, sans-serif;\r\n  background-color: #f5f7fa;\r\n  margin: 0;\r\n  padding: 0;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  height: 100vh;\r\n}\r\n// khung login\r\n.login-container {\r\n  background-color: white;\r\n  padding: 20px 40px;\r\n  border-radius: 8px;\r\n  box-shadow: 0 8px 20px rgba(0,0,0,0.1);\r\n  width: 350px;\r\n  text-align: center;\r\n}\r\n\r\n//tieu de dang nhap\r\n.login-container h2 {\r\n  margin-bottom: 25px;\r\n  color: #000;\r\n}\r\n\r\n.login-form input {\r\n  width: 100%;\r\n  padding: 12px 15px;\r\n  margin-bottom: 20px;\r\n  border: 1.5px solid #ccc;\r\n  border-radius: 5px;\r\n  font-size: 16px;\r\n  transition: border-color 0.3s ease;\r\n}\r\n\r\n.login-form input:focus {\r\n  border-color: #4a90e2;\r\n  outline: none;\r\n}\r\n\r\n.login-form button {\r\n  width: 100%;\r\n  background-color: #4a90e2;\r\n  color: white;\r\n  font-size: 18px;\r\n  padding: 12px;\r\n  border: none;\r\n  border-radius: 5px;\r\n  cursor: pointer;\r\n  transition: background-color 0.3s ease;\r\n}\r\n\r\n.login-form button:hover {\r\n  background-color: #357ab7;\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Doanlesg/frontend/src/components/Login/Login.css b/Doanlesg/frontend/src/components/Login/Login.css
+--- a/Doanlesg/frontend/src/components/Login/Login.css	(revision 736666e48a746f4b227f5f5c29d32f709f340ac7)
++++ b/Doanlesg/frontend/src/components/Login/Login.css	(date 1749519219043)
+@@ -1,31 +1,39 @@
+-login.css
+-//body
++/*body*/
+ body {
+-  font-family: Arial, sans-serif;
++  font-family: 'Poppins', sans-serif;
+   background-color: #f5f7fa;
+   margin: 0;
+   padding: 0;
++}
++
++/* login wrapper de can giua trong trang */
++.login-wrapper {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+-  height: 100vh;
++  padding: 50px 0;
+ }
+-// khung login
++/*login frame*/
+ .login-container {
+-  background-color: white;
+-  padding: 20px 40px;
+-  border-radius: 8px;
+-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+-  width: 350px;
++  background-color: #fff;
++  padding: 35px 40px;
++  border-radius: 10px;
++  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
++  width: 100%;
++  max-width: 400px;
++  border: 1px solid #ddd;
+   text-align: center;
+ }
+ 
+-//tieu de dang nhap
++/*tittle DANG NHAP*/
+ .login-container h2 {
+   margin-bottom: 25px;
+-  color: #000;
++  color: #800000;
++  font-size: 26px;
++  font-weight: bold;
+ }
+ 
++/*input form*/
+ .login-form input {
+   width: 100%;
+   padding: 12px 15px;
+@@ -33,14 +41,17 @@
+   border: 1.5px solid #ccc;
+   border-radius: 5px;
+   font-size: 16px;
++  box-sizing: border-box;
+   transition: border-color 0.3s ease;
+ }
+ 
++/*click input*/
+ .login-form input:focus {
+   border-color: #4a90e2;
+   outline: none;
+ }
+ 
++/*login button*/
+ .login-form button {
+   width: 100%;
+   background-color: #4a90e2;
+@@ -56,3 +67,18 @@
+ .login-form button:hover {
+   background-color: #357ab7;
+ }
++
++.login-container p {
++  margin-top: 15px;
++  font-size: 14px;
++}
++
++.login-container p a {
++  color: #355E3B;
++  text-decoration: none;
++  font-weight: bold;
++}
++
++.login-container p a:hover {
++  text-decoration: underline;
++}
+Index: Doanlesg/frontend/src/components/Login/Login.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React from 'react';\r\n\r\nfunction Login() {\r\n  return (\r\n    <div className=\"login-container\">\r\n      <h2>ĐĂNG NHẬP</h2>\r\n      <form className=\"login-form\">\r\n        <input type=\"email\" placeholder=\"Email\" required />\r\n        <input type=\"password\" placeholder=\"Mật khẩu\" required />\r\n        <button type=\"submit\">Đăng nhập</button>\r\n      </form>\r\n      <p>Chưa có tài khoản? <a href=\"/register\">Đăng ký tại đây</a></p>\r\n    </div>\r\n  );\r\n}\r\n\r\nexport default Login;\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Doanlesg/frontend/src/components/Login/Login.js b/Doanlesg/frontend/src/components/Login/Login.js
+--- a/Doanlesg/frontend/src/components/Login/Login.js	(revision 736666e48a746f4b227f5f5c29d32f709f340ac7)
++++ b/Doanlesg/frontend/src/components/Login/Login.js	(date 1749520425496)
+@@ -1,7 +1,9 @@
+ import React from 'react';
++import './Login.css';
+ 
+ function Login() {
+   return (
++  <div className="login-wrapper">
+     <div className="login-container">
+       <h2>ĐĂNG NHẬP</h2>
+       <form className="login-form">
+@@ -11,6 +13,7 @@
+       </form>
+       <p>Chưa có tài khoản? <a href="/register">Đăng ký tại đây</a></p>
+     </div>
++    </div>
+   );
+ }
+ 
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"ac75a505-50d4-49f6-9551-2bdb16ad0f94\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/Project.iml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/compiler.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/encodings.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/jarRepositories.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/modules.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/Doanlesg/frontend/src/App.js\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/Doanlesg/frontend/src/components/Login.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/Doanlesg/frontend/src/components/Login.js\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/Doanlesg/frontend/src/components/Register.js\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Doanlesg/src/main/resources/db/changelog/changes/changelog-13-order.yaml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Doanlesg/src/main/resources/db/changelog/changes/changelog-13-order.yaml\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Liquibase Changelog\" />\r\n        <option value=\"Interface\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"develop\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2xgEAdqLLNu5O4mE2mTlC7q1gkm\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,\r\n    &quot;Maven.Doanlesg [clean,install].executor&quot;: &quot;Run&quot;,\r\n    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,\r\n    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,\r\n    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,\r\n    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;Spring Boot.DoanlesgApplication.executor&quot;: &quot;Run&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;Frontend&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;D:/Project&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RunManager\" selected=\"Application.Unnamed\">\r\n    <configuration name=\"Unnamed\" type=\"Application\" factoryName=\"Application\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.example.Doanlesg.DoanlesgApplication\" />\r\n      <module name=\"Doanlesg\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"DoanlesgApplication\" type=\"SpringBootApplicationConfigurationType\" factoryName=\"Spring Boot\" nameIsGenerated=\"true\">\r\n      <module name=\"Doanlesg\" />\r\n      <option name=\"SPRING_BOOT_MAIN_CLASS\" value=\"com.example.Doanlesg.DoanlesgApplication\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <list>\r\n      <item itemvalue=\"Application.Unnamed\" />\r\n    </list>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"ac75a505-50d4-49f6-9551-2bdb16ad0f94\" name=\"Changes\" comment=\"\" />\r\n      <created>1748351174139</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1748351174139</updated>\r\n      <workItem from=\"1748351175355\" duration=\"1990000\" />\r\n      <workItem from=\"1748481309333\" duration=\"3780000\" />\r\n      <workItem from=\"1748488392557\" duration=\"4339000\" />\r\n      <workItem from=\"1748498401453\" duration=\"4223000\" />\r\n      <workItem from=\"1748611028588\" duration=\"4687000\" />\r\n      <workItem from=\"1748663755377\" duration=\"15404000\" />\r\n      <workItem from=\"1748681679134\" duration=\"8628000\" />\r\n      <workItem from=\"1748705131227\" duration=\"1763000\" />\r\n      <workItem from=\"1748836508270\" duration=\"144000\" />\r\n      <workItem from=\"1748843624018\" duration=\"6279000\" />\r\n      <workItem from=\"1748863271808\" duration=\"5823000\" />\r\n      <workItem from=\"1748950710332\" duration=\"1547000\" />\r\n      <workItem from=\"1749010517971\" duration=\"11130000\" />\r\n      <workItem from=\"1749042209156\" duration=\"11408000\" />\r\n      <workItem from=\"1749081715953\" duration=\"7610000\" />\r\n      <workItem from=\"1749122481687\" duration=\"8336000\" />\r\n      <workItem from=\"1749171785949\" duration=\"5112000\" />\r\n      <workItem from=\"1749177633507\" duration=\"61000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 736666e48a746f4b227f5f5c29d32f709f340ac7)
++++ b/.idea/workspace.xml	(date 1749522424113)
+@@ -4,19 +4,21 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/.idea/Project.iml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login.js" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register.js" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="login (cont)">
++      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/momo.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/payment1.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/zalopay.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.css" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Doanlesg/src/main/resources/db/changelog/changes/changelog-13-order.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/src/main/resources/db/changelog/changes/changelog-13-order.yaml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/package-lock.json" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/package.json" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/public/logo192.png" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/public/logo512.png" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.css" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.css" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.js" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.js" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -35,11 +37,23 @@
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="develop" />
++        <entry key="$PROJECT_DIR$" value="Frontend" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;PhAnh05&quot;
++  }
++}</component>
++  <component name="GithubPullRequestsUISettings">{
++  &quot;selectedUrlAndAccountId&quot;: {
++    &quot;url&quot;: &quot;https://github.com/Unvianpetronas/DoLeSaiGon&quot;,
++    &quot;accountId&quot;: &quot;a2e27782-7aa0-48bb-ab77-0c26f65ea5a7&quot;
++  }
++}</component>
+   <component name="ProblemsViewState">
+     <option name="selectedTabId" value="CurrentFile" />
+   </component>
+@@ -65,7 +79,7 @@
+     &quot;Spring Boot.DoanlesgApplication.executor&quot;: &quot;Run&quot;,
+     &quot;git-widget-placeholder&quot;: &quot;Frontend&quot;,
+     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;D:/Project&quot;,
++    &quot;last_opened_file_path&quot;: &quot;D:/Project/Doanlesg/frontend/public&quot;,
+     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+@@ -78,6 +92,15 @@
+     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+ }</component>
++  <component name="RecentsManager">
++    <key name="CopyFile.RECENT_KEYS">
++      <recent name="D:\Project\Doanlesg\frontend\public" />
++    </key>
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="D:\Project\Doanlesg\frontend\src\components\Register" />
++      <recent name="D:\Project\Doanlesg\frontend\src\components\Login" />
++    </key>
++  </component>
+   <component name="RunManager" selected="Application.Unnamed">
+     <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="com.example.Doanlesg.DoanlesgApplication" />
+@@ -124,6 +147,31 @@
+       <workItem from="1749171785949" duration="5112000" />
+       <workItem from="1749177633507" duration="61000" />
+     </task>
++    <task id="LOCAL-00001" summary="create login page">
++      <option name="closed" value="true" />
++      <created>1749432328541</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1749432328541</updated>
++    </task>
++    <task id="LOCAL-00002" summary="create login page">
++      <option name="closed" value="true" />
++      <created>1749432488237</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1749432488237</updated>
++    </task>
++    <task id="LOCAL-00003" summary="login (cont)">
++      <option name="closed" value="true" />
++      <created>1749479375278</created>
++      <option name="number" value="00003" />
++      <option name="presentableId" value="LOCAL-00003" />
++      <option name="project" value="LOCAL" />
++      <updated>1749479375278</updated>
++    </task>
++    <option name="localTasksCounter" value="4" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -140,4 +188,9 @@
+       </map>
+     </option>
+   </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="create login page" />
++    <MESSAGE value="login (cont)" />
++    <option name="LAST_COMMIT_MESSAGE" value="login (cont)" />
++  </component>
+ </project>
+\ No newline at end of file
+diff --git a/Doanlesg/frontend/src/components/Register.js b/Doanlesg/frontend/src/components/Register/Register.js
+rename from Doanlesg/frontend/src/components/Register.js
+rename to Doanlesg/frontend/src/components/Register/Register.js
+diff --git a/Doanlesg/frontend/src/components/Register/Register.css b/Doanlesg/frontend/src/components/Register/Register.css
+new file mode 100644

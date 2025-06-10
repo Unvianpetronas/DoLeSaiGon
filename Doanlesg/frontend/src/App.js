@@ -46,13 +46,26 @@ function App() {
         </div>
 
         <nav className="bottom-menu">
-          <a href="#" className="menu-item">📦 DANH MỤC SẢN PHẨM</a>
-          <a href="#" className="menu-item">Trang chủ</a>
-          <a href="#" className="menu-item">Giới thiệu</a>
-          <a href="#" className="menu-item">Sản phẩm</a>
-          <a href="#" className="menu-item">Liên hệ</a>
-          <a href="#" className="menu-item">Chính sách</a>
-        </nav>
+                 <a href="#" className="menu-item category-menu">
+                   <span className="menu-icon">
+                     {/* SVG logo */}
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                       <rect x="3" y="3" width="7" height="7" rx="1" ry="1"/>
+                       <rect x="14" y="3" width="7" height="7" rx="1" ry="1"/>
+                       <rect x="3" y="14" width="7" height="7" rx="1" ry="1"/>
+                       <rect x="14" y="14" width="7" height="7" rx="1" ry="1"/>
+                     </svg>
+                   </span>
+                   <span className="menu-text">DANH MỤC SẢN PHẨM</span>
+                   <span className="menu-arrow">▾</span>
+                 </a>
+
+                 <a href="#" className="menu-item">Trang chủ</a>
+                 <a href="#" className="menu-item">Giới thiệu</a>
+                 <a href="#" className="menu-item">Sản phẩm</a>
+                 <a href="#" className="menu-item">Liên hệ</a>
+                 <a href="#" className="menu-item">Chính sách</a>
+               </nav>
       </header>
 
       {/* Main */}
