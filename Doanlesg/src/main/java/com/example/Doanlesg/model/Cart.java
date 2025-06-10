@@ -15,7 +15,7 @@ public class Cart {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "customer_account_id")
     private Account account;
 
     // Các trường từ YAML

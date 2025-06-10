@@ -35,13 +35,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
            accountDetail.setPasswordHash(encodedPassword);
            accountDetail.setStatus(true);
            accountDetail.setCreatedAt(LocalDateTime.now());
-           if(accountDetail.getAddresses().size() > 0 && !accountDetail.getAddresses().isEmpty()){
-               for(Address address : accountDetail.getAddresses()){
-                  address.setAccount(accountDetail);
-               }
-           }else{
-               accountDetail.setAddresses(new ArrayList<>());
-           }
+           accountDetail.setAddresses(new ArrayList<>());
            if(customerDetail == null){
                throw new IllegalArgumentException("Customer cannot be null");
            }

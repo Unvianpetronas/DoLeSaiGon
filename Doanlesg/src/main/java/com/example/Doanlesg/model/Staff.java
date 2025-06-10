@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 public class Staff {
 
     @Id
+    @Column(name = "account_id")
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -49,14 +50,6 @@ public class Staff {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmployeeId() {
         return employeeId;
     }
@@ -73,4 +66,11 @@ public class Staff {
         this.department = department;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
