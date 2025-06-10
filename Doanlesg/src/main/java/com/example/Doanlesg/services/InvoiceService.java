@@ -1,0 +1,77 @@
+package com.example.Doanlesg.services;
+
+import com.example.Doanlesg.model.InvoiceData;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
+@Service
+public class InvoiceService {
+
+    private final TemplateEngine templateEngine;
+
+    private final JavaMailSender mailSender;
+
+    @Autowired
+    public InvoiceService(TemplateEngine templateEngine, JavaMailSender mailSender) {
+        this.templateEngine = templateEngine;
+        this.mailSender = mailSender;
+    }
+
+    public void createAndEmailInvoice(InvoiceData invoiceData, String recipientEmail) throws IOException, MessagingException {
+        String htmlContent = parseThymeleafTemplate(invoiceData);
+        byte[] pdfBytes = generatePdfFromHtml(htmlContent);
+        sendEmailWithAttachment(recipientEmail, invoiceData.invoiceNumber(), pdfBytes);
+    }
+
+    private String parseThymeleafTemplate(InvoiceData invoiceData) {
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariable("invoice", invoiceData);
+        return templateEngine.process("invoice-template.html", thymeleafContext);
+    }
+
+    private byte[] generatePdfFromHtml(String html) throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+
+            File fontFile = new ClassPathResource("fonts/NotoSans-Vietnamese.ttf").getFile();
+
+            builder.useFont(fontFile, "Noto Sans");
+
+            String baseUri = new ClassPathResource("/static/").getURL().toString();
+            builder.withHtmlContent(html, baseUri);
+
+            builder.toStream(os);
+            builder.run();
+            return os.toByteArray();
+        }
+    }
+
+    private void sendEmailWithAttachment(String to, String invoiceNumber, byte[] pdfAttachment) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("no-reply@dolesaigon.io.vn");
+        helper.setTo(to);
+        helper.setSubject("Hóa đơn #" + invoiceNumber + " từ Đồ lễ Sài Gòn");
+        helper.setText("Kính gửi quý khách,\n\nVui lòng xem hóa đơn điện tử đính kèm.\n\nTrân trọng,\nĐồ lễ Sài Gòn.");
+
+        String filename = "HoaDon_" + invoiceNumber + ".pdf";
+        helper.addAttachment(filename, () -> new ByteArrayInputStream(pdfAttachment));
+
+        mailSender.send(message);
+        System.out.println("Email đã được gửi thành công đến " + to);
+    }
+}

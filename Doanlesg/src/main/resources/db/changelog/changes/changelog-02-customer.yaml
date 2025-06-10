@@ -10,6 +10,7 @@ databaseChangeLog:
                   name: account_id # Khóa ngoại tới account
                   type: INT
                   constraints:
+                    primaryKey: true
                     nullable: false
                     unique: true
                     foreignKeyName: fk_customer_account_id

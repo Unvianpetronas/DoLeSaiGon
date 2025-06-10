@@ -20,7 +20,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: fk_order_customer_id
-                    references: customer(account_id)
+                    references: account(account_id) #phai map origin khong qua thang dung giua
               - column:
                   name: order_date
                   type: DATETIME
