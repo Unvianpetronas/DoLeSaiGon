@@ -2,10 +2,14 @@ import React from 'react';
 import './App.css';
 import { CiSearch } from "react-icons/ci";
 import Login from './components/Login/Login';
+import Cart from "./components/Cart/Cart";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { FaRegHeart, FaUser, FaShoppingCart, FaClipboardList, FaMapMarkerAlt } from "react-icons/fa";
 
 function App() {
   return (
+  <div>
+
     <div className="app">
       {/* Header */}
       <header className="header">
@@ -70,8 +74,8 @@ function App() {
 
       {/* Main */}
       <main className="main">
-        <div className="breadcrumb">Trang chủ &gt; Đăng nhập tài khoản</div>
-        <Login />
+        <div className="breadcrumb"><a href="/">Trang chủ</a> &gt; <span>Thanh toán</span></div>
+        <Cart />
       </main>
 
       {/* Footer */}
@@ -111,6 +115,7 @@ function App() {
         </div>
         <p>© 2025 Dole Saigon. All rights reserved.</p>
       </footer>
+    </div>
     </div>
   );
 }
