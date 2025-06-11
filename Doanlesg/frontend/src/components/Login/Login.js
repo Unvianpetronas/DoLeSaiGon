@@ -11,7 +11,7 @@ function Login() {
         <input type="password" name="password" value="" placeholder="Mật khẩu" required />
         <button type="submit">Đăng nhập</button>
       </form>
-      <p>Chưa có tài khoản? <a href="/register">Đăng ký tại đây</a></p>
+      <p>Chưa có tài khoản? <a href="/register.js">Đăng ký tại đây</a></p>
     </div>
     </div>
   );
