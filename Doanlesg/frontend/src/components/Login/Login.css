@@ -54,7 +54,7 @@ body {
 /*login button*/
 .login-form button {
   width: 100%;
-  background-color: #4a90e2;
+  background-color: #004E3E;
   color: white;
   font-size: 18px;
   padding: 12px;
@@ -65,7 +65,7 @@ body {
 }
 
 .login-form button:hover {
-  background-color: #357ab7;
+  background-color: #6E0707;
 }
 
 .login-container p {
