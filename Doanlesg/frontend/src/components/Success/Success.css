@@ -1,0 +1,94 @@
+/* success.css */
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0ead6;
+  color: #000;
+}
+
+.success-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px 40px;
+  background-color: #f0ead6;
+  text-align: center;
+}
+
+.success-page h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.success-checkmark {
+  font-size: 64px;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.success-btn {
+  background-color: #800000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.success-btn:hover {
+  background-color: #5c0000;
+}
+
+.success-message {
+  margin-top: 30px;
+  font-size: 18px;
+  color: #333;
+  font-weight: 500;
+  max-width: 600px;
+}
+
+/* Footer */
+.success-footer {
+  margin-top: 60px;
+  background-color: #800000;
+  color: white;
+  padding: 40px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  font-size: 14px;
+}
+
+.success-footer div {
+  max-width: 250px;
+  margin: 10px;
+}
+
+.success-footer h3 {
+  margin-bottom: 12px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 6px;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .success-footer {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}

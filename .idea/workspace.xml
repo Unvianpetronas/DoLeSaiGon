@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="app&amp;login">
+      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Checkout/Checkout.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Checkout/Checkout.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Success/Success.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Success/Success.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Login/Login.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Register/Register.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doanlesg/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +78,7 @@
     "Spring Boot.DoanlesgApplication.executor": "Run",
     "git-widget-placeholder": "Frontend",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Project/Doanlesg/frontend/public",
+    "last_opened_file_path": "D:/Project/Doanlesg/frontend/src/components",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -95,6 +93,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Project\Doanlesg\frontend\src\components" />
       <recent name="D:\Project\Doanlesg\frontend\public" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -190,7 +189,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749528706920</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="app&amp;login">
+      <option name="closed" value="true" />
+      <created>1749632237169</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1749632237169</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
