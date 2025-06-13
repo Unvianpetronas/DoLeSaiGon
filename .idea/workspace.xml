@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="app&amp;login">
-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Checkout/Checkout.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Checkout/Checkout.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Success/Success.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Success/Success.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="checkout &amp; order success page" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -197,7 +191,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749632237169</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="checkout &amp; order success page">
+      <option name="closed" value="true" />
+      <created>1749708269924</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1749708269924</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -219,6 +221,7 @@
     <MESSAGE value="login (cont)" />
     <MESSAGE value="register" />
     <MESSAGE value="app&amp;login" />
-    <option name="LAST_COMMIT_MESSAGE" value="app&amp;login" />
+    <MESSAGE value="checkout &amp; order success page" />
+    <option name="LAST_COMMIT_MESSAGE" value="checkout &amp; order success page" />
   </component>
 </project>
