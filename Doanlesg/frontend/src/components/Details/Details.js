@@ -1,25 +1,34 @@
 import React from "react";
 import "./Details.css";
+import detailsImg from '../../assets/Xoingusac.png';
 
 export default function Details() {
+  const status = "Đang giao"; // Có thể là: "Đang chuẩn bị", "Đang giao", "Đã nhận"
+
+  // Hàm xác định xem step hiện tại có đang là trạng thái không
+  const getStepClass = (stepName) => {
+    return status === stepName ? "step active" : "step inactive";
+  };
+
   return (
     <div className="details-container">
       <div className="order-status">
         <h2>Trạng thái đơn hàng</h2>
         <div className="status-steps">
-          <span className="step active">Đang chuẩn bị</span>
+          <span className={getStepClass("Đang chuẩn bị")}>Đang chuẩn bị</span>
           <span className="arrow">→</span>
-          <span className="step">Đang giao</span>
+          <span className={getStepClass("Đang giao")}>Đang giao</span>
           <span className="arrow">→</span>
-          <span className="step">Đã nhận</span>
+          <span className={getStepClass("Đã nhận")}>Đã nhận</span>
         </div>
       </div>
 
       <div className="order-info">
+        {/* phần thông tin đơn hàng giữ nguyên */}
         <h2>Thông tin đơn hàng</h2>
         <div className="product-info">
           <img
-            src="https://product.hstatic.net/1000280685/product/xoi-ngu-sac-hinh-hoa_9cb05f7df1c248e3aef358ec1d0e39f2_grande.jpg"
+            src={detailsImg}
             alt="Xôi ngũ sắc"
             className="product-img"
           />
@@ -52,12 +61,8 @@ export default function Details() {
         <div className="order-meta">
           <p><strong>Mã đơn hàng:</strong> 214354675XFH</p>
           <p><strong>Phương thức thanh toán:</strong> Chuyển khoản</p>
-          <p>
-            <strong>Địa chỉ nhận hàng:</strong> 546 Nguyễn Văn A, p1, q7, tp.hcm
-          </p>
-          <p>
-            <strong>Người nhận:</strong> Lê Văn A ( +84 123 456 789 )
-          </p>
+          <p><strong>Địa chỉ nhận hàng:</strong> 546 Nguyễn Văn A, p1, q7, tp.hcm</p>
+          <p><strong>Người nhận:</strong> Lê Văn A ( +84 123 456 789 )</p>
         </div>
       </div>
     </div>
