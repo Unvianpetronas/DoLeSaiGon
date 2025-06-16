@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/register")
+@RequestMapping("/api/register")
 public class RegisterController {
 
     private final AccountServices accountServices;
@@ -58,7 +58,7 @@ public class RegisterController {
     } */
 
 
-    @PostMapping("/createAccount")
+    @PostMapping
     public String processRegistration(@ModelAttribute RegisterRequest registerRequest, RedirectAttributes redirectAttributes) {
         try {
             if (!accountServices.validateNewAccount(registerRequest.getEmail())) {
