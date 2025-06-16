@@ -52,12 +52,6 @@ databaseChangeLog:
                   constraints:
                     nullable: true # Hoặc false
                     foreignKeyName: fk_order_shipping_method_id
-                    references: shipping_method(shipping_method_id)
-              - column:
-                  name: order_status # e.g., 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
-                  type: NVARCHAR(50)
-                  constraints:
-                    nullable: false
               - column:
                   name: notes
                   type: NVARCHAR(MAX)

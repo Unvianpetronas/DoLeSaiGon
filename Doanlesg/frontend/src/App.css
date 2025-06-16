@@ -1,0 +1,215 @@
+/* ========== Reset & Layout Cơ Bản ========== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #EEE8D9;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ========== Header ========== */
+.header {
+background-image: url('./assets/Backgroundd.png');
+  background-repeat: repeat;
+  background-size: auto;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* Phần trên của Header */
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+}
+
+.logo img {
+  height: 80px;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  margin: 10px 20px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  font-size: 16px;
+}
+.search-bar button {
+  background-color: #d4a249;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+}
+.icon-item svg {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+/* Thanh menu bên dưới */
+.bottom-menu {
+  display: flex;
+  background-color: #004E3E;
+  padding: 5px 20px;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bottom-menu .menu-item {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
+  padding: 0px 12px;
+}
+.bottom-menu .menu-item:hover {
+  text-decoration: underline;
+}
+
+/* Style riêng cho DANH MỤC SẢN PHẨM */
+.bottom-menu .category-menu {
+  background-color: #042924;
+  border: 1px solid white;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 15px; /* Thêm khoảng cách bên trái */
+}
+
+.bottom-menu .category-menu .menu-icon {
+  font-size: 18px;
+}
+
+.bottom-menu .category-menu .menu-arrow {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+/* Optional: hover effect */
+.bottom-menu .category-menu:hover {
+  background-color: #083a30;
+}
+
+/* ========== Main ========== */
+.main {
+  flex: 1;
+  padding: 40px 20px;
+  background-color: #f4f1ed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.breadcrumb {
+  width: 100%;
+  max-width: 1200px;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* ========== Footer ========== */
+.footer {
+background-image: url('./assets/Backgroundd.png');
+background-repeat: repeat;
+  background-size: auto;
+  color: white;
+  padding: 30px 20px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-column {
+  flex: 1;
+  min-width: 220px;
+}
+.footer-column h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #f1f1f1;
+}
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-column ul li {
+  margin-bottom: 8px;
+  line-height: 1.8
+}
+.footer-column ul li a {
+  color: #ddd;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-column ul li a:hover {
+  color: #FFB900;
+}
+.footer-column:first-child img {
+  width: 200px;
+  display: block;
+  margin-bottom: 10px;
+}
+.footer-column p {
+  margin: 4px 0;
+  color: #ddd;
+}
+.footer > p {
+  text-align: center;
+  color: #ccc;
+  font-size: 13px;
+  margin-top: 20px;
+}
+.footer-column:first-child p {
+  margin: 4px 0;
+  line-height: 1.6; /* tăng khoảng cách giữa các dòng địa chỉ */
+  color: #ddd;
+}
+

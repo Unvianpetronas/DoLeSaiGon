@@ -1,0 +1,84 @@
+/*body*/
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* login wrapper de can giua trong trang */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 0;
+}
+/*login frame*/
+.login-container {
+  background-color: #fff;
+  padding: 35px 40px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+/*tittle DANG NHAP*/
+.login-container h2 {
+  margin-bottom: 25px;
+  color: #800000;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/*input form*/
+.login-form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+/*click input*/
+.login-form input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/*login button*/
+.login-form button {
+  width: 100%;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 18px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+  background-color: #357ab7;
+}
+
+.login-container p {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login-container p a {
+  color: #355E3B;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-container p a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="|Hóa đơn ${invoice.invoiceNumber}|">Hóa đơn</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="invoice-box">
+    <table cellpadding="0" cellspacing="0">
+        <!-- Phần Header -->
+        <tr class="top">
+            <td colspan="4">
+                <table>
+                    <tr>
+                        <td class="title">
+                            <img th:src="${invoice.logoBase64}" style="max-width:150px;"/>
+                        </td>
+                        <td class="invoice-details">
+                            <h1>HÓA ĐƠN</h1>
+                            <strong>Số HĐ:</strong> <span th:text="${invoice.invoiceNumber}"></span><br/>
+                            <strong>Ngày xuất:</strong> <span th:text="${invoice.issueDate}"></span><br/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Phần Thông tin -->
+        <tr class="information">
+            <td colspan="4">
+                <table>
+                    <tr>
+                        <td>
+                            <strong>Từ:</strong><br/>
+                            <pre th:text="${invoice.fromInfo}"></pre>
+                        </td>
+                        <td>
+                            <strong>Gửi đến:</strong><br/>
+                            <pre th:text="${invoice.toInfo}"></pre>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Phần Tiêu đề bảng -->
+        <tr class="heading">
+            <td>Sản phẩm/Dịch vụ</td>
+            <td class="text-center">Số lượng</td>
+            <td class="text-right">Đơn giá</td>
+            <td class="text-right">Thành tiền</td>
+        </tr>
+
+        <!-- Lặp qua các sản phẩm -->
+        <tr class="item" th:each="item : ${invoice.items}">
+            <td th:text="${item.name}"></td>
+            <td class="text-center" th:text="${item.quantity}"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(item.unitCost, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(item.quantity * item.unitCost, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+        </tr>
+
+        <!--
+          PHIÊN BẢN CẬP NHẬT: Đã xóa các dòng cho "Tổng cộng" và "Thuế".
+          Chỉ giữ lại dòng tổng thanh toán cuối cùng.
+        -->
+        <tr class="total final">
+            <td colspan="3" class="text-right"><strong>TỔNG THANH TOÁN:</strong></td>
+            <td class="text-right"><strong th:text="${#numbers.formatDecimal(invoice.total, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
