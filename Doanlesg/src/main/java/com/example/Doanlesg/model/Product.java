@@ -19,7 +19,7 @@ public class Product {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "stock_quantity", nullable = false )
+    @Column(name = "quantity", nullable = false )
     private int stockQuantity;
 
    /* @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
@@ -85,4 +85,11 @@ public class Product {
         this.status = status;
     }
 
+    public List<CartItem> getCartItem() {
+        return cartItem;
+    }
+
+    public void setCartItem(List<CartItem> cartItem) {
+        this.cartItem = cartItem;
+    }
 }

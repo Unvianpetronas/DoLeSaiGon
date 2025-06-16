@@ -20,12 +20,9 @@ public class Category {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "status",nullable = false,columnDefinition = "1")
-    private boolean status;
-
-    @Column(name = "parent_caregory_id",nullable = false)
+    @Column(name = "parent_category_id",nullable = false)
     @JoinColumn(name = "category_id", nullable = false)
-    private Long parentCaregoryId;
+    private Long parentCategoryId;
 
     // 1 category have many product
     @OneToMany(
@@ -43,14 +40,6 @@ public class Category {
 
     public void setProducts(List<Product> products) {
         this.products = products;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
     }
 
     public Category() {
@@ -81,10 +70,10 @@ public class Category {
     }
 
     public Long getParentCaregoryId() {
-        return parentCaregoryId;
+        return parentCategoryId;
     }
 
     public void setParentCaregoryId(Long parentCaregoryId) {
-        this.parentCaregoryId = parentCaregoryId;
+        this.parentCategoryId = parentCaregoryId;
     }
 }

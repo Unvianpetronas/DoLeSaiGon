@@ -36,7 +36,7 @@ public class CartServices {
         Optional<CartItem> existItem = Optional.ofNullable(cartItemRepository.findByCartIdAndProductId(cart.getId(), productID));
         if(existItem.isPresent()){
             CartItem cartItem = existItem.get();
-            cartItem.setQuantity(quantity);
+            cartItem.setQuantity(cartItem.getQuantity()+quantity);
             cartItemRepository.save(cartItem);
         }else{
             Product product = productRepository.findById(productID)

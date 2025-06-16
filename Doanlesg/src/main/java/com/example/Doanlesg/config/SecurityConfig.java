@@ -33,9 +33,10 @@ public class SecurityConfig {
                                 "/vendor/**", // If you have a vendor folder for static resources
                                 "/login",
                                 "/register.html",// Explicitly permit direct access to register.html
-                                "/register/createAccount",
+                                "api/register/createAccount",
                                 "/createAccount",
-                                "/register"
+                                "api/register",
+                                "/api/product"
                                 // Permit all paths under RegisterController (e.g., /registerController/register, /registerController/createAccount)
                                 // Add any other public paths here
                         ).permitAll()
