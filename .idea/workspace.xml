@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="" />
+    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="checkout &amp; order success page" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,8 +20,31 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/DoLeSaiGon" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Frontend" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;state&quot;: &quot;OPEN&quot;,
+      &quot;assignee&quot;: &quot;SangPT99&quot;
+    }
+  ],
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;SangPT99&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Unvianpetronas/DoLeSaiGon&quot;,
+    &quot;accountId&quot;: &quot;a2e27782-7aa0-48bb-ab77-0c26f65ea5a7&quot;
+  }
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -35,6 +58,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Unnamed.executor": "Run",
+    "Maven.Doanlesg [clean,install].executor": "Run",
+    "Maven.Doanlesg [clean].executor": "Run",
+    "Maven.Doanlesg [install].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
@@ -43,19 +70,41 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.DoanlesgApplication.executor": "Run",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Frontend",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/spring/DoLeSaiGon/Doanlesg",
+    "last_opened_file_path": "D:/Project/Doanlesg/frontend/src/components",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "configurable.group.language",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Project\Doanlesg\frontend\src\components" />
+      <recent name="D:\Project\Doanlesg\frontend\public" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Project\Doanlesg\src\main\resources" />
+      <recent name="D:\Project\Doanlesg\frontend\src\assets" />
+      <recent name="D:\Project\Doanlesg\frontend\src\components\Register" />
+      <recent name="D:\Project\Doanlesg\frontend\src\components\Login" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Unnamed">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.Doanlesg.DoanlesgApplication" />
+      <module name="Doanlesg" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="DoanlesgApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="Doanlesg" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.Doanlesg.DoanlesgApplication" />
@@ -63,14 +112,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91" />
-      </set>
-    </attachedChunks>
+    <list>
+      <item itemvalue="Application.Unnamed" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -99,9 +143,85 @@
       <workItem from="1749171785949" duration="5112000" />
       <workItem from="1749177633507" duration="61000" />
     </task>
+    <task id="LOCAL-00001" summary="create login page">
+      <option name="closed" value="true" />
+      <created>1749432328541</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1749432328541</updated>
+    </task>
+    <task id="LOCAL-00002" summary="create login page">
+      <option name="closed" value="true" />
+      <created>1749432488237</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1749432488237</updated>
+    </task>
+    <task id="LOCAL-00003" summary="login (cont)">
+      <option name="closed" value="true" />
+      <created>1749479375278</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1749479375278</updated>
+    </task>
+    <task id="LOCAL-00004" summary="register">
+      <option name="closed" value="true" />
+      <created>1749527351342</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749527351342</updated>
+    </task>
+    <task id="LOCAL-00005" summary="app&amp;login">
+      <option name="closed" value="true" />
+      <created>1749528706920</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1749528706920</updated>
+    </task>
+    <task id="LOCAL-00006" summary="app&amp;login">
+      <option name="closed" value="true" />
+      <created>1749632237169</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1749632237169</updated>
+    </task>
+    <task id="LOCAL-00007" summary="checkout &amp; order success page">
+      <option name="closed" value="true" />
+      <created>1749708269924</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1749708269924</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="create login page" />
+    <MESSAGE value="login (cont)" />
+    <MESSAGE value="register" />
+    <MESSAGE value="app&amp;login" />
+    <MESSAGE value="checkout &amp; order success page" />
+    <option name="LAST_COMMIT_MESSAGE" value="checkout &amp; order success page" />
   </component>
 </project>

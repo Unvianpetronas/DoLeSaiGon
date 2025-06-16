@@ -1,0 +1,121 @@
+.checkout-container {
+  padding: 40px;
+  background-color: #f0ead6;
+  font-family: Arial, sans-serif;
+}
+
+.checkout-grid {
+  display: flex;
+  gap: 40px;
+}
+
+/* FORM BÊN TRÁI */
+.checkout-form {
+  flex: 2;
+  background-color: #122820;
+  padding: 30px;
+  border-radius: 8px;
+  color: white;
+}
+
+.checkout-form h2 {
+  margin-bottom: 20px;
+}
+
+.checkout-two-column {
+  display: flex;
+  gap: 20px;
+}
+
+.left-column, .right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-input, .form-textarea {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.payment-method-box {
+  background-color: #1e3b2f;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.payment-method-box .radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.payment-method-box input[type="radio"] {
+  accent-color: #6fcf97;
+  transform: scale(1.2);
+}
+
+/* CỘT PHẢI: THÔNG TIN ĐƠN HÀNG */
+.checkout-summary {
+  flex: 1;
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.checkout-summary h2 {
+  margin-bottom: 20px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.summary-total {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.text-total {
+  color: #2563eb;
+}
+
+.checkout-btn {
+  background-color: #3b5f3b;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.checkout-btn:hover {
+  background-color: #2f4d2f;
+}
+
+.checkout-note {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
