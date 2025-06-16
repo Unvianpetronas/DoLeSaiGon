@@ -1,14 +1,21 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.dto.CartItemDTO;
 import com.example.Doanlesg.repository.AccountRepository;
 import com.example.Doanlesg.repository.CartItemRepository;
 import com.example.Doanlesg.repository.CartRepository;
 import com.example.Doanlesg.repository.ProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.example.Doanlesg.model.*;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServices {
@@ -17,11 +24,38 @@ public class CartServices {
     private ProductRepository productRepository;
     private AccountRepository accountRepository;
 
-    public void CartServices(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, AccountRepository accountRepository) {
+    @Autowired
+    public CartServices(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, AccountRepository accountRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.accountRepository = accountRepository;
+    }
+    @Transactional
+    public List<CartItemDTO> getAllCartItems(Long cartId) {
+        List<CartItem> items = cartItemRepository.findAllByCart_Id(cartId);
+
+        // Chuyển đổi từ List<CartItem> (Entity) sang List<CartItemDTO>
+        return items.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    private CartItemDTO convertToDto(CartItem cartItem) {
+        CartItemDTO dto = new CartItemDTO();
+        dto.setCartItemId(cartItem.getId());
+        dto.setQuantity(cartItem.getQuantity());
+
+        // Lấy thông tin từ Product liên quan một cách an toàn
+        Product product = cartItem.getProduct();
+        if (product != null) {
+            dto.setProductId((long) product.getId());
+            dto.setProductName(product.getProductName());
+        }
+
+
+        dto.setPriceAtAddition(BigDecimal.valueOf(cartItem.getPriceAtAddition()));
+
+        return dto;
     }
 
     @Transactional

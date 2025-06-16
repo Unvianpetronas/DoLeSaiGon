@@ -1,4 +1,4 @@
-package com.example.Doanlesg.config; // Or your actual package for SecurityConfig
+package com.example.Doanlesg.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "api/register/createAccount",
                                 "/createAccount",
                                 "api/register",
-                                "/api/product"
+                                "/api/product",
+                                "/api/**"
                                 // Permit all paths under RegisterController (e.g., /registerController/register, /registerController/createAccount)
                                 // Add any other public paths here
                         ).permitAll()
