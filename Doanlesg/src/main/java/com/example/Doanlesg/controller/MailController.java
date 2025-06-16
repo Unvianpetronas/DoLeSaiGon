@@ -5,15 +5,15 @@ import com.example.Doanlesg.services.InvoiceService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
-@Controller
+@RestController
 public class MailController {
 
     private InvoiceService invoiceService;
@@ -35,6 +35,8 @@ public class MailController {
 
     @PostMapping("/send-invoice")
     public String sendInvoice(  RedirectAttributes redirectAttributes) {
+        String msg = "";
+
         try {
             List<InvoiceData.Item> items = List.of(
                     new InvoiceData.Item("Sản phẩm A", 2, 500000),
@@ -54,13 +56,13 @@ public class MailController {
 
             invoiceService.createAndEmailInvoice(data, "azinz850@gmail.com");
 
-            redirectAttributes.addFlashAttribute("successMessage", "Hóa đơn đã được gửi thành công!");
+            msg = "sucessfulMessage";
 
         } catch (IOException | MessagingException e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Gửi hóa đơn thất bại: " + e.getMessage());
+            msg = "errorMessage";
         }
         ///  O day thi de cai trang landing page sau khi thanh toan thanh cong. (Luong goi tu thanh toan -> mail -> thanh toan thanh cong)
-        return "redirect:/";
+        return msg;
     }
 }

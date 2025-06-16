@@ -32,6 +32,9 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/vendor/**", // If you have a vendor folder for static resources
                                 "/login",
+                                "/favicon.ico",
+                                "/manifest.json",
+                                "/static/**",  // Crucial for JS and CSS files
                                 "/register.html",// Explicitly permit direct access to register.html
                                 "api/register/createAccount",
                                 "/createAccount",
