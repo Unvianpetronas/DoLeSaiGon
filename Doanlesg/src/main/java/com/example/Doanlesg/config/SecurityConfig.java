@@ -2,6 +2,7 @@ package com.example.Doanlesg.config; // Or your actual package for SecurityConfi
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -31,9 +33,10 @@ public class SecurityConfig {
                                 "/vendor/**", // If you have a vendor folder for static resources
                                 "/login",
                                 "/register.html",// Explicitly permit direct access to register.html
-                                "/register/createAccount",
+                                "api/register/createAccount",
                                 "/createAccount",
-                                "/register"
+                                "api/register",
+                                "/api/product"
                                 // Permit all paths under RegisterController (e.g., /registerController/register, /registerController/createAccount)
                                 // Add any other public paths here
                         ).permitAll()
@@ -43,8 +46,10 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login.html") // Your custom login page
-                        .loginProcessingUrl("/perform_login") // URL to submit username and password to
-                        .defaultSuccessUrl("/home/home", true) // Redirect after successful login
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .loginProcessingUrl("/login") // URL to submit username and password to
+                        .defaultSuccessUrl("/index.html", true) // Redirect after successful login
                         .failureUrl("/login.html?error=true") // Redirect after failed login
                         .permitAll()
                 )
