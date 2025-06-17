@@ -10,11 +10,10 @@ public class CartItemDTO {
     private int quantity;
     private BigDecimal priceAtAddition;
 
-    // Constructors
     public CartItemDTO() {
     }
 
-    // Getters and Setters
+
     public Long getCartItemId() {
         return cartItemId;
     }

@@ -5,10 +5,9 @@ import com.example.Doanlesg.repository.AccountRepository;
 import com.example.Doanlesg.repository.CartItemRepository;
 import com.example.Doanlesg.repository.CartRepository;
 import com.example.Doanlesg.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.example.Doanlesg.model.*;
 
@@ -19,10 +18,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CartServices {
-    private CartRepository cartRepository;
-    private CartItemRepository cartItemRepository;
-    private ProductRepository productRepository;
-    private AccountRepository accountRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
     public CartServices(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, AccountRepository accountRepository) {
@@ -45,28 +44,18 @@ public class CartServices {
         dto.setCartItemId(cartItem.getId());
         dto.setQuantity(cartItem.getQuantity());
 
-        // Lấy thông tin từ Product liên quan một cách an toàn
         Product product = cartItem.getProduct();
         if (product != null) {
-            dto.setProductId((long) product.getId());
+            dto.setProductId(product.getId());
             dto.setProductName(product.getProductName());
         }
-
-
         dto.setPriceAtAddition(BigDecimal.valueOf(cartItem.getPriceAtAddition()));
-
         return dto;
     }
 
     @Transactional
-    public void addItem(Long accountID, Long productID, int quantity){
-        Account account = accountRepository.findById(accountID).orElse(null);
-        Cart cart = cartRepository.findById(accountID)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    newCart.setAccount(account);
-                    return cartRepository.save(newCart);
-                });
+    public void addItem(Long cartid, Long productID, int quantity){
+        Cart cart = cartRepository.findById(cartid).orElseThrow(()->new EntityNotFoundException("Cart not found"));
         Optional<CartItem> existItem = Optional.ofNullable(cartItemRepository.findByCartIdAndProductId(cart.getId(), productID));
         if(existItem.isPresent()){
             CartItem cartItem = existItem.get();
@@ -79,31 +68,40 @@ public class CartServices {
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
+            cartItem.setPriceAtAddition(product.getPrice().doubleValue());
             cartItemRepository.save(cartItem);
 
         }
     }
 
     @Transactional
-    public void RemoveItemFromCart(Long accountid, Long productid){
-        Optional<Cart> cart = cartRepository.findById(accountid);
-        if(cart.isPresent()){
-            CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.get().getId(), productid);
+    public void RemoveItemFromCart(Long cartId, Long productid){
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new EntityNotFoundException("không tìm thấy giỏ hàng"));
+            CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productid);
             if(cartItem != null){
                 cartItemRepository.delete(cartItem);
+            }else{
+                throw new EntityNotFoundException("Không tìm thấy sản Phẩm ID: "+productid);
             }
-        }
     }
 
     @Transactional
-    public void UpdateItemQuantityFormCart(Long accountID, Long productID, int quantity){
-        Optional<Cart> cart = cartRepository.findById(accountID);
-        if(cart.isPresent()){
-            CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.get().getId(), productID);
-            if(cartItem != null){
-                cartItem.setQuantity(quantity);
-                cartItemRepository.save(cartItem);
-            }
+    public void updateItemQuantityFromCart(Long cartId, Long productId, int newQuantity) {
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Số lượng không thể là số âm.");
+        }
+        if (!cartRepository.existsById(cartId)) {
+            throw new EntityNotFoundException("Không tìm thấy giỏ hàng với ID: " + cartId);
+        }
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
+        if (cartItem == null) {
+            throw new EntityNotFoundException("Không tìm thấy sản phẩm ID: " + productId + " trong giỏ hàng.");
+        }
+        if (newQuantity == 0) {
+            cartItemRepository.delete(cartItem);
+        } else {
+            cartItem.setQuantity(newQuantity);
+            cartItemRepository.save(cartItem);
         }
     }
 }
