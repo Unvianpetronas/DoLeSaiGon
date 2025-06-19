@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/ver0.0.1/orders")
 public class OrderController {
 
     private final QRCodeManagermentService qrCodeManagerService;

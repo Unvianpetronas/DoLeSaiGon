@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -14,6 +15,7 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/ver0.0.1/mail")
 public class MailController {
 
     private InvoiceService invoiceService;

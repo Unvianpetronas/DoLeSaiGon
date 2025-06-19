@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RestController
-@RequestMapping("/api/register")
+@RequestMapping("/api/ver0.0.1/register")
 public class RegisterController {
 
     private final AccountServices accountServices;
