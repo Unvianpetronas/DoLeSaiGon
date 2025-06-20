@@ -70,18 +70,5 @@
 
 .map-container {
   flex: 1;
-  min-width: 600px;
-}
-
-.form-input, .form-textarea {
-  padding: 10px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 100px;
+  min-width: 400px;
 }

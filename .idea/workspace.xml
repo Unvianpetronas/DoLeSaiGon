@@ -4,7 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="checkout &amp; order success page" />
+    <list default="true" id="ac75a505-50d4-49f6-9551-2bdb16ad0f94" name="Changes" comment="checkout &amp; order success page">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_11_22_AM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_11_22_AM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_9_54_AM_[Changes]1/momo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_9_54_AM_[Changes]1/payment1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_9_54_AM_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_9_54_AM_[Changes]1/zalopay.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_10_2025_9_54_AM__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_11_2025_1_50_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_11_2025_1_50_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_8_2025_9_35_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_8_2025_9_35_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_8_2025_9_43_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_8_2025_9_43_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_9_2025_12_26_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_6_9_2025_12_26_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/.env" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/public/robots.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/public/robots.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/assets/Success.png" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/assets/Success.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Cart/Cart.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Cart/Cart.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Contact/Contact.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Contact/Contact.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Contact/Contact.js" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/components/Contact/Contact.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doanlesg/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/Doanlesg/frontend/src/index.css" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,7 +57,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Frontend" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -72,21 +107,22 @@
     "Spring Boot.DoanlesgApplication.executor": "Run",
     "git-widget-placeholder": "Frontend",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Project/Doanlesg/frontend/src/components",
+    "last_opened_file_path": "D:/Project/Doanlesg",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "configurable.group.language",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Project\Doanlesg" />
       <recent name="D:\Project\Doanlesg\frontend\src\components" />
       <recent name="D:\Project\Doanlesg\frontend\public" />
     </key>
