@@ -49,14 +49,8 @@ public class SecurityConfig {
                         .loginProcessingUrl("/api/ver0.0.1/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-
-                        .successHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                        })
-
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        })
+                        .defaultSuccessUrl("/index.html", true) // Redirect after successful login
+                        .failureUrl("/login.html?error=true") // Redirect after failed login
                         .permitAll()
                 )
                 .logout(logout -> logout

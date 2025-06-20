@@ -121,8 +121,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
         }
     }
 
-
-
     public boolean validateNewAccount(String email){
         if(accountRepository.existsByEmail(email)){
             return false;

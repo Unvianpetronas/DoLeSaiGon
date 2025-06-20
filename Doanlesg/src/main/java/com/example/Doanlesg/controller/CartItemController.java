@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
 @RestController
 @RequestMapping("/api/ver0.0.1/cartItem")
 public class CartItemController {
