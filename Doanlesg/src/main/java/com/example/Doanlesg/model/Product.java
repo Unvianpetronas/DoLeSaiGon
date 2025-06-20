@@ -1,5 +1,6 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,7 +12,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private int id;
+    private Long id;
 
     @Column(name ="product_name", nullable = false, length = 255)
     private String productName;
@@ -19,7 +20,7 @@ public class Product {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "stock_quantity", nullable = false )
+    @Column(name = "quantity", nullable = false )
     private int stockQuantity;
 
    /* @Column(name = "created_at", updatable = false) // updatable = false vì DB tự quản lý qua DEFAULT GETDATE()
@@ -28,19 +29,21 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY) // Hoặc FetchType.EAGER tùy nhu cầu
     @JoinColumn(name = "category_id") // nullable = true là mặc định, khớp với SQL
+    @JsonManagedReference
     private Category category; // Hoặc Category nếu bạn đặt tên Entity là Category
 
     @Column(name = "status",nullable = false,columnDefinition = "1")
     private boolean status;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<CartItem> cartItem;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -85,4 +88,11 @@ public class Product {
         this.status = status;
     }
 
+    public List<CartItem> getCartItem() {
+        return cartItem;
+    }
+
+    public void setCartItem(List<CartItem> cartItem) {
+        this.cartItem = cartItem;
+    }
 }
