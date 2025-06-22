@@ -19,8 +19,9 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Account customer;
+
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
     @NotNull
     @ColumnDefault("getdate()")
@@ -109,14 +110,11 @@ public class Order {
     public void setOrderDate(Instant orderDate) {
         this.orderDate = orderDate;
     }
-
     public Account getCustomer() {
         return customer;
     }
 
     public void setCustomer(Account customer) {
-        this.customer = customer;
-    }
 
     public Integer getId() {
         return id;
