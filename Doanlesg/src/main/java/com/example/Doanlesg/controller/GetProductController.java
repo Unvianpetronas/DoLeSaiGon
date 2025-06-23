@@ -1,6 +1,6 @@
 package com.example.Doanlesg.controller;
 
-import com.example.Doanlesg.model.Product;
+import com.example.Doanlesg.dto.ProductDTO;
 import com.example.Doanlesg.services.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Controller
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/ver0.0.1/product")
 public class GetProductController {
     private ProductService productService;
     public GetProductController(ProductService productService) {
@@ -23,12 +22,22 @@ public class GetProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Product>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "price") String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
-        Page<Product> productPage = productService.findAll(pageable);
-        return ResponseEntity.ok(productPage);
+    public ResponseEntity<Page<ProductDTO>> getAllProducts(
+            @RequestParam("page") int page,
+            @RequestParam( "size") int size,
+            @RequestParam( "price") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<ProductDTO> productDtoPage = productService.findAll(pageable); // Service đã trả về DTO
+        return ResponseEntity.ok(productDtoPage);
     }
+    @GetMapping("/productname")
+    public ResponseEntity <Page<ProductDTO>> getAllProductsByName(@RequestParam String keywork,
+                                                            @RequestParam("page") int page,
+                                                            @RequestParam( "size") int size,
+                                                            @RequestParam( "price") String sortBy){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<ProductDTO> productDTOS = productService.searchByName(keywork, pageable);
+        return ResponseEntity.ok(productDTOS);
+    }
+
 }

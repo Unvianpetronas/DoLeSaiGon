@@ -19,8 +19,9 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false, referencedColumnName = "account_id")
-    private Customer customer;
+
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
     @NotNull
     @ColumnDefault("getdate()")
@@ -54,52 +55,20 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
-    public String getNotes() {
-        return notes;
+    public Integer getId() {
+        return id;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
-    public ShippingMethod getShippingMethod() {
-        return shippingMethod;
-    }
-
-    public void setShippingMethod(ShippingMethod shippingMethod) {
-        this.shippingMethod = shippingMethod;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public Voucher getVoucher() {
-        return voucher;
-    }
-
-    public void setVoucher(Voucher voucher) {
-        this.voucher = voucher;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public Instant getOrderDate() {
@@ -110,19 +79,51 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Voucher getVoucher() {
+        return voucher;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 
-    public Integer getId() {
-        return id;
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public ShippingMethod getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(ShippingMethod shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

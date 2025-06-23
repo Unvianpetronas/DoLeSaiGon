@@ -35,7 +35,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
            accountDetail.setPasswordHash(encodedPassword);
            accountDetail.setStatus(true);
            accountDetail.setCreatedAt(LocalDateTime.now());
-           accountDetail.setAddresses(new ArrayList<>());
            if(customerDetail == null){
                throw new IllegalArgumentException("Customer cannot be null");
            }
@@ -58,13 +57,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             accountDetail.setPasswordHash(encodedPassword);
             accountDetail.setStatus(true);
             accountDetail.setCreatedAt(LocalDateTime.now());
-            if(accountDetail.getAddresses().size() > 0 && !accountDetail.getAddresses().isEmpty()){
-                for(Address address : accountDetail.getAddresses()){
-                    address.setAccount(accountDetail);
-                }
-            }else{
-                accountDetail.setAddresses(new ArrayList<>());
-            }
             if(staffDetail == null){
                 throw new IllegalArgumentException("staffDetail cannot be null");
             }
@@ -120,8 +112,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             return false;
         }
     }
-
-
 
     public boolean validateNewAccount(String email){
         if(accountRepository.existsByEmail(email)){

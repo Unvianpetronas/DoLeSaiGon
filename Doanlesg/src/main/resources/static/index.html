@@ -1,10 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Trang Chủ - DOLESAIGON</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .user-info { font-size: 1.2em; }
+        .user-info button { margin-left: 15px; }
+        .loading { color: #888; }
+    </style>
 </head>
 <body>
+
+<div class="header">
+    <h1>DOLESAIGON</h1>
+</div>
+
+<hr>
+
+<div class="main-content">
+    <div id="welcome-message" class="user-info">
+        <span class="loading">Đang tải thông tin người dùng...</span>
+    </div>
+</div>
+
+<hr>
+<h2>Nội dung trang chủ của bạn...</h2>
+<p><a href="/api/product">Xem sản phẩm</a></p>
+
+
+<script>
+    window.addEventListener('DOMContentLoaded', async () => {
+        const welcomeDiv = document.getElementById('welcome-message');
+
+        try {
+            // 1. Gọi đến API của bạn
+            const response = await fetch('/api/home/home');
+
+            // 2. Lấy dữ liệu JSON từ phản hồi
+            const data = await response.json();
+
+            // 3. Kiểm tra dữ liệu và cập nhật HTML
+            if (data.success === true) {
+                // Nếu đăng nhập thành công, hiển thị lời chào và nút logout
+                welcomeDiv.innerHTML = `
+                        <span>Xin chào, <strong>${data.message}</strong>!</span>
+                        <form action="/perform_logout" method="post" style="display:inline;">
+                            <button type="submit">Đăng xuất</button>
+                        </form>
+                    `;
+            } else {
+                // Nếu chưa đăng nhập, hiển thị link đăng nhập
+                welcomeDiv.innerHTML = '<a href="/login.html">Vui lòng đăng nhập</a>';
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi lấy thông tin người dùng:', error);
+            welcomeDiv.innerHTML = 'Không thể tải thông tin. Vui lòng thử lại.';
+            welcomeDiv.style.color = 'red';
+        }
+    });
+</script>
 
 </body>
 </html>

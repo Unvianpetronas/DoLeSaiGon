@@ -49,6 +49,8 @@ public class SingleQrCodePoller {
                             logger.info("✅✅✅ [POLLER for {}] PAYMENT FOUND! ID: {}, Amount: {}",
                                     uniqueCode, record.getId(), record.getAmount());
 
+                            //TODO: Thuc hien gui direct den /send-invoice.
+
                             qrCodeManager.markAsPaid(uniqueCode);
                             paymentFound = true;
                             break;
