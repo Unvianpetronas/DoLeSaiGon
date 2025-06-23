@@ -55,44 +55,28 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
-    public String getNotes() {
-        return notes;
+    public Integer getId() {
+        return id;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public ShippingMethod getShippingMethod() {
-        return shippingMethod;
+    public Instant getOrderDate() {
+        return orderDate;
     }
 
-    public void setShippingMethod(ShippingMethod shippingMethod) {
-        this.shippingMethod = shippingMethod;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setOrderDate(Instant orderDate) {
+        this.orderDate = orderDate;
     }
 
     public Voucher getVoucher() {
@@ -103,24 +87,43 @@ public class Order {
         this.voucher = voucher;
     }
 
-    public Instant getOrderDate() {
-        return orderDate;
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setOrderDate(Instant orderDate) {
-        this.orderDate = orderDate;
-    }
-    public Account getCustomer() {
-        return customer;
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
-    public void setCustomer(Account customer) {
-
-    public Integer getId() {
-        return id;
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public ShippingMethod getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(ShippingMethod shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }
