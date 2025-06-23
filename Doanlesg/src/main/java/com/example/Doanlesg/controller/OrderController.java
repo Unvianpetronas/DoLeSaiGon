@@ -30,4 +30,7 @@ public class OrderController {
     public static class CreateOrderRequest {
         public long amount;
     }
+
+    @PostMapping("/order")
+    public void createOrder(@RequestBody CreateOrderRequest request) {}
 }

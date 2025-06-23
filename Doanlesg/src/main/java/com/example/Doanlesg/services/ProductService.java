@@ -50,8 +50,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findByCategory(Long categoryId){
-        return productRepository.findByCategoryID(categoryId);
+    public Page<ProductDTO> findByCategory(Long categoryId, Pageable pageable) {
+        Page<Product> productPage = productRepository.findByCategoryID(categoryId,pageable);
+        return productPage.map(this::convertToDto);
     }
 
     @Transactional(readOnly = true)

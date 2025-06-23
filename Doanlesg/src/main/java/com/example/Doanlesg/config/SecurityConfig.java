@@ -3,6 +3,8 @@ package com.example.Doanlesg.config; // Or your actual package for SecurityConfi
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +21,11 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,8 +53,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // All other requests require authentication
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/api/ver0.0.1/login")
-                        .usernameParameter("email")
+                        .loginProcessingUrl("/api/ver0.0.1/l")
+                        .usernameParameter("username")
                         .passwordParameter("password")
                         .defaultSuccessUrl("/index.html", true) // Redirect after successful login
                         .failureUrl("/login.html?error=true") // Redirect after failed login
