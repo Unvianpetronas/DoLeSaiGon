@@ -5,7 +5,7 @@
   justify-content: center; /* căn giữa nút */
   padding: 20px 10px;
   min-height: 100vh;
-  background-image: url('../../assets/success.png'); /* ← đúng tên ảnh */
+  background-image: url('../../assets/Success.png'); /* ← đúng tên ảnh */
   background-size: 80%;
   background-position: center;
   background-repeat: no-repeat;

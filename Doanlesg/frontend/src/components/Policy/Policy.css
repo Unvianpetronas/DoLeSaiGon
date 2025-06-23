@@ -1,0 +1,30 @@
+.policy {
+  padding: 12px 24px 24px 24px; /* Giảm padding-top từ 24px xuống 12px */
+  max-width: 800px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+  line-height: 1.2;
+}
+
+.policy h1 {
+  color: #004d99;
+  font-size: 28px;
+  margin-top: 0;        /* Thêm dòng này */
+  margin-bottom: 10px;
+}
+
+.policy h2 {
+  color: #0066cc;
+  margin-top: 0;         /* Giảm sát lên trên */
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.policy ul {
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+.policy ul li {
+  margin-bottom: 8px;
+}

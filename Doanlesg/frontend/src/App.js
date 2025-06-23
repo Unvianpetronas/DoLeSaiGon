@@ -14,13 +14,13 @@ import Success from './components/Success/Success';
 import Details from "./components/Details/Details";
 import Contact from "./components/Contact/Contact";
 import Introduction from "./components/Introduction/Introduction";
-import Policies from './components/Policy/Policy';
+import Policy from './components/Policy/Policy';
 import Homepage from './components/Homepage/Homepage';
 import Shop from './components/Shop/Shop';
 import Favorite from './components/Favorite/Favorite';
-import Products from './components/Products/Products/Products';
-import Category from './components/Products/Category/Category';
 import CategoryMenu from './components/CategoryMenu/CategoryMenu';
+import Products from './components/Products/Products';
+import Description from './components/Description/Description';
 
 function App() {
   return (
@@ -34,15 +34,17 @@ function App() {
             <Route path="/register" element={<PageWrapper label="Đăng ký"><Register /></PageWrapper>} />
             <Route path="/cart" element={<PageWrapper label="Giỏ hàng"><Cart /></PageWrapper>} />
             <Route path="/contact" element={<PageWrapper label="Liên hệ"><Contact /></PageWrapper>} />
+            <Route path="/products" element={<PageWrapper label="Sản phẩm"><Products /></PageWrapper>} />
             <Route path="/introduction" element={<PageWrapper label="Giới thiệu"><Introduction /></PageWrapper>} />
             <Route path="/checkout" element={<PageWrapper label="Thanh toán ngay"><Checkout /></PageWrapper>} />
             <Route path="/success" element={<PageWrapper label="Đặt hàng thành công"><Success /></PageWrapper>} />
             <Route path="/details/:orderId" element={<PageWrapper label="Chi tiết đơn hàng"><Details /></PageWrapper>} />
-            <Route path="/policy/:policyType" element={<PolicyWrapper />} />
+            <Route
+              path="/policy/:policyType" element={<PolicyWrapper />}
+            />
             <Route path="/shop" element={<PageWrapper label="Hệ thống cửa hàng"><Shop /></PageWrapper>} />
             <Route path="/favorite" element={<PageWrapper label="Yêu thích"><Favorite /></PageWrapper>} />
-            <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
-            <Route path="/products" element={<PageWrapper label="Sản phẩm"><Products /></PageWrapper>} />
+            <Route path="/product/:productId" element={<Description />} />
           </Routes>
         </main>
         <Footer />
@@ -56,7 +58,7 @@ function Header() {
     <header className="header">
       <div className="top-header">
         <div className="logo">
-          <img src="/images/logo.png" alt="Logo" />
+            <img src="/logo.png" alt="Logo" />
         </div>
         <div className="search-bar">
           <input type="text" placeholder="Tìm sản phẩm..." />
@@ -85,20 +87,23 @@ function Header() {
       </div>
       <nav className="bottom-menu">
         <div className="menu-item category-menu">
-          <CategoryMenu />
-        </div>
+                  <CategoryMenu />
+                </div>
         <Link to="/" className="menu-item">Trang chủ</Link>
         <Link to="/introduction" className="menu-item">Giới thiệu</Link>
-        <div className="menu-item dropdown">
-          <Link to="/products" className="dropdown-title">Sản phẩm ▾</Link>
-            <div className="dropdown-content">
-              <Link to="/category/mam-hoa-qua">Mâm hoa quả</Link>
-              <Link to="/category/mam-cung-le">Mâm cúng lễ</Link>
-              <Link to="/category/hop-qua-tang">Hộp quà tặng</Link>
-              <Link to="/category/mam-banh">Mâm bánh</Link>
-              <Link to="/category/mam-man">Mâm chay, mặn</Link>
-            </div>
-          </div>
+       <div className="menu-item dropdown">
+                 <Link to="/products" className="dropdown-title">Sản phẩm ▾</Link>
+                   <div className="dropdown-content">
+                     <Link to="/category/to-yen">Tổ yến</Link>
+                     <Link to="/category/yen-chung-tuoi">Yến chưng tươi</Link>
+                     <Link to="/category/yen-nuoc">Yến nước</Link>
+                     <Link to="/category/dong-trung-ha-thao">Đông trùng hạ thảo</Link>
+                     <Link to="/category/sam-han-quoc">Sâm Hàn Quốc</Link>
+                     <Link to="/category/saffron">Saffron</Link>
+                     <Link to="/category/soup">Soup</Link>
+                     <Link to="/category/qua-bieu-cao-cap">Quà biếu cao cấp</Link>
+                   </div>
+                 </div>
         <Link to="/contact" className="menu-item">Liên hệ</Link>
         <div className="menu-item dropdown">
           <span>Chính sách ▾</span>
@@ -121,7 +126,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-columns">
         <div className="footer-column">
-          <img src="/images/logo.png" alt="Logo Footer" />
+          <img src="/logo.png" alt="Logo Footer" />
           <p>Công ty Dole Saigon</p>
           <p>Đường D1, Long Thạnh Mỹ, TP.Thủ Đức, TP.HCM</p>
           <p>Email: contact@dolesaigon.vn</p>
@@ -192,28 +197,8 @@ function PolicyWrapper() {
 
   return (
     <PageWrapper label={label}>
-      <Policies />
+      <Policy />
     </PageWrapper>
   );
 }
-
-const categoryTitles = {
-  'mam-hoa-qua': 'Mâm hoa quả',
-  'mam-cung-le': 'Mâm cúng lễ',
-  'hop-qua-tang': 'Hộp quà tặng',
-  'mam-banh': 'Mâm bánh',
-  'mam-man': 'Mâm chay, mặn',
-};
-
-function CategoryWrapper() {
-  const { categorySlug } = useParams();
-  const label = categoryTitles[categorySlug] || 'Danh mục';
-
-  return (
-    <PageWrapper label={label}>
-      <Category />
-    </PageWrapper>
-  );
-}
-
 export default App;
