@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { FaHeart } from 'react-icons/fa';
-import './Products.css';
 import { Link } from 'react-router-dom';
+import './Products.css';
 
 const categories = [
-  'Tổ yến', 'Yến chưng tươi', 'Yến nước', 'Đông trùng hạ thảo',
-  'Sâm Hàn Quốc', 'Saffron', 'Soup', 'Quà biếu cao cấp',
+  'Quà tặng cao cấp', 'Mâm hoa quả', 'Mâm bánh', 'Mâm chay, mặn', 'Mâm cúng lễ'
 ];
 
 const ProductsPage = () => {
@@ -42,9 +41,11 @@ const ProductsPage = () => {
   ]);
 
   const toggleFavorite = (id) => {
-    setProducts(products.map(item =>
-      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-    ));
+    setProducts(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+      )
+    );
   };
 
   const addToCart = (item) => {
@@ -53,7 +54,7 @@ const ProductsPage = () => {
 
   return (
     <div className="products-wrapper">
-      {/* Banner / Giới thiệu */}
+      {/* Giới thiệu thương hiệu */}
       <div className="products-banner">
         <h2 className="brand-name">DoleSaigon</h2>
         <p className="products-description">
@@ -64,14 +65,14 @@ const ProductsPage = () => {
         </p>
       </div>
 
-      {/* Tiêu đề chính */}
+      {/* Tiêu đề */}
       <h2 className="products-title">Tất cả sản phẩm</h2>
 
-      {/* Danh mục sản phẩm */}
+      {/* Liên kết danh mục */}
       <div className="category-links">
-        {categories.map((cat, index) => (
+        {categories.map((cat, idx) => (
           <Link
-            key={index}
+            key={idx}
             to={`/category/${cat.replace(/\s+/g, '-').toLowerCase()}`}
             className="category-link"
           >
@@ -81,36 +82,34 @@ const ProductsPage = () => {
       </div>
 
       {/* Danh sách sản phẩm */}
-      {products.length === 0 ? (
-        <p>Không có sản phẩm nào.</p>
-      ) : (
-        <div className="products-grid">
-          {products.map(item => (
-            <div key={item.id} className="product-card">
+      <div className="products-grid">
+        {products.map(item => (
+          <div key={item.id} className="product-card">
+            <Link to={`/product/${item.id}`} className="product-link">
               {item.discount && (
                 <div className="discount-badge">{item.discount}</div>
               )}
               <img src={item.image} alt={item.name} className="product-image" />
               <h3 className="product-name">{item.name}</h3>
               <p className="product-price">{item.price.toLocaleString()} đ</p>
+            </Link>
 
-              <div className="product-actions">
-                <button
-                  className="heart-btn"
-                  onClick={() => toggleFavorite(item.id)}
-                  title="Yêu thích"
-                >
-                  <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
-                </button>
+            <div className="product-actions">
+              <button
+                className="heart-btn"
+                onClick={() => toggleFavorite(item.id)}
+                title="Yêu thích"
+              >
+                <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+              </button>
 
-                <button className="add-btn" onClick={() => addToCart(item)}>
-                  Thêm vào giỏ
-                </button>
-              </div>
+              <button className="add-btn" onClick={() => addToCart(item)}>
+                Thêm vào giỏ
+              </button>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

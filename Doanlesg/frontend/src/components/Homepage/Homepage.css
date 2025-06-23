@@ -215,34 +215,35 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
-  background: transparent;
+  background: #fff;
   padding: 0;
-  box-shadow: none
 }
 
-
 .price-box {
-  background: white;
-    border: 2px solid #fff;
-    padding: 0px;
-    margin-top: 10px;
-    border-radius: 6px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.05);
-    text-align: center;
-    transition: transform 0.3s ease;
-    transform: translateY(0);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  padding: 2px 0;
+  transition: transform 0.3s ease;
+  transform: translateY(0);
+  z-index: 2;
+  margin-bottom: -5px;
 }
 
 .promo-item:hover .price-box {
-  transform: translateY(-10px); /* hoặc -15px nếu muốn trồi nhiều hơn */
+  transform: translateY(-5px); /* hoặc -15px nếu muốn trồi nhiều hơn */
 }
 
 .promo-item img {
   width: 100%;
-  height: 250px;
+  height: 315px;
   object-fit: cover;
   transition: transform 0.3s ease;
   display: block;
+  z-index: 1;
 }
 
 .promo-item:hover img {
@@ -271,7 +272,7 @@
 .promo-info p {
   margin: 0;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 25px;
 }
 
 .old-price {
@@ -306,19 +307,272 @@
   border-radius: 4px;
 }
 
-.view-all-btn {
-  display: block;
-  margin: 30px auto 0;
-  background: #1a3d2f;
+.story-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url('../../assets/banner2.png'); /* ← thay bằng background banner của bạn */
+  background-size: cover;
+  background-position: center;
+  padding: 50px 40px;
+  gap: 100px;
   color: #fff;
-  padding: 12px 24px;
-  border-radius: 6px;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+  margin-top: 60px;
+  height: 300px;
 }
 
-.view-all-btn:hover {
-  background: #145136;
+.story-content {
+  max-width: 45%;
+  background: rgba(0, 0, 0, 0.6); /* khung chữ mờ nhẹ */
+  padding: 4px;
+  border-left: 5px solid #d9a441;
+  border-radius: 10px;
+  margin-left: 50px;
+  width: 500px;
+  height: 350px;
+}
+
+.story-content h4 {
+  font-size: 12px;
+  color: #d9a441;
+  margin-bottom: 3px;
+}
+
+.story-content h2 {
+  font-size: 20px;
+  color: #ffd700;
+  margin-bottom: 6px;
+}
+
+.story-content p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.story-button {
+  margin-top: 5px;
+  padding: 10px 20px;
+  background-color: #d9a441;
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.story-button:hover {
+  background-color: #c5923a;
+}
+
+.story-image img {
+  width: 400px;
+  border-radius: 10px;
+  margin-right: 150px;
+}
+/* khung sản phẩm */
+.product-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.tabs {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  position: relative;
+  background-color: #FDC97D; /* màu kem/vàng nhạt */
+  border: 2px solid #1f3f32; /* viền ngoài */
+  padding: 4px; /* tạo khoảng cách giữa viền ngoài và viền trong */
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.tabs button .inner-border {
+  display: block;
+  border: 1px solid #1f3f32; /* viền trong */
+  padding: 6px 10px; /* kích thước nội dung */
+  color: #1f3f32;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #FDC97D;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  filter: brightness(0.97);
+}
+
+.tabs button.active {
+  background-color: #1f3f32;
+  border-color: #1f3f32;
+}
+
+.tabs button.active .inner-border {
+  background-color: #1f3f32;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5); /* viền trong khi active */
+}
+
+.tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #1f3f32;
+}
+
+
+
+
+.product-grid {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cột */
+  gap: 16px;
+  padding: 0 120px; /* giảm khoảng cách lề trái/phải */
+}
+
+.product-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  background: #fff;
+  padding: 0;
+  border: none;
+  height: auto;
+  width: 60%%; /* full width trong cột */
+}
+
+/* Vùng ảnh */
+.product-img {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Đảm bảo ảnh fill đúng tỉ lệ không méo */
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img img {
+  transform: scale(1.08); /* Phóng to nhẹ khi hover */
+}
+
+/* Tag giảm giá */
+.discount {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #d10000;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+/* Thanh chứa giá + tên */
+.price {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 5px 8px;
+  transition: transform 0.3s ease;
+  transform: translateY(0);
+  z-index: 2;
+}
+
+.product-card:hover .price {
+  transform: translateY(-0px);
+}
+
+.price .name {
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 7px;
+}
+
+.original {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 13px;
+}
+
+.sale {
+  color: #d10000;
+  font-size: 18px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.why-choose-us {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.why-choose-us h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #1f3f32;
+  font-weight: bold;
+  position: relative;
+}
+
+.flip-card {
+  background-color: transparent;
+  width: 850px;
+  height: 580px;
+  perspective: 1000px; /* tạo hiệu ứng 3D */
+  margin: 0 auto;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.flip-card-front img,
+.flip-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }

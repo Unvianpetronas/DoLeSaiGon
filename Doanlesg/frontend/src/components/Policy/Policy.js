@@ -97,7 +97,7 @@ const contents = {
 
         <h2>II. Nội dung chi tiết</h2>
 
-        <h3>1. Sudes Nest trực tiếp giao hàng tận nơi</h3>
+        <h3>1. DoleSaigon trực tiếp giao hàng tận nơi</h3>
         <ul>
           <li><strong>Miễn phí giao hàng</strong> với khoảng cách lên đến <strong>300km</strong>.</li>
           <li><strong>Khung giờ giao hàng:</strong> từ 8h00 đến 21h00 hàng ngày.</li>
@@ -192,7 +192,7 @@ const contents = {
         <ul>
           <li>Cam kết không chia sẻ thông tin khách hàng cho bên thứ ba nếu không có sự đồng ý.</li>
           <li>Thông tin chỉ chia sẻ với đơn vị vận chuyển để giao hàng.</li>
-          <li>Nếu hệ thống bị tấn công gây rò rỉ dữ liệu, Sudes Nest sẽ thông báo đến cơ quan chức năng và khách hàng kịp thời.</li>
+          <li>Nếu hệ thống bị tấn công gây rò rỉ dữ liệu, DoleSaigon sẽ thông báo đến cơ quan chức năng và khách hàng kịp thời.</li>
           <li>Yêu cầu khách hàng cung cấp thông tin chính xác khi mua hàng. Chúng tôi không chịu trách nhiệm với các khiếu nại phát sinh từ thông tin sai lệch.</li>
         </ul>
 
@@ -212,7 +212,7 @@ const contents = {
 
         <h3>1. Thẻ thành viên</h3>
         <p>
-          Khách hàng sẽ được cấp thẻ thành viên khi mua hàng tại hệ thống Sudes Nest. Thẻ thành viên mang đến nhiều quyền lợi và ưu đãi trong quá trình mua sắm.
+          Khách hàng sẽ được cấp thẻ thành viên khi mua hàng tại hệ thống DoleSaigon. Thẻ thành viên mang đến nhiều quyền lợi và ưu đãi trong quá trình mua sắm.
         </p>
 
         <h3>2. Thẻ VIP</h3>
@@ -222,7 +222,7 @@ const contents = {
         <ul>
           <li>Tổng giá trị đơn hàng từ <strong>15 triệu đồng trở lên/tháng</strong>.</li>
           <li>Mỗi lần mua hàng có giá trị từ <strong>3 triệu đồng trở lên</strong>.</li>
-          <li>Tham gia các chương trình khuyến mãi hoặc hoạt động do Sudes Nest tổ chức.</li>
+          <li>Tham gia các chương trình khuyến mãi hoặc hoạt động do DoleSaigon tổ chức.</li>
         </ul>
 
         <p>

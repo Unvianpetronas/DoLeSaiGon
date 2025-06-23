@@ -21,6 +21,7 @@ import Favorite from './components/Favorite/Favorite';
 import Products from './components/Products/Products/Products';
 import Category from './components/Products/Category/Category';
 import CategoryMenu from './components/CategoryMenu/CategoryMenu';
+import Description from './components/Description/Description';
 
 function App() {
   return (
@@ -38,11 +39,14 @@ function App() {
             <Route path="/checkout" element={<PageWrapper label="Thanh toán ngay"><Checkout /></PageWrapper>} />
             <Route path="/success" element={<PageWrapper label="Đặt hàng thành công"><Success /></PageWrapper>} />
             <Route path="/details/:orderId" element={<PageWrapper label="Chi tiết đơn hàng"><Details /></PageWrapper>} />
+            <Route path="/details" element={<PageWrapper label="Đơn hàng"><Details /></PageWrapper>} />
             <Route path="/policy/:policyType" element={<PolicyWrapper />} />
             <Route path="/shop" element={<PageWrapper label="Hệ thống cửa hàng"><Shop /></PageWrapper>} />
             <Route path="/favorite" element={<PageWrapper label="Yêu thích"><Favorite /></PageWrapper>} />
             <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
             <Route path="/products" element={<PageWrapper label="Sản phẩm"><Products /></PageWrapper>} />
+            <Route path="/product/:productId" element={<Description />} />
+
           </Routes>
         </main>
         <Footer />
@@ -80,7 +84,7 @@ function Header() {
             </div>
           </div>
           <Link to="/cart" className="icon-item"><FaShoppingCart /><div className="icon-text">Giỏ hàng</div></Link>
-          <div className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></div>
+          <Link to="/details" className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></Link>
         </div>
       </div>
       <nav className="bottom-menu">
