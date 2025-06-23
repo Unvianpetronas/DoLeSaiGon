@@ -494,7 +494,7 @@ const productData2 = {
   <div className="testimonials green-background">
     <h2>KHÁCH HÀNG NÓI VỀ CHÚNG TÔI</h2>
     <p>Hơn +1000 khách hàng đã sử dụng cảm nhận như thế nào về DOLESAIGON</p>
-    <div className="divider-icon">⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯</div>
+    <div className="divider-icon">⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯</div>
   </div>
 
   <div className="testimonial-list">
