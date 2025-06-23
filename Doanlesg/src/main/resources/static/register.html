@@ -23,7 +23,7 @@
             phoneNumber: document.getElementById('phoneNumber').value
         };
 
-        const response = await fetch('/api/register', {
+        const response = await fetch('api/ver0.0.1/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)

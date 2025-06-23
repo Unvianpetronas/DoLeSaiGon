@@ -79,6 +79,38 @@ public class Order {
         this.account = account;
     }
 
+    public String getReceiverFullName() {
+        return receiverFullName;
+    }
+
+    public void setReceiverFullName(String receiverFullName) {
+        this.receiverFullName = receiverFullName;
+    }
+
+    public String getReceiverPhoneNumber() {
+        return receiverPhoneNumber;
+    }
+
+    public void setReceiverPhoneNumber(String receiverPhoneNumber) {
+        this.receiverPhoneNumber = receiverPhoneNumber;
+    }
+
+    public String getReceiverEmail() {
+        return receiverEmail;
+    }
+
+    public void setReceiverEmail(String receiverEmail) {
+        this.receiverEmail = receiverEmail;
+    }
+
+    public String getFullShippingAddress() {
+        return fullShippingAddress;
+    }
+
+    public void setFullShippingAddress(String fullShippingAddress) {
+        this.fullShippingAddress = fullShippingAddress;
+    }
+
     public Instant getOrderDate() {
         return orderDate;
     }
