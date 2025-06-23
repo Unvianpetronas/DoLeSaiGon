@@ -53,7 +53,7 @@ public class StaffServices {
     public List<Order> searchOrders(String keyword) {
         return orderRepository.findAll().stream()
                 .filter(order -> order.getOrderStatus().toLowerCase().contains(keyword.toLowerCase())
-                        || order.getCustomer().getFullName().toLowerCase().contains(keyword.toLowerCase()))
+                        || order.getAccount().getCustomer().getFullName().toLowerCase().contains(keyword.toLowerCase()))
                 .toList();
     }
 

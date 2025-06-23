@@ -19,12 +19,20 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-
+    @MapsId
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @NotNull
-    @ColumnDefault("getdate()")
+    @Column(name = "receiver_fullname", nullable = false)
+    private String receiverFullName;
+
+    @Column(name = "receiver_phonenumber", nullable = false)
+    private String receiverPhoneNumber;
+    @Column(name = "receiver_mail", nullable = false)
+    private  String receiverEmail;
+    @Column(name = "fullshipping_address", nullable = false)
+    private String fullShippingAddress;
+
     @Column(name = "order_date", nullable = false)
     private Instant orderDate;
 

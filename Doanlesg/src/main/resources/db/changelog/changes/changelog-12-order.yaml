@@ -15,12 +15,32 @@ databaseChangeLog:
                     primaryKeyName: pk_order
                     nullable: false
               - column:
-                  name: customer_id
+                  name: account_id
                   type: INT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_order_customer_id
+                    foreignKeyName: fk_order_account_id
                     references: account(account_id) #phai map origin khong qua thang dung giua
+              - column:
+                  name: receiver_fullname
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_phonenumber
+                  type: NVARCHAR(20) # Điều chỉnh độ dài nếu cần
+                  constraints:
+                    nullable: false
+              - column:
+                   name: receiver_mail
+                   type: NVARCHAR(255)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: fullshipping_address
+                   type: NVARCHAR(MAX) # Địa chỉ có thể dài
+                   constraints:
+                       nullable: false
               - column:
                   name: order_date
                   type: DATETIME
@@ -52,6 +72,11 @@ databaseChangeLog:
                   constraints:
                     nullable: true # Hoặc false
                     foreignKeyName: fk_order_shipping_method_id
+              - column:
+                  name: order_status
+                  type: NVARCHAR(50) # Khớp với length trong entity
+                  constraints:
+                    nullable: false
               - column:
                   name: notes
                   type: NVARCHAR(MAX)
