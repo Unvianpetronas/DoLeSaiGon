@@ -1,68 +1,66 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Login.css';
+import { Link, useNavigate } from 'react-router-dom';
+import '../Login/Login.css';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
+  // Có thể giữ hàm này nếu bạn muốn kiểm tra trạng thái đăng nhập sau khi trang được tải hoặc sau khi login thành công
+  // Tuy nhiên, với defaultSuccessUrl của Spring Security, trình duyệt sẽ tự động chuyển hướng.
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/user', {
-        credentials: 'include',
+      const response =  fetch('http://localhost:8080/api/user', {
+        credentials: 'include', // Quan trọng để gửi cookie phiên
       });
       if (response.ok) {
         const data = await response.json();
-        setUser(data.name);
-        setError('');
+        console.log('User authenticated:', data);
+        navigate('/index.html'); // Chuyển hướng sau khi xác thực thành công
       } else {
-        setUser(null);
+        console.log('User not authenticated.');
       }
     } catch (err) {
-      setUser(null);
+      console.error('Error checking auth status:', err);
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // 1. Create a plain JavaScript object with the user's data
-    const loginData = {
-      username: username,
-      password: password,
-    };
-
+    setLoading(true);
     try {
-      // 2. Perform the login POST request
       const response = await fetch('http://localhost:8080/api/ver0.0.1/login', {
         method: 'POST',
-        // 3. Set the correct header for JSON
         headers: {
           'Content-Type': 'application/json',
         },
-        // 4. Convert the JavaScript object to a JSON string
-        body: JSON.stringify(loginData),
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
       });
-
-      // 5. Check the response and then verify auth status
-      if (response.ok) {
-        console.log('Login request successful');
-        await checkAuthStatus();
+      const data = await response.json();
+      if (data.success) {
+        navigate('/dashboard');
       } else {
-        setError('Login failed. Please check your credentials.');
+        setError(data.message || 'Đăng nhập thất bại');
       }
     } catch (err) {
-      setError('An error occurred during login.');
-      console.error(err);
+      setError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (user) {
-    return <div>Welcome, {user}!</div>;
-  }
+
+  // Nếu user đã đăng nhập (ví dụ: sau khi refresh trang và session vẫn còn),
+  // bạn có thể muốn tự động chuyển hướng hoặc hiển thị thông tin user.
+  // Tuy nhiên, với formLogin của Spring Security, việc này thường được xử lý bằng redirect backend.
+  // if (user) {
+  //   return <div>Welcome, {user}!</div>;
+  // }
 
   return (
       <div className="login-wrapper">
@@ -70,14 +68,14 @@ const Login = () => {
           <h2>ĐĂNG NHẬP</h2>
           {error && <p className="error-message">{error}</p>}
           <form className="login-form" onSubmit={handleSubmit}>
-            {/* IMPORTANT: Added value and onChange to connect inputs to state */}
+            {/* Đảm bảo type là email và tên là email */}
             <input
                 type="email"
-                name="username"
+                name="email" // Tên thuộc tính này không thực sự quan trọng khi bạn gửi bằng fetch với URLSearchParams, nhưng giữ nó rõ ràng vẫn tốt
                 placeholder="Email"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email} // Gắn với state 'email'
+                onChange={(e) => setEmail(e.target.value)}
             />
             <input
                 type="password"
@@ -90,7 +88,7 @@ const Login = () => {
             <button type="submit">Đăng nhập</button>
           </form>
           <p>
-            Chưa có tài khoản? <Link to="/register">Đăng ký tại đây</Link>
+            Chưa có tài khoản? <Link to="/register.html">Đăng ký tại đây</Link>
           </p>
         </div>
       </div>
