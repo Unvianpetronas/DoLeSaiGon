@@ -17,7 +17,7 @@ import Introduction from "./components/Introduction/Introduction";
 import Policy from './components/Policy/Policy';
 import Homepage from './components/Homepage/Homepage';
 import Shop from './components/Shop/Shop';
-import Favorite from './components/Favorite/Favorite';
+import Like from './components/Like/Like';
 import CategoryMenu from './components/CategoryMenu/CategoryMenu';
 import Products from './components/Products/Products';
 import Description from './components/Description/Description';
@@ -43,8 +43,9 @@ function App() {
               path="/policy/:policyType" element={<PolicyWrapper />}
             />
             <Route path="/shop" element={<PageWrapper label="Hệ thống cửa hàng"><Shop /></PageWrapper>} />
-            <Route path="/favorite" element={<PageWrapper label="Yêu thích"><Favorite /></PageWrapper>} />
+            <Route path="/like" element={<PageWrapper label="Yêu thích"><Like /></PageWrapper>} />
             <Route path="/product/:productId" element={<Description />} />
+            <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
           </Routes>
         </main>
         <Footer />
@@ -69,7 +70,7 @@ function Header() {
            <FaMapMarkerAlt />
            <div className="icon-text">Cửa hàng</div>
          </Link>
-         <Link to="/favorite" className="icon-item">
+         <Link to="/like" className="icon-item">
            <FaRegHeart />
            <div className="icon-text">Yêu thích</div>
          </Link>
@@ -94,15 +95,12 @@ function Header() {
        <div className="menu-item dropdown">
                  <Link to="/products" className="dropdown-title">Sản phẩm ▾</Link>
                    <div className="dropdown-content">
-                     <Link to="/category/to-yen">Tổ yến</Link>
-                     <Link to="/category/yen-chung-tuoi">Yến chưng tươi</Link>
-                     <Link to="/category/yen-nuoc">Yến nước</Link>
-                     <Link to="/category/dong-trung-ha-thao">Đông trùng hạ thảo</Link>
-                     <Link to="/category/sam-han-quoc">Sâm Hàn Quốc</Link>
-                     <Link to="/category/saffron">Saffron</Link>
-                     <Link to="/category/soup">Soup</Link>
-                     <Link to="/category/qua-bieu-cao-cap">Quà biếu cao cấp</Link>
-                   </div>
+                               <Link to="/category/mam-hoa-qua">Mâm hoa quả</Link>
+                               <Link to="/category/mam-cung-le">Mâm cúng lễ</Link>
+                               <Link to="/category/hop-qua-tang">Hộp quà tặng</Link>
+                               <Link to="/category/mam-banh">Mâm bánh</Link>
+                               <Link to="/category/mam-chay-man">Mâm chay, mặn</Link>
+                             </div>
                  </div>
         <Link to="/contact" className="menu-item">Liên hệ</Link>
         <div className="menu-item dropdown">
@@ -180,6 +178,20 @@ function PageWrapper({ label, children }) {
       {children}
     </>
   );
+}
+
+const categories = {
+  'mam-hoa-qua': 'Mâm hoa quả',
+  'mam-cung-le': 'Mâm cúng lễ',
+  'hop-qua-tang': 'Hộp quà tặng',
+  'mam-banh': 'Mâm bánh',
+  'mam-chay-man': 'Mâm chay, mặn',
+};
+
+function CategoryWrapper() {
+  const { categorySlug } = useParams();
+  const label = categories[categorySlug] || 'Danh mục';
+  return <PageWrapper label={label}><Products /></PageWrapper>;
 }
 
 const policyTitles = {

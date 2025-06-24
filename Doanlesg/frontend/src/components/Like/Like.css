@@ -81,6 +81,8 @@ body {
   color: #e53935;
   font-weight: bold;
   margin-bottom: 0px;
+  text-align: center;
+  width: 100%;
 }
 
 .discount-badge {
