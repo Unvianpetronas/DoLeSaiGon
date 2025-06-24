@@ -1,58 +1,127 @@
-import React from "react";
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { CategoryData } from "../../data/CategoryData";
 import "./Description.css";
 
 const Description = () => {
+  const { productId } = useParams();
+  const id = parseInt(productId);
+
+  // Trích xuất tất cả sản phẩm từ CategoryData
+  const allProducts = CategoryData.flatMap((cat) =>
+    cat.products.map((p) => ({ ...p, category: cat.slug }))
+  );
+
+  const product = allProducts.find((item) => item.id === id);
+  const [quantity, setQuantity] = useState(1);
+  const [imageIndex, setImageIndex] = useState(0);
+  const selectedImage = product?.extraImages?.[imageIndex] || product?.image || "";
+
+  if (!product) return <div className="not-found">Sản phẩm không tồn tại.</div>;
+
+  const relatedProducts = product.related
+    ?.map((rid) => allProducts.find((p) => p.id === rid))
+    .filter(Boolean) || [];
+
+  const handleQuantity = (type) => {
+    if (type === "decrease" && quantity > 1) setQuantity(quantity - 1);
+    else if (type === "increase") setQuantity(quantity + 1);
+  };
+
+  const handleImageChange = (direction) => {
+    let newIndex = imageIndex + direction;
+    if (!product.extraImages || product.extraImages.length === 0) return;
+    if (newIndex < 0) newIndex = product.extraImages.length - 1;
+    if (newIndex >= product.extraImages.length) newIndex = 0;
+    setImageIndex(newIndex);
+  };
+
   return (
     <div className="product-detail-container">
-      <div className="product-main">
-        <div className="product-images">
-          <img src="/product-main.jpg" alt="Product" className="main-image" />
-          <div className="thumbnails">
-            <img src="/product-main.jpg" alt="thumb" />
-            <img src="/product-main.jpg" alt="thumb" />
-            <img src="/product-main.jpg" alt="thumb" />
-          </div>
-        </div>
-        <div className="product-info">
-          <h1 className="product-title">Set 12 Thưởng Vị Yến Đảo</h1>
-          <p className="product-sub">Thương hiệu: DoleSeason | Tình trạng: Còn hàng</p>
-          <p className="product-price">1.656.000đ <span className="original-price">2.200.000đ</span></p>
-
-          <div className="product-options">
-            <label>Số lượng:</label>
-            <div className="quantity-control">
-              <button>-</button>
-              <span>1</span>
-              <button>+</button>
+      {/* PHẦN 1: Hình ảnh & thông tin */}
+      <div className="product-main-wrapper">
+        <div className="product-main">
+          {/* Hình ảnh */}
+          <div className="product-images">
+            <div className="image-wrapper">
+              {product.extraImages?.length > 1 && (
+                <>
+                  <button className="nav-button prev" onClick={() => handleImageChange(-1)}>
+                    ❮
+                  </button>
+                  <img src={selectedImage} alt={product.name} className="main-image" />
+                  <button className="nav-button next" onClick={() => handleImageChange(1)}>
+                    ❯
+                  </button>
+                </>
+              )}
+              {(!product.extraImages || product.extraImages.length <= 1) && (
+                <img src={selectedImage} alt={product.name} className="main-image" />
+              )}
+            </div>
+            <div className="thumbnails">
+              {product.extraImages?.map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt={`thumb-${index}`}
+                  className={imageIndex === index ? "active" : ""}
+                  onClick={() => setImageIndex(index)}
+                />
+              ))}
             </div>
           </div>
 
-          <div className="action-buttons">
-            <button className="buy-now">Mua ngay</button>
-            <button className="add-to-cart">Thêm vào giỏ</button>
-          </div>
+          {/* Thông tin sản phẩm */}
+          <div className="product-info">
+            <h1 className="product-title">{product.name}</h1>
+            <p className="product-sub">Thương hiệu: DoleSeason | Tình trạng: Còn hàng</p>
+            <p className="product-price">
+              {product.price.toLocaleString()}đ
+              {product.originalPrice && (
+                <span className="original-price">
+                  {product.originalPrice.toLocaleString()}đ
+                </span>
+              )}
+            </p>
 
-          <div className="product-icons">
-            <span>❤ Thích</span>
-            <span>📤 Chia sẻ</span>
+            <div className="product-options">
+              <label>Số lượng:</label>
+              <div className="quantity-control">
+                <button onClick={() => handleQuantity("decrease")}>-</button>
+                <span>{quantity}</span>
+                <button onClick={() => handleQuantity("increase")}>+</button>
+              </div>
+            </div>
+
+            <div className="action-buttons">
+              <button className="buy-now">Mua ngay</button>
+              <button className="add-to-cart">Thêm vào giỏ</button>
+            </div>
+
+            <div className="product-icons">
+              <span>❤ Thích</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="product-tabs">
+      {/* PHẦN 2: Mô tả */}
+      <div className="product-description-wrapper">
         <h2>Mô Tả Sản Phẩm</h2>
-        <p>
-          Thưởng vị Yến Đảo – set quà cao quý bậc nhất. Hộp quà Thưởng vị Yến Đảo với hình ảnh vàng hoàng gia sang trọng, bắt mắt...
-        </p>
+        <p>{product.description}</p>
+      </div>
 
+      {/* PHẦN 3: Sản phẩm liên quan */}
+      <div className="related-products-wrapper">
         <h2>Sản Phẩm Liên Quan</h2>
         <div className="related-products">
-          {Array(4).fill().map((_, index) => (
-            <div className="related-item" key={index}>
-              <img src="/product-main.jpg" alt="related" />
-              <p>Set X Thưởng Vị Yến Đảo</p>
-              <span className="related-price">999.000đ</span>
-            </div>
+          {relatedProducts.map((rel) => (
+            <Link to={`/product/${rel.id}`} className="related-item" key={rel.id}>
+              <img src={rel.image} alt={rel.name} />
+              <p>{rel.name}</p>
+              <span className="related-price">{rel.price.toLocaleString()}đ</span>
+            </Link>
           ))}
         </div>
       </div>

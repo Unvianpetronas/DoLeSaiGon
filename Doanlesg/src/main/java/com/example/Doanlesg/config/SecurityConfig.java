@@ -1,11 +1,7 @@
 package com.example.Doanlesg.config; // Or your actual package for SecurityConfig
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,18 +10,12 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,11 +30,11 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/vendor/**", // If you have a vendor folder for static resources
                                 "/login",
-                                "/favicon.ico",
-                                "/manifest.json",
-                                "/static/**",  // Crucial for JS and CSS files
                                 "/register.html",// Explicitly permit direct access to register.html
-                                "api/ver0.0.1/**"
+                                "/register/createAccount",
+                                "/createAccount",
+                                "/register",
+                                "/api/**"
                                 // Permit all paths under RegisterController (e.g., /registerController/register, /registerController/createAccount)
                                 // Add any other public paths here
                         ).permitAll()
@@ -53,10 +43,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // All other requests require authentication
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/api/ver0.0.1/l")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/index.html", true) // Redirect after successful login
+                        .loginPage("/login.html") // Your custom login page
+                        .loginProcessingUrl("/perform_login") // URL to submit username and password to
+                        .defaultSuccessUrl("/home/home", true) // Redirect after successful login
                         .failureUrl("/login.html?error=true") // Redirect after failed login
                         .permitAll()
                 )
