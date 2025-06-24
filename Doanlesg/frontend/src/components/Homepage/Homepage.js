@@ -10,6 +10,7 @@ export default function Homepage() {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,275 +39,34 @@ export default function Homepage() {
 
     updateCountdown();
     const countdownInterval = setInterval(updateCountdown, 1000);
-
-    const items = document.querySelectorAll(".promo-item");
-    items.forEach((item) => {
-      const tag = document.createElement("div");
-      tag.className = "discount-tag";
-      const oldPrice = item.querySelector(".old-price")?.innerText.replace(/\D/g, "") || "0";
-      const newPrice = item.querySelector(".new-price")?.innerText.replace(/\D/g, "") || "0";
-      const discount = Math.round((1 - parseInt(newPrice) / parseInt(oldPrice)) * 100);
-      tag.innerText = `-${discount}%`;
-      item.appendChild(tag);
-    });
-
     return () => clearInterval(countdownInterval);
   }, []);
 
-  const productData = {
-    'Xôi đậu': [
-      {
-        name: 'Xôi đậu xanh',
-        price: '2.900.000đ',
-        originalPrice: '3.100.000đ',
-        discount: '-6%',
-        image: './LongQuyTuPhuc.png'
-      },
-      {
-        name: 'Xôi đậu phộng',
-        price: '3.200.000đ',
-        originalPrice: '3.500.000đ',
-        discount: '-9%',
-        image: './product2.jpg'
-      },
-      {
-      name: 'Xôi đậu đen',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-10%',
-      image: './product2.jpg'
-      },
-      {
-      name: 'Xôi đậu đỏ',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-9%',
-      image: './product2.jpg'
-      },
-      {
-      name: 'Xôi đậu trắng',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-9%',
-      image: './product2.jpg'
-      },
-      {
-            name: 'Xôi đậu đen',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-10%',
-            image: './product2.jpg'
-            },
-            {
-            name: 'Xôi đậu đỏ',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-            },
-            {
-            name: 'Xôi đậu trắng',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-            }
-    ],
-    'Xôi gấc': [
-    {
-            name: 'Xôi đậu xanh',
-            price: '2.900.000đ',
-            originalPrice: '3.100.000đ',
-            discount: '-6%',
-            image: './LongQuyTuPhuc.png'
-          },
-          {
-            name: 'Xôi đậu phộng',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-          },
-          {
-          name: 'Xôi đậu đen',
-          price: '3.200.000đ',
-          originalPrice: '3.500.000đ',
-          discount: '-10%',
-          image: './product2.jpg'
-          },
-          {
-          name: 'Xôi đậu đỏ',
-          price: '3.200.000đ',
-          originalPrice: '3.500.000đ',
-          discount: '-9%',
-          image: './product2.jpg'
-          }
-    ],
-    'Chè trôi nước': [
-    {
-                name: 'Xôi đậu xanh',
-                price: '2.900.000đ',
-                originalPrice: '3.100.000đ',
-                discount: '-6%',
-                image: './LongQuyTuPhuc.png'
-              },
-              {
-                name: 'Xôi đậu phộng',
-                price: '3.200.000đ',
-                originalPrice: '3.500.000đ',
-                discount: '-9%',
-                image: './product2.jpg'
-              },
-              {
-              name: 'Xôi đậu đen',
-              price: '3.200.000đ',
-              originalPrice: '3.500.000đ',
-              discount: '-10%',
-              image: './product2.jpg'
-              }
-    ],
-    'Chè đậu': [
-    {
-                  name: 'Xôi đậu đen',
-                  price: '3.200.000đ',
-                  originalPrice: '3.500.000đ',
-                  discount: '-10%',
-                  image: './product2.jpg'
-                  }
-    ]
-  };
+useEffect(() => {
+    fetch('http://localhost:8080/api/ver0.0.1/product')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.content) {
+          setAllProducts(data.content);
+        }
+      })
+      .catch((err) => console.error('Lỗi khi gọi API:', err));
+  }, []);
 
-  const [selectedCategory, setSelectedCategory] = useState('Xôi đậu');
-  const categories = Object.keys(productData);
-  const products = productData[selectedCategory];
+ // Tách dữ liệu theo nhóm
+  const giftSets = allProducts.filter(p => p.category === 'Bộ quà tặng');
+  const promoProducts = allProducts.slice(0, 4);
+  const xoiCheProducts = allProducts.filter(p => p.category?.includes('Xôi') || p.category?.includes('Chè'));
+  const mamCungProducts = allProducts.filter(p => p.category?.includes('Mâm'));
 
-const productData2 = {
-    'Mâm cúng Gia Tiên': [
-      {
-        name: 'Mâm cúng Tổ tiên ngày Tết',
-        price: '2.900.000đ',
-        originalPrice: '3.100.000đ',
-        discount: '-6%',
-        image: './LongQuyTuPhuc.png'
-      },
-      {
-        name: 'Mâm cúng giỗ',
-        price: '3.200.000đ',
-        originalPrice: '3.500.000đ',
-        discount: '-9%',
-        image: './product2.jpg'
-      },
-      {
-      name: 'Mâm cúng rằm',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-10%',
-      image: './product2.jpg'
-      },
-      {
-      name: 'Mâm cúng ông Công ông Táo',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-9%',
-      image: './product2.jpg'
-      },
-      {
-      name: 'Mâm cúng tất niên',
-      price: '3.200.000đ',
-      originalPrice: '3.500.000đ',
-      discount: '-9%',
-      image: './product2.jpg'
-      },
-      {
-            name: 'Mâm cúng Giao thừa',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-10%',
-            image: './product2.jpg'
-            },
-            {
-            name: 'Mâm cúng Ngày cưới – Hỏi',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-            },
-            {
-            name: 'Mâm cúng Tạ ơn tổ tiên',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-            }
-    ],
-    'Mâm cúng Phong tục': [
-    {
-            name: 'Mâm cúng Thần Tài – Thổ Địa',
-            price: '2.900.000đ',
-            originalPrice: '3.100.000đ',
-            discount: '-6%',
-            image: './LongQuyTuPhuc.png'
-          },
-          {
-            name: 'Mâm cúng động thổ / khai trương',
-            price: '3.200.000đ',
-            originalPrice: '3.500.000đ',
-            discount: '-9%',
-            image: './product2.jpg'
-          },
-          {
-          name: 'Mâm cúng nhập trạch',
-          price: '3.200.000đ',
-          originalPrice: '3.500.000đ',
-          discount: '-10%',
-          image: './product2.jpg'
-          },
-          {
-          name: 'Mâm cúng cầu an – giải hạn',
-          price: '3.200.000đ',
-          originalPrice: '3.500.000đ',
-          discount: '-9%',
-          image: './product2.jpg'
-          }
-    ],
-    'Mâm cúng Phật – Chay tịnh': [
-    {
-                name: 'Mâm cúng Phật tại gia',
-                price: '2.900.000đ',
-                originalPrice: '3.100.000đ',
-                discount: '-6%',
-                image: './LongQuyTuPhuc.png'
-              },
-              {
-                name: 'Mâm cúng Vu Lan báo hiếu',
-                price: '3.200.000đ',
-                originalPrice: '3.500.000đ',
-                discount: '-9%',
-                image: './product2.jpg'
-              },
-              {
-              name: 'Mâm cúng chay ngày lễ, ngày ăn chay',
-              price: '3.200.000đ',
-              originalPrice: '3.500.000đ',
-              discount: '-10%',
-              image: './product2.jpg'
-              }
-    ],
-    'Mâm cúng Trẻ nhỏ – Sinh nở': [
-    {
-                  name: 'Mâm cúng thôi nôi',
-                  price: '3.200.000đ',
-                  originalPrice: '3.500.000đ',
-                  discount: '-10%',
-                  image: './product2.jpg'
-                  }
-    ]
-  };
+  const xoiCheCategories = [...new Set(xoiCheProducts.map(p => p.category))];
+  const mamCungCategories = [...new Set(mamCungProducts.map(p => p.category))];
 
-  const [selectedCategory2, setSelectedCategory2] = useState('Mâm cúng Gia Tiên');
-  const categories2 = Object.keys(productData2);
-  const products2 = productData2[selectedCategory2];
+  const [selectedCategory, setSelectedCategory] = useState(xoiCheCategories[0] || '');
+  const [selectedCategory2, setSelectedCategory2] = useState(mamCungCategories[0] || '');
 
+  const displayedXoiChe = xoiCheProducts.filter(p => p.category === selectedCategory);
+  const displayedMamCung = mamCungProducts.filter(p => p.category === selectedCategory2);
 
   return (
     <div className="homepage">
@@ -354,18 +114,19 @@ const productData2 = {
           Bộ sưu tập quà tặng DOLESAIGON là giải pháp quà Tết, quà tặng Trung Thu, quà tặng doanh nghiệp
         </p>
         <div className="gift-collection">
-          {["BoQuaBonMua.png", "BoQuaLocPhat.png", "BoQuaThinhVuong.png", "BoQuaTaiLoc.png"].map((src, index) => (
-            <Link to="/products" key={index} className="gift-item">
+          {giftSets.map((gift) => (
+            <div key={gift.id} className="gift-item">
               <div className="gift-image">
-                <img src={`./${src}`} alt={src} />
+                <img src="./default-gift.png" alt={gift.productName} />
                 <div className="gift-info">
-                  <p>{src.replace(".png", "").replace("BoQua", "Bộ quà ").replace("BonMua", "Bốn Mùa ").replace("LocPhat", "Lộc Phát ").replace("ThinhVuong", "Thịnh Vượng ").replace("TaiLoc", "Tài Lộc ")}</p>
-                  <span>Giá chỉ từ {index === 0 ? "679k" : index === 1 ? "589k" : index === 2 ? "779k" : "999k"}</span>
+                  <p>{gift.productName}</p>
+                  <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
+
       </div>
 
       <div className="section promo-section">
@@ -379,18 +140,26 @@ const productData2 = {
           <div><span id="seconds">0</span><br />Giây</div>
         </div>
 
-        <div className="promo-grid">
-          {["ChieuTaiDonLoc.png", "LongQuyTuPhuc.png", "HungThinhPhatTai.png", "AnNhienPhuQuy.png"].map((src, index) => (
-            <Link to="/products" key={index} className="promo-item">
-              <img src={`./${src}`} alt={src} />
-              <div className="price-box">
-                <p>{["Chiêu Tài Đón Lộc", "Long Quý Tụ Phúc", "Ngũ Sắc Tài Lộc", "An Nhiên Phú Quý"][index]}</p>
-                <span className="old-price">{[800000, 2200000, 3500000, 3500000][index].toLocaleString()}đ</span>
-                <span className="new-price">{[500000, 1656000, 3100000, 3200000][index].toLocaleString()}đ</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+         <div className="product-grid">
+                  {promoProducts.map((item, idx) => (
+                    <div className="product-card" key={idx}>
+                      <div className="product-img">
+                        <img
+                          src={item.image || './product2.jpg'}
+                          alt={item.productName || 'Sản phẩm'}
+                        />
+                        <span className="discount">
+                          -{Math.round(((item.originalPrice ?? item.price * 1.1) - item.price) / (item.originalPrice ?? item.price * 1.1) * 100)}%
+                        </span>
+                      </div>
+                      <div className="price">
+                        <h4>{item.productName}</h4>
+                        <span className="original">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
+                        <span className="sale">{item.price.toLocaleString()}đ</span>
+                      </div>
+                    </div>
+                  ))}
+         </div>
       </div>
 
       <div className="story-section">
@@ -408,72 +177,71 @@ const productData2 = {
         </div>
       </div>
 
-      <div className="product-section">
-        <p>DOLESAIGON</p>
-        <h2>XÔI CHÈ</h2>
-        <div className="tabs">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className={cat === selectedCategory ? 'active' : ''}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              <span className="inner-border">{cat}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="product-grid">
-          {products.map((item, idx) => (
-            <div className="product-card" key={idx}>
-              <div className="product-img">
-                <img src={item.image} alt={item.name} />
-                <span className="discount">{item.discount}</span>
+      {/* XÔI CHÈ */}
+            <div className="product-section">
+              <p>DOLESAIGON</p>
+              <h2>XÔI CHÈ</h2>
+              <div className="tabs">
+                {xoiCheCategories.map(cat => (
+                  <button
+                    key={cat}
+                    className={cat === selectedCategory ? 'active' : ''}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    <span className="inner-border">{cat}</span>
+                  </button>
+                ))}
               </div>
 
-              <div className="price">
-                <h4>{item.name}</h4>
-                <span className="original">{item.originalPrice}</span>
-                <span className="sale">{item.price}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="product-section">
-        <p>DOLESAIGON</p>
-        <h2>CÁC LOẠI MÂM CÚNG LỄ</h2>
-
-        <div className="tabs">
-          {categories2.map((cat) => (
-            <button
-              key={cat}
-              className={cat === selectedCategory2 ? 'active' : ''}
-              onClick={() => setSelectedCategory2(cat)}
-            >
-              <span className="inner-border">{cat}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="product-grid">
-          {products2.map((item, idx) => (
-            <div className="product-card" key={idx}>
-              <div className="product-img">
-                <img src={item.image} alt={item.name} />
-                <span className="discount">{item.discount}</span>
-              </div>
-
-              <div className="price">
-                <h4>{item.name}</h4>
-                <span className="original">{item.originalPrice}</span>
-                <span className="sale">{item.price}</span>
+              <div className="product-grid">
+                {displayedXoiChe.map((item, idx) => (
+                  <div className="product-card" key={idx}>
+                    <div className="product-img">
+                      <img src="./default-product.jpg" alt={item.productName} />
+                      <span className="discount">-10%</span>
+                    </div>
+                    <div className="price">
+                      <h4>{item.productName}</h4>
+                      <span className="original">{(item.price * 1.1).toLocaleString()}đ</span>
+                      <span className="sale">{item.price.toLocaleString()}đ</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+
+      {/* MÂM CÚNG */}
+            <div className="product-section">
+              <p>DOLESAIGON</p>
+              <h2>CÁC LOẠI MÂM CÚNG LỄ</h2>
+              <div className="tabs">
+                {mamCungCategories.map(cat => (
+                  <button
+                    key={cat}
+                    className={cat === selectedCategory2 ? 'active' : ''}
+                    onClick={() => setSelectedCategory2(cat)}
+                  >
+                    <span className="inner-border">{cat}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="product-grid">
+                {displayedMamCung.map((item, idx) => (
+                  <div className="product-card" key={idx}>
+                    <div className="product-img">
+                      <img src="./default-product.jpg" alt={item.productName} />
+                      <span className="discount">-10%</span>
+                    </div>
+                    <div className="price">
+                      <h4>{item.productName}</h4>
+                      <span className="original">{(item.price * 1.1).toLocaleString()}đ</span>
+                      <span className="sale">{item.price.toLocaleString()}đ</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
 <section class="why-choose-us">
   <p>DOLESAIGON</p>
