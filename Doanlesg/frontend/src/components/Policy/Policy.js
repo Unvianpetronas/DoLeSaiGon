@@ -8,7 +8,7 @@ const contents = {
     title: "Chính sách mua hàng",
     content: (
       <>
-        <h2>Chính sách thanh toán</h2>
+        <h3>Chính sách thanh toán</h3>
         <p>
           Có 3 hình thức thanh toán, khách hàng có thể lựa chọn hình thức thuận tiện và phù hợp với mình nhất:
         </p>
@@ -23,15 +23,13 @@ const contents = {
         <p>
           Đối với khách hàng có nhu cầu mua số lượng lớn để kinh doanh hoặc buôn sỉ vui lòng liên hệ trực tiếp với chúng tôi để có chính sách giá cả hợp lý. Việc thanh toán sẽ được thực hiện theo hợp đồng. Chúng tôi cam kết kinh doanh minh bạch, hợp pháp, bán hàng chất lượng, có nguồn gốc.
         </p>
-
-        <h2>Chính sách xử lý khiếu nại</h2>
+        <h3>Chính sách xử lý khiếu nại</h3>
         <ul>
           <li>Tiếp nhận mọi khiếu nại của khách hàng liên quan đến việc sử dụng dịch vụ của công ty.</li>
           <li>Tất cả mọi trường hợp bảo hành, quý khách có thể liên hệ với chúng tôi để làm thủ tục bảo hành.</li>
           <li>Thời gian giải quyết khiếu nại trong thời hạn tối đa là 03 (ba) ngày làm việc kể từ khi nhận được khiếu nại của khách hàng. Trong trường hợp bất khả kháng, hai bên sẽ tự thương lượng.</li>
         </ul>
-
-        <h2>Chính sách vận chuyển và giao nhận</h2>
+        <h3>Chính sách vận chuyển và giao nhận</h3>
         <p>
           Thông thường sau khi nhận được thông tin đặt hàng chúng tôi sẽ xử lý đơn hàng trong vòng 24h và phản hồi lại thông tin cho khách hàng về việc thanh toán và giao nhận. Thời gian giao hàng thường trong khoảng từ 3–5 ngày kể từ ngày chốt đơn hàng hoặc theo thỏa thuận với khách khi đặt hàng. Tuy nhiên, cũng có trường hợp việc giao hàng kéo dài hơn nhưng chỉ xảy ra trong những tình huống bất khả kháng như sau:
         </p>
@@ -55,32 +53,20 @@ const contents = {
     title: "Chính sách thanh toán",
     content: (
       <>
-        <h2>Chính sách thanh toán & Ưu đãi</h2>
-
         <h3>Khách hàng thanh toán trực tiếp tại cửa hàng</h3>
         <ul>
           <li>Nhận ưu đãi hấp dẫn tại điểm bán.</li>
           <li>Nhận quà tặng kèm theo đơn hàng.</li>
           <li>Tham gia check-in tại cửa hàng để nhận thêm phần quà đặc biệt.</li>
         </ul>
-
         <h3>Khách hàng thanh toán online</h3>
         <ul>
           <li>Chuyển khoản trước khi nhận hàng.</li>
           <li>Nhận quà tặng kèm bất kỳ tùy theo từng chương trình.</li>
         </ul>
-
-        <h2>Chính sách khiếu nại & Đổi trả</h2>
-        <p>
-          Khách hàng có nhu cầu khiếu nại hoặc đổi trả sản phẩm do lỗi từ phía chúng tôi có thể liên hệ qua Hotline <strong>1900 6750</strong> để được hỗ trợ sớm nhất.
-        </p>
-        <p>
-          Tư vấn viên sẽ hướng dẫn quý khách các bước cần thiết để tiến hành trả hàng hoặc hoàn tiền theo quy định.
-        </p>
       </>
     )
-
-      },
+  },
 
   "van-chuyen": {
     title: "Chính sách vận chuyển",
@@ -94,15 +80,12 @@ const contents = {
           <li>DoleSaigon trực tiếp vận chuyển và giao hàng tận tay khách hàng.</li>
           <li>Giao hàng thông qua các nhà cung cấp dịch vụ chuyển phát.</li>
         </ul>
-
         <h2>II. Nội dung chi tiết</h2>
-
         <h3>1. Sudes Nest trực tiếp giao hàng tận nơi</h3>
         <ul>
           <li><strong>Miễn phí giao hàng</strong> với khoảng cách lên đến <strong>300km</strong>.</li>
           <li><strong>Khung giờ giao hàng:</strong> từ 8h00 đến 21h00 hàng ngày.</li>
         </ul>
-
         <h3>2. Giao hàng thông qua đơn vị chuyển phát</h3>
         <ul>
           <li>
@@ -117,14 +100,13 @@ const contents = {
         </ul>
       </>
     )
-
-      },
+  },
 
   "cam-ket": {
     title: "Cam kết của hàng",
     content: (
       <>
-        <h2>Về Mâm Lễ</h2>
+        <h3>Về Mâm Lễ</h3>
         <p>
           Tại DoleSaigon, chúng tôi cam kết mang đến những mâm lễ chỉn chu, đầy đủ và trang trọng:
         </p>
@@ -134,8 +116,7 @@ const contents = {
           <li>Cam kết giao hàng trong vòng <strong>2 giờ</strong> sau khi xác nhận đơn, giữ nguyên độ tươi và chất lượng sản phẩm.</li>
           <li>Hình thức mâm lễ được trình bày đẹp mắt, đúng như hình ảnh minh họa trên website hoặc các kênh chính thức.</li>
         </ul>
-
-        <h2>Về Quà Lễ</h2>
+        <h3>Về Quà Lễ</h3>
         <p>
           Với các sản phẩm quà lễ tại DoleSaigon, khách hàng có thể hoàn toàn yên tâm về chất lượng và nguồn gốc:
         </p>
@@ -146,18 +127,15 @@ const contents = {
         </ul>
       </>
     )
-
-      },
+  },
 
   "bao-mat": {
     title: "Chính sách bảo mật",
     content: (
       <>
-        <h2>Chính sách bảo mật thông tin khách hàng</h2>
         <p>
           Mọi thông tin khách hàng cung cấp khi mua hàng tại <strong>DoleSaigon</strong> đều được bảo mật tuyệt đối. Chúng tôi cam kết không mua bán, chia sẻ hay sử dụng thông tin cá nhân vì mục đích xấu.
         </p>
-
         <h3>I. Mục đích và phạm vi thu thập</h3>
         <p>
           Các thông tin được thu thập bao gồm: Họ tên, email, số điện thoại, địa chỉ,… nhằm phục vụ các hoạt động:
@@ -169,7 +147,6 @@ const contents = {
         <p>
           Khách hàng có trách nhiệm bảo mật thông tin hộp thư của mình và thông báo ngay cho Sudes Nest nếu phát hiện hành vi sử dụng trái phép.
         </p>
-
         <h3>II. Phạm vi sử dụng thông tin</h3>
         <ul>
           <li>Cung cấp dịch vụ & giao hàng theo yêu cầu.</li>
@@ -177,17 +154,14 @@ const contents = {
           <li>Liên hệ xử lý các tình huống đặc biệt liên quan đến giao dịch.</li>
           <li>Cung cấp thông tin theo yêu cầu hợp pháp từ cơ quan nhà nước.</li>
         </ul>
-
         <h3>III. Thời gian lưu trữ thông tin</h3>
         <p>
           Thông tin được lưu trữ trong suốt quá trình hợp tác giữa Sudes Nest và khách hàng. Khách hàng có thể yêu cầu hủy thông tin nếu chấm dứt giao dịch.
         </p>
-
         <h3>IV. Quyền của khách hàng</h3>
         <p>
           Khách hàng có thể kiểm tra, điều chỉnh, yêu cầu xóa thông tin cá nhân bằng cách liên hệ qua email của Sudes Nest. Chúng tôi sẽ hỗ trợ kỹ thuật để xử lý yêu cầu trong thời gian sớm nhất.
         </p>
-
         <h3>V. Cam kết bảo mật</h3>
         <ul>
           <li>Cam kết không chia sẻ thông tin khách hàng cho bên thứ ba nếu không có sự đồng ý.</li>
@@ -195,26 +169,21 @@ const contents = {
           <li>Nếu hệ thống bị tấn công gây rò rỉ dữ liệu, Sudes Nest sẽ thông báo đến cơ quan chức năng và khách hàng kịp thời.</li>
           <li>Yêu cầu khách hàng cung cấp thông tin chính xác khi mua hàng. Chúng tôi không chịu trách nhiệm với các khiếu nại phát sinh từ thông tin sai lệch.</li>
         </ul>
-
         <p>
           DoleSaigon luôn quan tâm đến quyền riêng tư của khách hàng. Mọi thắc mắc, góp ý về chính sách bảo mật, vui lòng liên hệ với chúng tôi để được hỗ trợ.
         </p>
       </>
     )
-
-      },
+  },
 
   "thanh-vien": {
     title: "Chính sách thành viên",
     content: (
       <>
-        <h2>Điều kiện chính sách thành viên</h2>
-
         <h3>1. Thẻ thành viên</h3>
         <p>
           Khách hàng sẽ được cấp thẻ thành viên khi mua hàng tại hệ thống Sudes Nest. Thẻ thành viên mang đến nhiều quyền lợi và ưu đãi trong quá trình mua sắm.
         </p>
-
         <h3>2. Thẻ VIP</h3>
         <p>
           Khách hàng có thể nhận thẻ VIP khi đáp ứng một trong các điều kiện sau:
@@ -224,13 +193,11 @@ const contents = {
           <li>Mỗi lần mua hàng có giá trị từ <strong>3 triệu đồng trở lên</strong>.</li>
           <li>Tham gia các chương trình khuyến mãi hoặc hoạt động do Sudes Nest tổ chức.</li>
         </ul>
-
         <p>
           <strong>Lưu ý:</strong> Hạn mức tích lũy 10, 20, 30, 50, 100 triệu đồng được tính từ thời điểm khách hàng bắt đầu mua hàng và được cộng dồn cho đến khi đạt điều kiện nâng cấp thẻ. Sau khi lên thẻ VIP, hệ thống tiếp tục cộng dồn để xét các cấp thẻ cao hơn dựa trên tổng chi tiêu từ lần mua đầu tiên.
         </p>
       </>
     )
-
       }
 };
 
