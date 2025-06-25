@@ -1,0 +1,71 @@
+.order-page {
+  max-width: 880px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.order-page h1 {
+  text-align: center;
+  color: #b30000;
+  margin-bottom: 32px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step {
+  padding: 10px 20px;
+  border: 2px solid #c2825e;
+  border-radius: 12px;
+  background-color: #fceee8;
+  color: #722e1f;
+  min-width: 120px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  background-color: #3c4c44;
+  color: #fff;
+}
+
+.arrow {
+  font-size: 20px;
+  color: #666;
+}
+
+.order-card {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 28px;
+  background-color: #fffdfc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.order-header {
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.order-items {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.order-total {
+  margin-top: 12px;
+  font-weight: bold;
+}

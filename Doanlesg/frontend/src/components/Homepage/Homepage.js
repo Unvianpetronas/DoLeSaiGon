@@ -62,11 +62,24 @@ useEffect(() => {
   const xoiCheCategories = [...new Set(xoiCheProducts.map(p => p.category))];
   const mamCungCategories = [...new Set(mamCungProducts.map(p => p.category))];
 
-  const [selectedCategory, setSelectedCategory] = useState(xoiCheCategories[0] || '');
-  const [selectedCategory2, setSelectedCategory2] = useState(mamCungCategories[0] || '');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory2, setSelectedCategory2] = useState('');
 
   const displayedXoiChe = xoiCheProducts.filter(p => p.category === selectedCategory);
   const displayedMamCung = mamCungProducts.filter(p => p.category === selectedCategory2);
+
+  useEffect(() => {
+    if (xoiCheCategories.length > 0 && !selectedCategory) {
+      setSelectedCategory(xoiCheCategories[0]);
+    }
+  }, [xoiCheCategories]);
+
+useEffect(() => {
+  if (mamCungCategories.length > 0 && !selectedCategory2) {
+    setSelectedCategory2(mamCungCategories[0]);
+  }
+}, [mamCungCategories]);
+
 
   return (
     <div className="homepage">
