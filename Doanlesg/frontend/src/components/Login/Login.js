@@ -79,7 +79,7 @@ const Login = () => {
           </button>
         </form>
         <p>
-          Chưa có tài khoản? <Link to="/register.html">Đăng ký tại đây</Link>
+          Chưa có tài khoản? <Link to="/register">Đăng ký tại đây</Link>
         </p>
       </div>
     </div>

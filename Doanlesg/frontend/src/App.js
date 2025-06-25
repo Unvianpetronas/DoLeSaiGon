@@ -6,21 +6,23 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { CiSearch } from "react-icons/ci";
 import { FaRegHeart, FaUser, FaShoppingCart, FaClipboardList, FaMapMarkerAlt } from "react-icons/fa";
 
+import Shop from './components/Shop/Shop';
+import Like from './components/Like/Like';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
+import CategoryMenu from './components/CategoryMenu/CategoryMenu';
+import Homepage from './components/Homepage/Homepage';
+import Introduction from "./components/Introduction/Introduction";
+import Products from './components/Products/Products';
+import Contact from "./components/Contact/Contact";
+import Policy from './components/Policy/Policy';
+import Instructions from './components/Policy/Instructions';
+import OrderPage from './components/OrderPage/OrderPage';
+import Description from './components/Description/Description';
 import Cart from './components/Cart/Cart';
 import Checkout from './components/Checkout/Checkout';
 import Success from './components/Success/Success';
 import Details from "./components/Details/Details";
-import Contact from "./components/Contact/Contact";
-import Introduction from "./components/Introduction/Introduction";
-import Policy from './components/Policy/Policy';
-import Homepage from './components/Homepage/Homepage';
-import Shop from './components/Shop/Shop';
-import Like from './components/Like/Like';
-import CategoryMenu from './components/CategoryMenu/CategoryMenu';
-import Products from './components/Products/Products';
-import Description from './components/Description/Description';
 
 function App() {
   return (
@@ -39,13 +41,13 @@ function App() {
             <Route path="/checkout" element={<PageWrapper label="Thanh toán ngay"><Checkout /></PageWrapper>} />
             <Route path="/success" element={<PageWrapper label="Đặt hàng thành công"><Success /></PageWrapper>} />
             <Route path="/details/:orderId" element={<PageWrapper label="Chi tiết đơn hàng"><Details /></PageWrapper>} />
-            <Route
-              path="/policy/:policyType" element={<PolicyWrapper />}
-            />
+            <Route path="/policy/:policyType" element={<PolicyWrapper />} />
+            <Route path="/instructions/:instructionType" element={<Instructions />} />
             <Route path="/shop" element={<PageWrapper label="Hệ thống cửa hàng"><Shop /></PageWrapper>} />
             <Route path="/like" element={<PageWrapper label="Yêu thích"><Like /></PageWrapper>} />
             <Route path="/product/:productId" element={<Description />} />
             <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
+            <Route path="/orderpage" element={<PageWrapper label="Đơn hàng"><OrderPage /></PageWrapper>} />
           </Routes>
         </main>
         <Footer />
@@ -83,7 +85,7 @@ function Header() {
             </div>
           </div>
           <Link to="/cart" className="icon-item"><FaShoppingCart /><div className="icon-text">Giỏ hàng</div></Link>
-          <div className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></div>
+          <Link to="/orderpage" className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></Link>
         </div>
       </div>
       <nav className="bottom-menu">
@@ -133,19 +135,23 @@ function Footer() {
         <div className="footer-column">
           <h4>Chính sách</h4>
           <ul>
-            <li><a href="#">Chính sách bảo mật</a></li>
-            <li><a href="#">Chính sách đổi trả</a></li>
-            <li><a href="#">Chính sách giao hàng</a></li>
-            <li><a href="#">Điều khoản dịch vụ</a></li>
+            <li><Link to="/policy/mua-hang">Chính sách mua hàng</Link></li>
+            <li><Link to="/policy/thanh-toan">Chính sách thanh toán</Link></li>
+            <li><Link to="/policy/van-chuyen">Chính sách vận chuyển</Link></li>
+            <li><Link to="/policy/cam-ket">Cam kết của hàng</Link></li>
+            <li> <Link to="/policy/bao-mat">Chính sách bảo mật</Link></li>
+            <li><Link to="/policy/thanh-vien">Chính sách thành viên</Link></li>
           </ul>
         </div>
+
         <div className="footer-column">
           <h4>Hướng dẫn</h4>
           <ul>
-            <li><a href="#">Hướng dẫn mua hàng</a></li>
-            <li><a href="#">Hướng dẫn thanh toán</a></li>
-            <li><a href="#">Hướng dẫn đổi trả</a></li>
-            <li><a href="#">Hướng dẫn bảo hành</a></li>
+           <li><Link to="/instructions/huong-dan-mua-hang">Hướng dẫn mua hàng</Link></li>
+           <li><Link to="/instructions/huong-dan-doi-tra">Hướng dẫn đổi trả</Link></li>
+           <li><Link to="/instructions/huong-dan-thanh-toan">Hướng dẫn thanh toán</Link></li>
+           <li><Link to="/instructions/quy-dinh-bao-hanh">Quy định bảo hành</Link></li>
+           <li><Link to="/instructions/huong-dan-chuyen-khoan">Hướng dẫn chuyển khoản</Link></li>
           </ul>
         </div>
         <div className="footer-column">

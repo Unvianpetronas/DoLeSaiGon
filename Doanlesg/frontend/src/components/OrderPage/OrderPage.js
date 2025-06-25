@@ -1,6 +1,7 @@
 // src/pages/OrderPage.js
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './OrderPage.css';
 
 const orders = [
@@ -14,36 +15,36 @@ const orders = [
       { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
     ],
   },
-    {
-      id: 'DH111',
-      date: '2025-06-23',
-      status: 'Đang giao',
-      total: 850000,
-      items: [
-        { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
-        { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
-      ],
-    },
-      {
-        id: 'DH021',
-        date: '2025-06-23',
-        status: 'Đang giao',
-        total: 850000,
-        items: [
-          { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
-          { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
-        ],
-      },
-        {
-          id: 'DH401',
-          date: '2025-06-23',
-          status: 'Đang giao',
-          total: 850000,
-          items: [
-            { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
-            { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
-          ],
-        },
+  {
+    id: 'DH111',
+    date: '2025-06-23',
+    status: 'Đang giao',
+    total: 850000,
+    items: [
+      { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
+      { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
+    ],
+  },
+  {
+    id: 'DH021',
+    date: '2025-06-23',
+    status: 'Đang giao',
+    total: 850000,
+    items: [
+      { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
+      { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
+    ],
+  },
+  {
+    id: 'DH401',
+    date: '2025-06-23',
+    status: 'Đang giao',
+    total: 850000,
+    items: [
+      { name: 'Mâm ngũ quả', quantity: 1, price: 500000 },
+      { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
+    ],
+  },
   {
     id: 'DH002',
     date: '2025-06-20',
@@ -94,8 +95,14 @@ export default function OrderPage() {
 }
 
 function OrderCard({ order }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/details/${order.id}`);
+  };
+
   return (
-    <div className="order-card">
+    <div className="order-card" onClick={handleClick}>
       <div className="order-header">
         <strong>Mã đơn:</strong> {order.id} &nbsp; | &nbsp;
         <strong>Ngày đặt:</strong> {order.date} &nbsp; | &nbsp;
