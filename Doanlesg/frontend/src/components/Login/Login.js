@@ -31,7 +31,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+
     try {
       const response = await fetch('http://localhost:8080/api/ver0.0.1/login', {
         method: 'POST',
@@ -50,7 +50,6 @@ const Login = () => {
     } catch (err) {
       setError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
     } finally {
-      setLoading(false);
     }
   };
 

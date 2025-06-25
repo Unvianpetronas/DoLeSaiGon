@@ -25,7 +25,7 @@ public class GetProductController {
     public ResponseEntity<Page<ProductDTO>> getAllProducts(
             @RequestParam("page") int page,
             @RequestParam( "size") int size,
-            @RequestParam( "price") String sortBy) {
+            @RequestParam( "sort") String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<ProductDTO> productDtoPage = productService.findAll(pageable); // Service đã trả về DTO
         return ResponseEntity.ok(productDtoPage);
