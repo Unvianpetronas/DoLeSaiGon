@@ -24,7 +24,7 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            String email = request.get("username");
+            String email = request.get("email");
             String password = request.get("password");
 
             Authentication auth = authenticationManager.authenticate(
