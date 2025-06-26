@@ -29,9 +29,9 @@ public class GetProductController {
     }
     @GetMapping("/productname")
     public ResponseEntity <Page<ProductDTO>> getAllProductsByName(@RequestParam String keywork,
-                                                                  @RequestParam("page") int page,
-                                                                  @RequestParam( "size") int size,
-                                                                  @RequestParam( "sort") String sortBy){
+                                                            @RequestParam("page") int page,
+                                                            @RequestParam( "size") int size,
+                                                            @RequestParam( "sort") String sortBy){
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<ProductDTO> productDTOS = productService.searchByName(keywork, pageable);
         return ResponseEntity.ok(productDTOS);

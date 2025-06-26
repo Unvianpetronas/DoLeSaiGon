@@ -19,11 +19,20 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Account customer;
+    @MapsId
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
-    @NotNull
-    @ColumnDefault("getdate()")
+    @Column(name = "receiver_fullname", nullable = false)
+    private String receiverFullName;
+
+    @Column(name = "receiver_phonenumber", nullable = false)
+    private String receiverPhoneNumber;
+    @Column(name = "receiver_mail", nullable = false)
+    private  String receiverEmail;
+    @Column(name = "fullshipping_address", nullable = false)
+    private String fullShippingAddress;
+
     @Column(name = "order_date", nullable = false)
     private Instant orderDate;
 
@@ -54,52 +63,52 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
-    public String getNotes() {
-        return notes;
+    public Integer getId() {
+        return id;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public ShippingMethod getShippingMethod() {
-        return shippingMethod;
+    public String getReceiverFullName() {
+        return receiverFullName;
     }
 
-    public void setShippingMethod(ShippingMethod shippingMethod) {
-        this.shippingMethod = shippingMethod;
+    public void setReceiverFullName(String receiverFullName) {
+        this.receiverFullName = receiverFullName;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
+    public String getReceiverPhoneNumber() {
+        return receiverPhoneNumber;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setReceiverPhoneNumber(String receiverPhoneNumber) {
+        this.receiverPhoneNumber = receiverPhoneNumber;
     }
 
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
+    public String getReceiverEmail() {
+        return receiverEmail;
     }
 
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setReceiverEmail(String receiverEmail) {
+        this.receiverEmail = receiverEmail;
     }
 
-    public Voucher getVoucher() {
-        return voucher;
+    public String getFullShippingAddress() {
+        return fullShippingAddress;
     }
 
-    public void setVoucher(Voucher voucher) {
-        this.voucher = voucher;
+    public void setFullShippingAddress(String fullShippingAddress) {
+        this.fullShippingAddress = fullShippingAddress;
     }
 
     public Instant getOrderDate() {
@@ -110,19 +119,51 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public Account getCustomer() {
-        return customer;
+    public Voucher getVoucher() {
+        return voucher;
     }
 
-    public void setCustomer(Account customer) {
-        this.customer = customer;
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 
-    public Integer getId() {
-        return id;
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public ShippingMethod getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(ShippingMethod shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

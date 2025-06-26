@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: order_item
+            columns:
+              - column:
+                  name: order_item_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_order_item
+                    nullable: false
+              - column:
+                  name: order_id # Khóa ngoại tới orders
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_item_order_id
+                    references: orders(order_id)
+              - column:
+                  name: product_id # Khóa ngoại tới product
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_item_product_id
+                    references: product(product_id)
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit_price
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false

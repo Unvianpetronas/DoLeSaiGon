@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: shipping_method
+            columns:
+              - column:
+                  name: shipping_method_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_shipping_method
+                    nullable: false
+              - column:
+                  name: method_name
+                  type: NVARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cost
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: BIT
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

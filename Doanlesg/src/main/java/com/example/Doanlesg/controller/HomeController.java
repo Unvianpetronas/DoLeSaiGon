@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("api/ver0.0.1/home")
 public class HomeController {
@@ -26,16 +28,16 @@ public class HomeController {
             return ResponseEntity.ok(new ApiResponse(false, "chưa đăng nhập, hãy quay lại trang đăng nhập"));
         }
         String email = userDetails.getUsername();
-        Account account = accountRepository.findByEmail(email).orElse(null);
+        Optional<Account> account = accountRepository.findByEmail(email);
 
-        if (account != null) {
+        if (account.isPresent()) {
             String welcomeName = "User";
-            if (account.getCustomer() != null && account.getCustomer().getFullName() != null) {
-                welcomeName = account.getCustomer().getFullName();
-            } else if (account.getStaff() != null && account.getStaff().getFullName() != null) {
-                welcomeName = account.getStaff().getFullName();
-            } else if (account.getAdmin() != null && account.getAdmin().getFullName() != null) {
-                welcomeName = account.getAdmin().getFullName();
+            if (account.get().getCustomer() != null && account.get().getCustomer().getFullName() != null) {
+                welcomeName = account.get().getCustomer().getFullName();
+            } else if (account.get().getStaff() != null && account.get().getStaff().getFullName() != null) {
+                welcomeName = account.get().getStaff().getFullName();
+            } else if (account.get().getAdmin() != null && account.get().getAdmin().getFullName() != null) {
+                welcomeName = account.get().getAdmin().getFullName();
             }
             return ResponseEntity.ok(new ApiResponse(true, welcomeName));
         }
