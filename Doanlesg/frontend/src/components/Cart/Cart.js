@@ -1,8 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
-import { FaShoppingCart } from "react-icons/fa";
-import { FaCartPlus } from 'react-icons/fa';
+import { FaShoppingCart, FaCartPlus } from "react-icons/fa";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -14,66 +13,26 @@ const Cart = () => {
       name: "Cơm gói lá sen",
       price: 2900000,
       quantity: 1,
-      image: "/Comhoasen.png",
+      image: "/images/comhoasen.png",
     },
     {
       id: 2,
       name: "Xôi ngũ sắc khuôn tròn",
       price: 3700000,
       quantity: 1,
-      image: "/Xoingusac.png",
+      image: "/images/xoingusac.png",
     },
   ]);
 
   const recommendedProducts = [
-    {
-      id: 3,
-      name: "Tổ Yến Tinh Chế cho bé BaBy (loại 3)",
-      price: 2900000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 4,
-      name: "Cao Hồng Sâm KGS Hàn Quốc Hộp 1 Lọ 240g",
-      price: 3700000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 5,
-      name: "Set 6 Thưởng Vị Yến Đảo",
-      price: 799000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 6,
-      name: "Chè Dưỡng Nhan Đông Trùng",
-      price: 500000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 7,
-      name: "Hộp Quà Sức Khỏe 2025",
-      price: 1500000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 8,
-      name: "Hộp Quà Sức Khỏe 2025",
-      price: 1500000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 9,
-      name: "Hộp Quà Sức Khỏe 2025",
-      price: 1500000,
-      image: "/to_yen.png",
-    },
-    {
-      id: 10,
-      name: "Hộp Quà Sức Khỏe 2025",
-      price: 1500000,
-      image: "/to_yen.png",
-    },
+    { id: 3, name: "Tổ Yến Tinh Chế cho bé BaBy (loại 3)", price: 2900000, image: "/images/to_yen.png" },
+    { id: 4, name: "Cao Hồng Sâm KGS Hàn Quốc Hộp 1 Lọ 240g", price: 3700000, image: "/images/to_yen.png" },
+    { id: 5, name: "Set 6 Thưởng Vị Yến Đảo", price: 799000, image: "/images/to_yen.png" },
+    { id: 6, name: "Chè Dưỡng Nhan Đông Trùng", price: 500000, image: "/images/to_yen.png" },
+    { id: 7, name: "Hộp Quà Sức Khỏe 2025", price: 1500000, image: "/images/to_yen.png" },
+    { id: 8, name: "Hộp Quà Sức Khỏe 2025", price: 1500000, image: "/images/to_yen.png" },
+    { id: 9, name: "Hộp Quà Sức Khỏe 2025", price: 1500000, image: "/images/to_yen.png" },
+    { id: 10, name: "Hộp Quà Sức Khỏe 2025", price: 1500000, image: "/images/to_yen.png" },
   ];
 
   const increaseQuantity = (id) => {
@@ -146,40 +105,27 @@ const Cart = () => {
           ) : (
             <div className="cart-table">
               <div className="cart-header">
-                <div className="column product">Sản phẩm</div>
-                <div className="column price">Đơn giá</div>
-                <div className="column quantity">Số lượng</div>
-                <div className="column total">Tổng</div>
-                <div className="column action"></div>
+                <div className="column image">Hình ảnh</div>
+                <div className="column name">Sản phẩm</div>
+                <div className="column total">Thành tiền</div>
               </div>
               {cartItems.map((item) => (
                 <div key={item.id} className="cart-row">
-                  <div className="column product">
-                    <div className="product-info">
-                      <img src={item.image} alt={item.name} />
-                      <div>
-                        <div className="item-name">{item.name}</div>
-                        <button
-                          className="remove-btn"
-                          onClick={() => removeItem(item.id)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
+                  <div className="column image">
+                    <img src={item.image} alt={item.name} className="cart-item-image" />
+                  </div>
+                  <div className="column name">
+                    <div className="item-name">{item.name}</div>
+                    <div className="quantity-controls">
+                      <button onClick={() => decreaseQuantity(item.id)}>-</button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => increaseQuantity(item.id)}>+</button>
                     </div>
-                  </div>
-                  <div className="column price">
-                    {item.price.toLocaleString()}đ
-                  </div>
-                  <div className="column quantity">
-                    <button onClick={() => decreaseQuantity(item.id)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => increaseQuantity(item.id)}>+</button>
+                    <button className="remove-btn" onClick={() => removeItem(item.id)}>Xóa</button>
                   </div>
                   <div className="column total">
                     {(item.price * item.quantity).toLocaleString()}đ
                   </div>
-                  <div className="column action"></div>
                 </div>
               ))}
             </div>
@@ -236,8 +182,6 @@ const Cart = () => {
           <button onClick={scrollRight} className="slider-btn right">▶</button>
         </div>
       </div>
-
-
     </div>
   );
 };

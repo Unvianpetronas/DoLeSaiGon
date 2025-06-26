@@ -30,7 +30,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
-       Page<Product> productPage = productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findAll(pageable);
         return productPage.map(this::convertToDto);
     }
     private ProductDTO convertToDto(Product product) {
@@ -76,3 +76,5 @@ public class ProductService {
         return productPage.map(this::convertToDto);
     }
 }
+
+
