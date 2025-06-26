@@ -61,10 +61,11 @@ export default function Homepage() {
     const fetchProducts = async () => {
       try {
         const [allRes, xoiRes, cheRes, mamRes] = await Promise.all([
-          fetch('/api/ver0.0.1/product?page=0&size=50&sort=price'),
-          fetch('/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
-          fetch('/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
-          fetch('/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=50&sort=productName'),
+          fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=50&sort=price'),
+          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
+          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
+          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=4&page=0&size=50&sort=productName'),
+          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=50&sort=productName')
         ]);
 
         const allData = await allRes.json();
@@ -140,22 +141,23 @@ export default function Homepage() {
           <div><span id="minutes">0</span><br />Phút</div>
           <div><span id="seconds">0</span><br />Giây</div>
         </div>
-        <div className="product-grid">
+        <div className="promo-grid">
           {promoProducts.map((item, idx) => (
-            <div className="product-card" key={idx}>
-              <div className="product-img">
-                <img src={item.image || './product2.jpg'} alt={item.productName || 'Sản phẩm'} />
-                <span className="discount">-{Math.round(((item.originalPrice ?? item.price * 1.1) - item.price) / (item.originalPrice ?? item.price * 1.1) * 100)}%</span>
-              </div>
-              <div className="price">
+            <div className="promo-item" key={idx}>
+              <img src={`/products/${item.id}.png`} alt={item.productName || 'Sản phẩm'} />
+              <span className="discount-tag">
+                -{Math.round(((item.originalPrice ?? item.price * 1.1) - item.price) / (item.originalPrice ?? item.price * 1.1) * 100)}%
+              </span>
+              <div className="price-box">
                 <h4>{item.productName}</h4>
-                <span className="original">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
-                <span className="sale">{item.price.toLocaleString()}đ</span>
+                <span className="old-price">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
+                <span className="new-price">{item.price.toLocaleString()}đ</span>
               </div>
             </div>
           ))}
         </div>
       </div>
+
 
       <div className="story-section">
         <div className="story-content">
@@ -179,22 +181,22 @@ export default function Homepage() {
             </button>
           ))}
         </div>
+
         <div className="product-grid">
           {displayedXoiChe.map((item, idx) => (
-            <div className="product-card" key={idx}>
-              <div className="product-img">
-                <img src="./default-product.jpg" alt={item.productName} />
-                <span className="discount">-10%</span>
-              </div>
-              <div className="price">
+            <div className="promo-item" key={idx}>
+              <img src={`/products/${item.id}.png`} alt={item.productName} />
+              <span className="discount-tag">-10%</span>
+              <div className="price-box">
                 <h4>{item.productName}</h4>
-                <span className="original">{(item.price * 1.1).toLocaleString()}đ</span>
-                <span className="sale">{item.price.toLocaleString()}đ</span>
+                <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                <span className="new-price">{item.price.toLocaleString()}đ</span>
               </div>
             </div>
           ))}
         </div>
       </div>
+
 
       <div className="product-section">
         <p>DOLESAIGON</p>
@@ -206,22 +208,23 @@ export default function Homepage() {
             </button>
           ))}
         </div>
+
         <div className="product-grid">
           {displayedMamCung.map((item, idx) => (
-            <div className="product-card" key={idx}>
-              <div className="product-img">
-                <img src="./default-product.jpg" alt={item.productName} />
-                <span className="discount">-10%</span>
-              </div>
-              <div className="price">
+            <div className="promo-item" key={idx}>
+              <img src={`/products/${item.id}.png`} alt={item.productName} />
+              <span className="discount-tag">-10%</span>
+              <div className="price-box">
                 <h4>{item.productName}</h4>
-                <span className="original">{(item.price * 1.1).toLocaleString()}đ</span>
-                <span className="sale">{item.price.toLocaleString()}đ</span>
+                <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                <span className="new-price">{item.price.toLocaleString()}đ</span>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+
 
       <section className="why-choose-us">
         <p>DOLESAIGON</p>
