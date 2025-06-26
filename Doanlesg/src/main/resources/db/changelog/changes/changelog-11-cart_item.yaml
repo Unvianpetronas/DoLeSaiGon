@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: cart_item
+            columns:
+              - column:
+                  name: cart_item_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_cart_item
+                    nullable: false
+              - column:
+                  name: cart_id # Khóa ngoại tới carts
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cart_item_cart_id
+                    references: cart(cart_id)
+              - column:
+                  name: product_id # Khóa ngoại tới products
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cart_item_product_id
+                    references: product(product_id)
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price_at_addition # Giá sản phẩm lúc thêm vào giỏ (tùy chọn)
+                  type: DECIMAL(18, 2)

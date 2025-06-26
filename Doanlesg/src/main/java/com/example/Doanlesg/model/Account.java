@@ -33,14 +33,11 @@ public class Account {
 
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
     // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
     // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
     // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
     // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
-    private List<Address> addresses;
-
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
     private Admin admin;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
@@ -51,6 +48,13 @@ public class Account {
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
     private Cart cart;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
+    // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
+    // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
+    // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
+    private List<Order> order;
 
     public Account() {
     }
@@ -80,9 +84,7 @@ public class Account {
         this.passwordHash = passwordHash;
     }
 
-    public List<Address> getAddresses() {
-        return addresses;
-    }
+
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -92,9 +94,6 @@ public class Account {
         this.createdAt = createdAt;
     }
 
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
     public boolean isStatus() {
         return status;
     }
@@ -134,5 +133,13 @@ public class Account {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public List<Order> getOrder() {
+        return order;
+    }
+
+    public void setOrder(List<Order> order) {
+        this.order = order;
     }
 }

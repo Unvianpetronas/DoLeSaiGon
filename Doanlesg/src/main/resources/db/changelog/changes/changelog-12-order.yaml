@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12
+      author: DoLeSaiGon
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: order_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_order
+                    nullable: false
+              - column:
+                  name: account_id
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_order_account_id
+                    references: account(account_id) #phai map origin khong qua thang dung giua
+              - column:
+                  name: receiver_fullname
+                  type: NVARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_phonenumber
+                  type: NVARCHAR(20) # Điều chỉnh độ dài nếu cần
+                  constraints:
+                    nullable: false
+              - column:
+                   name: receiver_mail
+                   type: NVARCHAR(255)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: fullshipping_address
+                   type: NVARCHAR(MAX) # Địa chỉ có thể dài
+                   constraints:
+                       nullable: false
+              - column:
+                  name: order_date
+                  type: DATETIME
+                  defaultValueComputed: GETDATE()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: voucher_id
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_order_voucher_id
+                    references: voucher(voucher_id)
+              - column:
+                  name: total_amount
+                  type: DECIMAL(18, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payment_method_id # Khóa ngoại
+                  type: INT
+                  constraints:
+                    nullable: true # Hoặc false
+                    foreignKeyName: fk_order_payment_method_id
+                    references: payment_method(payment_method_id)
+              - column:
+                  name: shipping_method_id # Khóa ngoại
+                  type: INT
+                  constraints:
+                    nullable: true # Hoặc false
+                    foreignKeyName: fk_order_shipping_method_id
+              - column:
+                  name: order_status
+                  type: NVARCHAR(50) # Khớp với length trong entity
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notes
+                  type: NVARCHAR(MAX)
+
+

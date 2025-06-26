@@ -35,7 +35,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
            accountDetail.setPasswordHash(encodedPassword);
            accountDetail.setStatus(true);
            accountDetail.setCreatedAt(LocalDateTime.now());
-           accountDetail.setAddresses(new ArrayList<>());
            if(customerDetail == null){
                throw new IllegalArgumentException("Customer cannot be null");
            }
@@ -58,13 +57,6 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             accountDetail.setPasswordHash(encodedPassword);
             accountDetail.setStatus(true);
             accountDetail.setCreatedAt(LocalDateTime.now());
-            if(accountDetail.getAddresses().size() > 0 && !accountDetail.getAddresses().isEmpty()){
-                for(Address address : accountDetail.getAddresses()){
-                    address.setAccount(accountDetail);
-                }
-            }else{
-                accountDetail.setAddresses(new ArrayList<>());
-            }
             if(staffDetail == null){
                 throw new IllegalArgumentException("staffDetail cannot be null");
             }
@@ -151,7 +143,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found account with email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại: " + email));
 
         if (!account.isStatus()) {
             throw new UsernameNotFoundException("Tài khoản đã bị vô hiệu hóa: " + email);
@@ -162,17 +154,13 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
             authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         } else if (account.getStaff() != null) {
             Staff staff = account.getStaff();
-            if ("MANAGER".equalsIgnoreCase(staff.getEmployeeId())) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-            } else {
-                authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
-            }
+            authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
         } else if (account.getAdmin() != null) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         }
         if (authorities.isEmpty()) {
-            throw new UsernameNotFoundException("Tài khoản " + email + " không được gán vai trò hợp lệ (Customer/Staff/Admin).");
+            throw new UsernameNotFoundException("Tài khoản " + email + " không hợp lệ.");
         }
 
         return new org.springframework.security.core.userdetails.User(
