@@ -52,14 +52,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN") // Example: restrict /admin/** to ADMIN role
                         .anyRequest().authenticated() // All other requests require authentication
                 )
-                .formLogin(form -> form
-                        .loginProcessingUrl("/api/ver0.0.1/l")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/index.html", true) // Redirect after successful login
-                        .failureUrl("/login.html?error=true") // Redirect after failed login
-                        .permitAll()
-                )
                 .logout(logout -> logout
                         .logoutUrl("/perform_logout")
                         .logoutSuccessUrl("/login.html?logout")
