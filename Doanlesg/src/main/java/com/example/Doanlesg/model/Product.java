@@ -2,7 +2,13 @@ package com.example.Doanlesg.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Nationalized;
+
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -38,6 +44,44 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<CartItem> cartItem;
+
+    @Size(max = 500)
+    @Nationalized
+    @Column(name = "short_description", length = 500)
+    private String shortDescription;
+
+    @Nationalized
+    @Lob
+    @Column(name = "detail_description")
+    private String detailDescription;
+
+    @ColumnDefault("getdate()")
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    public  LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getDetailDescription() {
+        return detailDescription;
+    }
+
+    public void setDetailDescription(String detailDescription) {
+        this.detailDescription = detailDescription;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
 
     public Long getId() {
         return id;

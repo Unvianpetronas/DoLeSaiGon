@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
-       Page<Product> productPage = productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findAll(pageable);
         return productPage.map(this::convertToDto);
     }
     private ProductDTO convertToDto(Product product) {
@@ -38,7 +39,9 @@ public class ProductService {
         productDTO.setProductName(product.getProductName());
         productDTO.setPrice(product.getPrice());
         productDTO.setStockQuantity(product.getStockQuantity());
-
+        productDTO.setShortdescription(product.getShortDescription());
+        productDTO.setDetaildescription(product.getDetailDescription());
+        productDTO.setCreatedAt(product.getCreatedAt());
         // Chuyển đổi Category Entity lồng trong Product sang CategoryDTO
         if (product.getCategory() != null) {
             CategoryDTO categoryDTO = new CategoryDTO();
@@ -50,14 +53,22 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findByCategory(Long categoryId){
-        return productRepository.findByCategoryID(categoryId);
+    public Page<ProductDTO> findByCategory(Long categoryId, Pageable pageable) {
+        Page<Product> productPage = productRepository.findByCategoryID(categoryId,pageable);
+        return productPage.map(this::convertToDto);
+    }
+    @Transactional(readOnly = true)
+    public ProductDTO findById(Long id) {
+        // Tìm kiếm product trong repository, kết quả trả về là Optional<Product>
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            return convertToDto(product);
+        } else {
+            throw new NoSuchElementException("Không tìm thấy sản phẩm với ID: " + id);
+        }
     }
 
-    @Transactional(readOnly = true)
-    public Optional<Product> findById(Long id){
-        return productRepository.findById(id);
-    }
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> searchByName(String keyword, Pageable pageable) {
@@ -65,3 +76,5 @@ public class ProductService {
         return productPage.map(this::convertToDto);
     }
 }
+
+

@@ -36,6 +36,20 @@ public class GetProductController {
         Page<ProductDTO> productDTOS = productService.searchByName(keywork, pageable);
         return ResponseEntity.ok(productDTOS);
     }
-    
-}
 
+    @GetMapping("/categoryID")
+    public ResponseEntity<Page<ProductDTO>> getAllProductsByCategory(@RequestParam Long id,
+                                                                     @RequestParam("page") int page,
+                                                                     @RequestParam( "size") int size,
+                                                                     @RequestParam( "sort") String sortBy){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<ProductDTO> productDTOPage = productService.findByCategory(id, pageable);
+        return ResponseEntity.ok(productDTOPage);
+    }
+    @GetMapping("/productID")
+    public ResponseEntity<ProductDTO> getProduct(@RequestParam("id") Long id ){
+        ProductDTO productDTO = productService.findById(id);
+        return  ResponseEntity.ok(productDTO);
+    }
+
+}
