@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/register")
+@CrossOrigin(origins = "http://localhost:3000")
 public class RegisterController {
 
     private final AccountServices accountServices;
