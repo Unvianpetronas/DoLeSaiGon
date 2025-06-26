@@ -22,13 +22,13 @@ public class GetProductController {
     public ResponseEntity<Page<ProductDTO>> getAllProducts(
             @RequestParam("page") int page,
             @RequestParam( "size") int size,
-            @RequestParam( "price") String sortBy) {
+            @RequestParam( "sort") String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<ProductDTO> productDtoPage = productService.findAll(pageable); // Service đã trả về DTO
         return ResponseEntity.ok(productDtoPage);
     }
     @GetMapping("/productname")
-    public ResponseEntity <Page<ProductDTO>> getAllProductsByName(@RequestParam String keywork,
+    public ResponseEntity <Page<ProductDTO>> getAllProductsByName(@RequestParam ("keyword") String keywork,
                                                             @RequestParam("page") int page,
                                                             @RequestParam( "size") int size,
                                                             @RequestParam( "sort") String sortBy){
@@ -38,7 +38,7 @@ public class GetProductController {
     }
 
     @GetMapping("/categoryID")
-    public ResponseEntity<Page<ProductDTO>> getAllProductsByCategory(@RequestParam Long id,
+    public ResponseEntity<Page<ProductDTO>> getAllProductsByCategory(@RequestParam ("categoryID")Long id,
                                                                      @RequestParam("page") int page,
                                                                      @RequestParam( "size") int size,
                                                                      @RequestParam( "sort") String sortBy){
