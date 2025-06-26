@@ -14,7 +14,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 // Allow requests from your frontend's origin (http://localhost:8443)
                 // In production, replace localhost:8443 with your actual frontend domain/IP.
-                .allowedOrigins("http://localhost:8443")
+                .allowedOrigins(
+                        "http://localhost:3000",
+                        "https://dolesaigon.io.vn"
+                )
                 // Define which HTTP methods are allowed (e.g., GET, POST, PUT, DELETE)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 // Allow all headers in the request
@@ -26,7 +29,10 @@ public class WebConfig implements WebMvcConfigurer {
 
         // If you have another API base path, you might need another mapping
         registry.addMapping("/ver0.0.1/**") // Example for your specific API path
-                .allowedOrigins("http://localhost:8443")
+                .allowedOrigins(
+                        "http://localhost:3000",
+                        "https://dolesaigon.io.vn"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
