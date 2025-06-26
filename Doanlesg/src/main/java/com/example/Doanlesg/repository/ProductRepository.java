@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
-    @Query(value = "SELECT a FROM Product a WHERE a.id =:id")
+    @Query(value = "SELECT a FROM Product a WHERE a.category.id =:id")
     Page<Product> findByCategoryID(Long id, Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p WHERE p.productName LIKE  %:name%")
