@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,9 @@ public class ProductService {
         productDTO.setProductName(product.getProductName());
         productDTO.setPrice(product.getPrice());
         productDTO.setStockQuantity(product.getStockQuantity());
-
+        productDTO.setShortdescription(product.getShortDescription());
+        productDTO.setDetaildescription(product.getDetailDescription());
+        productDTO.setCreatedAt(product.getCreatedAt());
         // Chuyển đổi Category Entity lồng trong Product sang CategoryDTO
         if (product.getCategory() != null) {
             CategoryDTO categoryDTO = new CategoryDTO();
@@ -54,11 +57,18 @@ public class ProductService {
         Page<Product> productPage = productRepository.findByCategoryID(categoryId,pageable);
         return productPage.map(this::convertToDto);
     }
-
     @Transactional(readOnly = true)
-    public Optional<Product> findById(Long id){
-        return productRepository.findById(id);
+    public ProductDTO findById(Long id) {
+        // Tìm kiếm product trong repository, kết quả trả về là Optional<Product>
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            return convertToDto(product);
+        } else {
+            throw new NoSuchElementException("Không tìm thấy sản phẩm với ID: " + id);
+        }
     }
+
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> searchByName(String keyword, Pageable pageable) {
