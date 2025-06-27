@@ -2,6 +2,7 @@ package com.example.Doanlesg.services;
 
 import com.example.Doanlesg.dto.CartItemDTO;
 import com.example.Doanlesg.dto.CheckoutRequestDTO;
+import com.example.Doanlesg.dto.OrderTotalDTO;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,9 @@ import java.util.Optional;
 public class OrderService {
 
     @Autowired private OrderRepository orderRepository;
-    @Autowired private AccountRepository accountRepository; // Giả sử bạn có
+    @Autowired private AccountRepository accountRepository;
     @Autowired private ProductRepository productRepository;
-    @Autowired private OderItemRepository  orderItemRepository; // Giả sử bạn có
+    @Autowired private OderItemRepository  orderItemRepository;
 
 
     @Transactional
@@ -29,11 +30,14 @@ public class OrderService {
         if (request.getCustomerId() != null) {
             // Là khách hàng đã đăng nhập
             Optional<Account> customer = accountRepository.findById(request.getCustomerId());
-                    Account account = customer.get();
-            order.setAccount(account);
-            order.setReceiverFullName(account.getCustomer().getFullName());
-            order.setReceiverEmail(account.getEmail());
-            order.setReceiverPhoneNumber(account.getEmail());
+            if (customer.isPresent()) {
+                Account account = customer.get();
+                order.setAccount(account);
+            }
+
+            order.setReceiverFullName(request.getGuestName());
+            order.setReceiverEmail(request.getGuestEmail());
+            order.setReceiverPhoneNumber(request.getGuestPhone());
             order.setFullShippingAddress(request.getGuestAddress()); // Giả sử có địa chỉ mặc định
         } else {
             // Là khách vãng lai
@@ -60,9 +64,16 @@ public class OrderService {
             orderItem.setQuantity(itemDTO.getQuantity());
             orderItem.setUnitPrice(product.getPrice()); // Lấy giá từ DB để đảm bảo chính xác
             orderItem.setOrder(order);
-
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(product.getPrice().multiply(new BigDecimal(itemDTO.getQuantity())));
+            // 1. Kiểm tra xem số lượng tồn kho có đủ không
+            if (product.getStockQuantity() < itemDTO.getQuantity()) {
+                throw new RuntimeException("Sản phẩm '" + product.getProductName() + "' không đủ số lượng tồn kho.");
+            }
+            // 2. Trừ số lượng tồn kho
+            int newQuantityInStock = product.getStockQuantity() - itemDTO.getQuantity();
+            product.setStockQuantity(newQuantityInStock);
+            productRepository.save(product); // Lưu lại thông tin sản phẩm đã cập nhật
         }
 
         order.setOrderItems(orderItems);
@@ -75,6 +86,32 @@ public class OrderService {
         orderItemRepository.saveAll(orderItems);
 
         return savedOrder;
+    }
+    public OrderTotalDTO calculateTotal(CheckoutRequestDTO request) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        // 1. Tính tổng tiền các sản phẩm
+        for (CartItemDTO itemDTO : request.getItems()) {
+            Product product = productRepository.findById(itemDTO.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+            totalAmount = totalAmount.add(product.getPrice().multiply(new BigDecimal(itemDTO.getQuantity())));
+        }
+
+        // 2. Cộng phí vận chuyển
+        // Giả sử phí vận chuyển được gửi trực tiếp từ request
+        if (request.getShippingFee() != null) {
+            totalAmount = totalAmount.add(request.getShippingFee());
+        }
+        // TODO: Thêm logic trừ tiền voucher nếu có
+        // Ví dụ:
+        // if (request.getVoucherCode() != null) {
+        //     Voucher voucher = voucherRepository.findByCode(request.getVoucherCode());
+        //     totalAmount = totalAmount.subtract(voucher.getDiscountAmount());
+        // }
+
+        OrderTotalDTO orderTotalDTO = new OrderTotalDTO();
+        orderTotalDTO.setTotalAmount(totalAmount);
+
+        return orderTotalDTO;
     }
 
 }

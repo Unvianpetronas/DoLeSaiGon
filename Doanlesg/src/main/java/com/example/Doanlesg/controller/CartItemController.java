@@ -33,7 +33,7 @@ public class CartItemController {
         String email = userDetails.getUsername();
        Optional<Account> account = accountRepository.findByEmail(email);
         // or Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (account != null) {
+        if (account.isPresent()) {
             cartServices.addItem(account.get().getId(), productId,quantity);
         }else{
             throw new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK> <UNK> <UNK>.");

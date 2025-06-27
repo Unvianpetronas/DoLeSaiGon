@@ -19,7 +19,6 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -63,8 +62,7 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
-
-    @OneToMany(mappedBy = "order_id",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
     public Integer getId() {
@@ -107,9 +105,6 @@ public class Order {
         this.receiverEmail = receiverEmail;
     }
 
-    public String getFullShippingAddress() {
-        return fullShippingAddress;
-    }
     public void setFullShippingAddress(String fullShippingAddress) {
         this.fullShippingAddress = fullShippingAddress;
     }
