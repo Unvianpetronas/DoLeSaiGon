@@ -17,6 +17,8 @@ export default function Homepage() {
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Xôi gấc');
   const [selectedCategory2, setSelectedCategory2] = useState('Mâm cúng đầy tháng');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [selectedMamSubCategory, setSelectedMamSubCategory] = useState('');
 
   const giftSets = [
     { id: 1, productName: 'Hộp quà Tết VIP', price: 520000 },
@@ -86,9 +88,48 @@ export default function Homepage() {
     };
     fetchProducts();
   }, []);
+const allXoiChe = xoiProducts.concat(cheProducts);
+const getSubCategoryName = (product) => {
+  const name = product.productName?.toLowerCase() || '';
+  if (name.includes('gấc')) return 'Xôi gấc';
+  if (name.includes('đậu') && name.includes('xôi')) return 'Xôi đậu';
+  if (name.includes('trôi')) return 'Chè trôi nước';
+  if (name.includes('chè') && name.includes('đậu')) return 'Chè đậu';
+  return 'Khác';
+};
 
-  const xoiCheCategories = [...new Set(xoiProducts.map(p => typeof p.category === 'object' ? p.category.name : p.category))];
+
+const subCategories = [...new Set(allXoiChe.map(getSubCategoryName))];
+
+
+useEffect(() => {
+  if (subCategories.length > 0 && !selectedSubCategory) {
+    setSelectedSubCategory(subCategories[0]);
+  }
+}, [subCategories, selectedSubCategory]);
+  const xoiCheCategories = [...new Set(
+    xoiProducts.concat(cheProducts).map(p =>
+      typeof p.category === 'object' ? p.category.name : p.category
+    )
+  )];
+
   const mamCungCategories = [...new Set(mamProducts.map(p => typeof p.category === 'object' ? p.category.name : p.category))];
+
+const getMamSubCategoryName = (product) => {
+  const name = product.productName?.toLowerCase() || '';
+  if (name.includes('truyền thống')) return 'Mâm cúng truyền thống';
+  if (name.includes('tết')) return 'Mâm lễ tết';
+  if (name.includes('đầy tháng')) return 'Mâm cúng đầy tháng';
+  if (name.includes('khai trương')) return 'Mâm cúng khai trương';
+  return 'Khác';
+};
+const mamSubCategories = [...new Set(mamProducts.map(getMamSubCategoryName))];
+useEffect(() => {
+  if (mamSubCategories.length > 0 && !selectedMamSubCategory) {
+    setSelectedMamSubCategory(mamSubCategories[0]);
+  }
+}, [mamSubCategories, selectedMamSubCategory]);
+
 
   const displayedXoiChe = xoiProducts.concat(cheProducts).filter(p => {
     const cat = typeof p.category === 'object' ? p.category.name : p.category;
@@ -102,6 +143,9 @@ export default function Homepage() {
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p className="error">{error}</p>;
+
+
+
 
   return (
     <div className="homepage">
@@ -175,26 +219,36 @@ export default function Homepage() {
         <p>DOLESAIGON</p>
         <h2>XÔI CHÈ</h2>
         <div className="tabs">
-          {xoiCheCategories.map(cat => (
-            <button key={cat} className={cat === selectedCategory ? 'active' : ''} onClick={() => setSelectedCategory(cat)}>
-              <span className="inner-border">{cat}</span>
-            </button>
-          ))}
-        </div>
+            {subCategories.map((cat) => (
+              <button
+                key={cat}
+                className={cat === selectedSubCategory ? 'active' : ''}
+                onClick={() => setSelectedSubCategory(cat)}
+              >
+                <span className="inner-border">{cat}</span>
+              </button>
+            ))}
+          </div>
 
-        <div className="product-grid">
-          {displayedXoiChe.map((item, idx) => (
-            <div className="promo-item" key={idx}>
-              <img src={`/products/${item.id}.png`} alt={item.productName} />
-              <span className="discount-tag">-10%</span>
-              <div className="price-box">
-                <h4>{item.productName}</h4>
-                <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                <span className="new-price">{item.price.toLocaleString()}đ</span>
+
+            <div className="product-subsection">
+              <h3 className="category-heading">{selectedSubCategory}</h3>
+              <div className="product-grid">
+                {allXoiChe
+                  .filter(p => getSubCategoryName(p) === selectedSubCategory)
+                  .map((item, idx) => (
+                    <div className="promo-item" key={idx}>
+                      <img src={`/products/${item.id}.png`} alt={item.productName} />
+                      <span className="discount-tag">-10%</span>
+                      <div className="price-box">
+                        <h4>{item.productName}</h4>
+                        <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                        <span className="new-price">{item.price.toLocaleString()}đ</span>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
-          ))}
-        </div>
       </div>
 
 
@@ -202,26 +256,35 @@ export default function Homepage() {
         <p>DOLESAIGON</p>
         <h2>CÁC LOẠI MÂM CÚNG LỄ</h2>
         <div className="tabs">
-          {mamCungCategories.map(cat => (
-            <button key={cat} className={cat === selectedCategory2 ? 'active' : ''} onClick={() => setSelectedCategory2(cat)}>
-              <span className="inner-border">{cat}</span>
-            </button>
-          ))}
-        </div>
+            {mamSubCategories.map((cat) => (
+              <button
+                key={cat}
+                className={cat === selectedMamSubCategory ? 'active' : ''}
+                onClick={() => setSelectedMamSubCategory(cat)}
+              >
+                <span className="inner-border">{cat}</span>
+              </button>
+            ))}
+          </div>
 
-        <div className="product-grid">
-          {displayedMamCung.map((item, idx) => (
-            <div className="promo-item" key={idx}>
-              <img src={`/products/${item.id}.png`} alt={item.productName} />
-              <span className="discount-tag">-10%</span>
-              <div className="price-box">
-                <h4>{item.productName}</h4>
-                <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                <span className="new-price">{item.price.toLocaleString()}đ</span>
-              </div>
+          <div className="product-subsection">
+            <h3 className="category-heading">{selectedMamSubCategory}</h3>
+            <div className="product-grid">
+              {mamProducts
+                .filter(p => getMamSubCategoryName(p) === selectedMamSubCategory)
+                .map((item, idx) => (
+                  <div className="promo-item" key={idx}>
+                    <img src={`/products/${item.id}.png`} alt={item.productName} />
+                    <span className="discount-tag">-10%</span>
+                    <div className="price-box">
+                      <h4>{item.productName}</h4>
+                      <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                      <span className="new-price">{item.price.toLocaleString()}đ</span>
+                    </div>
+                  </div>
+                ))}
             </div>
-          ))}
-        </div>
+          </div>
       </div>
 
 
