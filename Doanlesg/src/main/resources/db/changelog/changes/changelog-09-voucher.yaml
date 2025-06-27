@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: voucher_id
-                  type: INT
+                  type: BIGINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -16,7 +16,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: category_id # Khóa ngoại tới category
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: true
                     foreignKeyName: fk_voucher_product_category_id

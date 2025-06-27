@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: order_id
-                  type: INT
+                  type: BIGINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -16,7 +16,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: account_id
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: true
                     foreignKeyName: fk_order_account_id
@@ -49,7 +49,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: voucher_id
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: true
                     foreignKeyName: fk_order_voucher_id
@@ -61,14 +61,14 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: payment_method_id # Khóa ngoại
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: true # Hoặc false
                     foreignKeyName: fk_order_payment_method_id
                     references: payment_method(payment_method_id)
               - column:
                   name: shipping_method_id # Khóa ngoại
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: true # Hoặc false
                     foreignKeyName: fk_order_shipping_method_id
