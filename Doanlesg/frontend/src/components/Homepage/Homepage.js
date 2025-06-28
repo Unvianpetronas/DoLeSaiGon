@@ -19,11 +19,8 @@ export default function Homepage() {
   const [selectedCategory2, setSelectedCategory2] = useState('Mâm cúng đầy tháng');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [selectedMamSubCategory, setSelectedMamSubCategory] = useState('');
+  const [giftSets, setGiftSets] = useState([]);
 
-  const giftSets = [
-    { id: 1, productName: 'Hộp quà Tết VIP', price: 520000 },
-    { id: 2, productName: 'Hộp quà Trung Thu 2024', price: 350000 },
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,7 +59,7 @@ export default function Homepage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const [allRes, xoiRes, cheRes, mamRes] = await Promise.all([
+        const [allRes, xoiRes, cheRes, mamRes, giftRes] = await Promise.all([
           fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=50&sort=price'),
           fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
           fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
@@ -74,11 +71,13 @@ export default function Homepage() {
         const xoiData = await xoiRes.json();
         const cheData = await cheRes.json();
         const mamData = await mamRes.json();
+        const giftData = await giftRes.json();
 
         setPromoProducts(allData.content.slice(0, 4));
         setXoiProducts(xoiData.content || []);
         setCheProducts(cheData.content || []);
         setMamProducts(mamData.content || []);
+        setGiftSets(giftData.content || []);
       } catch (err) {
         console.error('Lỗi khi gọi API:', err);
         setError('Không thể tải dữ liệu sản phẩm.');
@@ -158,23 +157,28 @@ useEffect(() => {
         <div className="feature-item"><div className="line"></div><div className="icon"><FaGift /></div><div className="text"><strong>Giải pháp quà tặng</strong><p>Dành cho doanh nghiệp</p></div></div>
       </div>
 
-      <div className="section">
-        <h2>BỘ SƯU TẬP QUÀ TẶNG CAO CẤP</h2>
-        <p className="section-subtitle">DOLESAIGON là giải pháp quà Tết, Trung Thu, quà doanh nghiệp</p>
-        <div className="gift-collection">
-          {giftSets.map(gift => (
-            <div key={gift.id} className="gift-item">
-              <div className="gift-image">
-                <img src="./default-gift.png" alt={gift.productName} />
-                <div className="gift-info">
-                  <p>{gift.productName}</p>
-                  <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
-                </div>
-              </div>
-            </div>
-          ))}
+<div className="section">
+  <h2>BỘ SƯU TẬP QUÀ TẶNG CAO CẤP</h2>
+  <p className="section-subtitle">DOLESAIGON là giải pháp quà Tết, Trung Thu, quà doanh nghiệp</p>
+  <div className="gift-collection">
+    {giftSets.map(gift => (
+      <div key={gift.id} className="gift-item">
+        <div className="gift-image">
+          <img
+            src={`/products/${gift.id}.png`}
+            alt={gift.productName}
+            onError={(e) => { e.target.src = '/products/default.png'; }}
+          />
+          <div className="gift-info">
+            <p>{gift.productName}</p>
+            <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
+          </div>
         </div>
       </div>
+    ))}
+  </div>
+</div>
+
 
       <div className="section promo-section">
         <p>DOLESAIGON</p>
