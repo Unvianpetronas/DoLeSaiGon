@@ -348,3 +348,35 @@
 .slider-btn.right {
   right: 0;
 }
+
+/* Pop-up Message Styling */
+.popup-message {
+  position: fixed; /* Fix the position relative to the viewport */
+  top: 20px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  background-color: #d8f5e6; /* A nice green color for success */
+  color: #1a4d2e; /* Darker text color */
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000; /* Make sure it's on top of other content */
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  font-weight: 600;
+  font-size: 16px;
+  animation: fadeOut 3s forwards; /* Use an animation to fade out */
+}
+
+/* Optional: Add a fade-out animation */
+@keyframes fadeOut {
+  0% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); visibility: hidden; }
+}
+
+/* You might want to add a different color for error messages */
+/* .popup-message.error {
+    background-color: #ffe0e0;
+    color: #cc0000;
+} */

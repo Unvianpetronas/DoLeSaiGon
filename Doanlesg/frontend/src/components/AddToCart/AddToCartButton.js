@@ -4,12 +4,17 @@ import PropTypes from 'prop-types';
 // --- Component để nhúng CSS của nút vào trang ---
 const AddToCartStyles = () => {
     const styles = `
+    /* Container cho nút và thông báo lỗi */
+    .dole-btn-wrapper {
+      position: relative;
+      width: 100%;
+    }
     /* Nút chính "Thêm vào giỏ hàng" */
     .dole-add-to-cart-btn {
       width: 100%;
-      background-color: #ffffff; /* Thay đổi: Nền màu trắng */
-      color: #1f3f32; /* Thay đổi: Chữ màu xanh đậm */
-      border: 1px solid #1f3f32; /* Thay đổi: Viền màu xanh đậm */
+      background-color: #ffffff;
+      color: #1f3f32;
+      border: 1px solid #1f3f32;
       padding: 12px 15px;
       cursor: pointer;
       font-family: inherit;
@@ -18,37 +23,32 @@ const AddToCartStyles = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease; /* Áp dụng transition cho tất cả thuộc tính */
+      transition: all 0.3s ease;
       border-radius: 0;
     }
-
-    /* Hiệu ứng khi di chuột: Đảo ngược màu */
+    /* Hiệu ứng khi di chuột */
     .dole-add-to-cart-btn:hover:not(:disabled) {
-      background-color: #1f3f32; /* Nền xanh đậm */
-      color: #ffffff; /* Chữ trắng */
+      background-color: #1f3f32;
+      color: #ffffff;
       border-color: #1f3f32;
     }
-
     /* Trạng thái bị vô hiệu hóa */
     .dole-add-to-cart-btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
     }
-
     /* Icon giỏ hàng */
     .dole-add-to-cart-btn .cart-icon {
       margin-left: 10px;
       width: 20px;
       height: 20px;
-      fill: currentColor; /* Icon sẽ luôn có màu giống chữ */
+      fill: currentColor;
     }
-    
-    /* Trạng thái thành công: Giữ nguyên kiểu hover để có phản hồi rõ ràng */
+    /* Trạng thái thành công */
     .dole-add-to-cart-btn.success {
        background-color: #1f3f32;
        color: #ffffff;
     }
-
     /* Vòng xoay cho trạng thái đang tải */
     .spinner {
       width: 18px;
@@ -63,6 +63,13 @@ const AddToCartStyles = () => {
       to {
         transform: rotate(360deg);
       }
+    }
+    /* Thông báo lỗi */
+    .dole-btn-error-msg {
+      font-size: 12px;
+      color: #d10000;
+      text-align: center;
+      margin-top: 5px;
     }
   `;
     return <style>{styles}</style>;
@@ -84,10 +91,14 @@ const LoadingSpinner = () => <div className="spinner"></div>;
 const AddToCartButton = ({ productId, quantity = 1, onSuccess, onError }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [error, setError] = useState(null); // Thêm state để lưu lỗi
 
     useEffect(() => {
         if (isSuccess) {
-            const timer = setTimeout(() => setIsSuccess(false), 2000);
+            const timer = setTimeout(() => {
+                setIsSuccess(false);
+                setError(null); // Xóa lỗi khi trạng thái thành công kết thúc
+            }, 2000);
             return () => clearTimeout(timer);
         }
     }, [isSuccess]);
@@ -95,12 +106,39 @@ const AddToCartButton = ({ productId, quantity = 1, onSuccess, onError }) => {
     const handleAddToCart = async () => {
         if (isLoading || isSuccess) return;
         setIsLoading(true);
+        setError(null);
+
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await fetch('http://localhost:8080/api/ver0.0.1/cartItem/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity
+                }),
+                // --- THAY ĐỔI QUAN TRỌNG NHẤT Ở ĐÂY ---
+                credentials: 'include' // Yêu cầu trình duyệt gửi cookie xác thực
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    if (onError) {
+                        onError('auth', "Bạn phải đăng nhập để thêm vào giỏ hàng");
+                    }
+                    return;
+                }
+                const errorMessage = await response.text();
+                throw new Error(errorMessage || 'Đã có lỗi xảy ra.');
+            }
+
             setIsSuccess(true);
             if (onSuccess) onSuccess();
+
         } catch (err) {
-            if (onError) onError(err);
+            const errorMessage = err instanceof Error ? err.message : 'Lỗi kết nối đến máy chủ.';
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -113,7 +151,7 @@ const AddToCartButton = ({ productId, quantity = 1, onSuccess, onError }) => {
     };
 
     return (
-        <>
+        <div className="dole-btn-wrapper">
             <AddToCartStyles />
             <button
                 onClick={handleAddToCart}
@@ -122,7 +160,9 @@ const AddToCartButton = ({ productId, quantity = 1, onSuccess, onError }) => {
             >
                 {getButtonContent()}
             </button>
-        </>
+            {/* Hiển thị thông báo lỗi nếu có */}
+            {error && <p className="dole-btn-error-msg">{error}</p>}
+        </div>
     );
 };
 
