@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Homepage.css';
 import { FaTruck, FaHeadset, FaCreditCard, FaGift } from 'react-icons/fa';
+import AddToCartButton from '../AddToCart/AddToCartButton';
 
 export default function Homepage() {
   const bannerImages = [
@@ -197,6 +198,12 @@ useEffect(() => {
                 <span className="old-price">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
                 <span className="new-price">{item.price.toLocaleString()}đ</span>
               </div>
+              <div className="product-overlay">
+                <AddToCartButton
+                    productId={item.id}
+                    quantity={1}
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -245,6 +252,12 @@ useEffect(() => {
                         <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                         <span className="new-price">{item.price.toLocaleString()}đ</span>
                       </div>
+                      <div className="product-hover-overlay">
+                        <AddToCartButton
+                            productId={item.id}
+                            quantity={1}
+                        />
+                      </div>
                     </div>
                   ))}
               </div>
@@ -280,6 +293,12 @@ useEffect(() => {
                       <h4>{item.productName}</h4>
                       <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                       <span className="new-price">{item.price.toLocaleString()}đ</span>
+                    </div>
+                    <div className="product-overlay">
+                      <AddToCartButton
+                         productId={item.id}
+                         quantity={1}
+                      />
                     </div>
                   </div>
                 ))}

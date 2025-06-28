@@ -18,16 +18,19 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/ver0.0.1/cartItem")
 public class CartItemController {
-    final CartServices cartServices;
-    private AccountRepository accountRepository;
+    private final CartServices cartServices;
+    private final AccountRepository accountRepository;
+
     public CartItemController(CartServices cartServices, AccountRepository accountRepository) {
         this.cartServices = cartServices;
         this.accountRepository = accountRepository;
     }
+
     @GetMapping("/allCartItem")
     public List<CartItemDTO> getAllCartItems(@RequestParam Long cartId) {
         return cartServices.getAllCartItems(cartId);
     }
+
     @GetMapping("/addId")
     public void addCartItem(@AuthenticationPrincipal UserDetails userDetails, @RequestParam Long productId, @RequestParam int quantity) {
         String email = userDetails.getUsername();
