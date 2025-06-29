@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: payment_method_id
-                  type: INT
+                  type: BIGINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
