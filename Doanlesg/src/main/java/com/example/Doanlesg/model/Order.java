@@ -3,11 +3,11 @@ package com.example.Doanlesg.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -19,7 +19,6 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -63,6 +62,9 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
+    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems;
+
     public Integer getId() {
         return id;
     }
@@ -101,10 +103,6 @@ public class Order {
 
     public void setReceiverEmail(String receiverEmail) {
         this.receiverEmail = receiverEmail;
-    }
-
-    public String getFullShippingAddress() {
-        return fullShippingAddress;
     }
 
     public void setFullShippingAddress(String fullShippingAddress) {
@@ -165,5 +163,17 @@ public class Order {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getFullShippingAddress() {
+        return fullShippingAddress;
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 }
