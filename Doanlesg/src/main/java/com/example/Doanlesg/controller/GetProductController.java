@@ -10,8 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/ver0.0.1/product")
-@CrossOrigin(origins = "http://localhost:3000") // React dev server
+@RequestMapping("/api/ver0.0.1/product")// React dev server
 public class GetProductController {
     private ProductService productService;
     public GetProductController(ProductService productService) {
