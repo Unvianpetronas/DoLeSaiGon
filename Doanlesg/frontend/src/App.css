@@ -13,6 +13,10 @@ html, body {
   min-height: 100vh;
 }
 
+.main.no-breadcrumb {
+  padding-top: 0;
+  margin-top: 0;
+}
 /* ========== Header ========== */
 .header {
 background-image: url('./assets/Backgroundd.png');
@@ -32,7 +36,7 @@ background-image: url('./assets/Backgroundd.png');
 }
 
 .logo img {
-  height: 80px;
+  height: 90px;
 }
 
 .search-bar {
@@ -64,7 +68,7 @@ background-image: url('./assets/Backgroundd.png');
 .icon-group {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 50px;
 }
 .icon-item {
   display: flex;
@@ -84,7 +88,7 @@ background-image: url('./assets/Backgroundd.png');
   display: flex;
   background-color: #004E3E;
   padding: 5px 20px;
-  gap: 25px;
+  gap: 40px;
   justify-content: center;
   flex-wrap: wrap;
 }
