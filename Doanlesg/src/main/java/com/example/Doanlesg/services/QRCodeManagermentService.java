@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +25,7 @@ public class QRCodeManagermentService {
         this.poller = poller;
     }
 
-    public PaymentInfo generateAndTrackCode(long amount) {
+    public PaymentInfo generateAndTrackCode(BigDecimal amount) {
         String uniqueCode = "ORDER" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         LocalDateTime startTime = LocalDateTime.now();
         LocalDateTime expiryTime = startTime.plusMinutes(5);
