@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: account_id # Khóa ngoại tới account
-                  type: INT
+                  type: BIGINT
                   constraints:
                     nullable: false
                     unique: true # Mỗi account chỉ nên là 1 staff member

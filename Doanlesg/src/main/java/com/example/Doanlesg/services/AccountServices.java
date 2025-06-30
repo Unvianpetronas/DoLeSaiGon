@@ -1,55 +1,48 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.interal.PasswordEncoder;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.time.LocalDateTime;
 
 @Service
-public class AccountServices implements UserDetailsService /* User Detail la phong quan li nhan su dung trong spring security*/ {
-    private AccountRepository accountRepository;
-    private PasswordEncoder passwordEncoder;
-
+public class AccountServices /* REMOVE: implements UserDetailsService */ {
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AccountServices(AccountRepository accountRepository,PasswordEncoder passwordEncoder ) {
+    public AccountServices(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     @Transactional
     public Account createCustomerAccount(Account accountDetail, Customer customerDetail) {
-       if(validateNewAccount(accountDetail.getEmail())){
-           String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
-           accountDetail.setPasswordHash(encodedPassword);
-           accountDetail.setStatus(true);
-           accountDetail.setCreatedAt(LocalDateTime.now());
-           if(customerDetail == null){
-               throw new IllegalArgumentException("Customer cannot be null");
-           }
-           accountDetail.setCustomer(customerDetail);
-           customerDetail.setAccount(accountDetail);
-           if(accountDetail.getCart() == null) {
-               Cart cart = new Cart();
-               cart.setAccount(accountDetail);
-               accountDetail.setCart(cart);
-           }
-           return accountRepository.save(accountDetail);
-       }
-       return null;
+        if(validateNewAccount(accountDetail.getEmail())){
+            String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
+            accountDetail.setPasswordHash(encodedPassword);
+            accountDetail.setStatus(true);
+            accountDetail.setCreatedAt(LocalDateTime.now());
+            if(customerDetail == null){
+                throw new IllegalArgumentException("Customer cannot be null");
+            }
+            accountDetail.setCustomer(customerDetail);
+            customerDetail.setAccount(accountDetail);
+            if(accountDetail.getCart() == null) {
+                Cart cart = new Cart();
+                cart.setAccount(accountDetail);
+                accountDetail.setCart(cart);
+            }
+            return accountRepository.save(accountDetail);
+        }
+        return null;
     }
 
+    // ... (other methods like createStaffAccount, updateCustomerAccount, etc. remain the same)
     @Transactional
     public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
         if(validateNewAccount(accountDetail.getEmail())){
@@ -66,13 +59,14 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
         }
         return null;
     }
-    
+
     @Transactional
     public boolean updateCustomerAccount(Long id , Account accountUpdateDetail, Customer customerUpdateDetail) {
         Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
+        assert existAccount != null;
         Customer customerOld = existAccount.getCustomer();
         try{
-            if(existAccount == null || customerOld == null){
+            if(customerOld == null){
                 return false;
             } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
                 existAccount.setEmail(accountUpdateDetail.getEmail());
@@ -88,9 +82,10 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
     @Transactional
     public boolean updateStaffAccount(Long id , Account accountUpdateDetail, Staff staffUpdateDetail) {
         Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
+        assert existAccount != null;
         Customer customerOld = existAccount.getCustomer();
         try{
-            if(existAccount == null || customerOld == null){
+            if(customerOld == null){
                 return false;
             } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
                 existAccount.setEmail(accountUpdateDetail.getEmail());
@@ -114,10 +109,7 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
     }
 
     public boolean validateNewAccount(String email){
-        if(accountRepository.existsByEmail(email)){
-            return false;
-        }
-            return true;
+        return !accountRepository.existsByEmail(email);
     }
 
 
@@ -125,53 +117,31 @@ public class AccountServices implements UserDetailsService /* User Detail la pho
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
         // This returns false if the email is unchanged OR if it's taken by another user.
-        if(existingAccount.getEmail().equals(email)||accountRepository.existsByEmail(email)){
-            return false;
-        }
-        return true;
+        return !existingAccount.getEmail().equals(email) && !accountRepository.existsByEmail(email);
     }
+
+    /**
+     * Checks if the provided email and password are valid.
+     * Returns the Account object on success, or null on failure.
+     */
     public Account checkLogin(String email, String password){
-        Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
-        if(passwordEncoder.matches(password, account.getPasswordHash())){
+        // Find the account by email
+        Account account = accountRepository.findByEmail(email).orElse(null);
+
+        // If account exists and password matches, return the account
+        if(account != null && passwordEncoder.matches(password, account.getPasswordHash())){
             return account;
-        }else {
-            return null;
         }
-    } // neu xai userDetail cua spring thi khong can dung thang nay
+        // Otherwise, return null
+        return null;
+    }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại: " + email));
-
-        if (!account.isStatus()) {
-            throw new UsernameNotFoundException("Tài khoản đã bị vô hiệu hóa: " + email);
-        }
-        List<GrantedAuthority> authorities = new ArrayList<>();   // dai dien cho cac vai tro chuc vu trong UserDetailService
-
-        if (account.getCustomer() != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
-        } else if (account.getStaff() != null) {
-            Staff staff = account.getStaff();
-            authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
-        } else if (account.getAdmin() != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
-        }
-        if (authorities.isEmpty()) {
-            throw new UsernameNotFoundException("Tài khoản " + email + " không hợp lệ.");
-        }
-
-        return new org.springframework.security.core.userdetails.User(
-                account.getEmail(),
-                account.getPasswordHash(),
-                account.isStatus(), // enabled
-                true, // accountNonExpired
-                true, // credentialsNonExpired
-                true, // accountNonLocked
-                authorities // Danh sách vai trò
-        );
+    /**
+     * Finds an account by its ID.
+     * @param id The ID of the account.
+     * @return The Account object or null if not found.
+     */
+    public Account findById(Long id) {
+        return accountRepository.findById(id).orElse(null);
     }
 }
-

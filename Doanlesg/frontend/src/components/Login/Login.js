@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Login/Login.css';
+import { useAuth } from '../../contexts/AuthContext'; // BƯỚC 1: Import useAuth
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,71 +9,46 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Có thể giữ hàm này nếu bạn muốn kiểm tra trạng thái đăng nhập sau khi trang được tải hoặc sau khi login thành công
-  // Tuy nhiên, với defaultSuccessUrl của Spring Security, trình duyệt sẽ tự động chuyển hướng.
-  const checkAuthStatus = async () => {
-    try {
-      const response =  fetch('http://localhost:8080/api/user', {
-        credentials: 'include', // Quan trọng để gửi cookie phiên
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User authenticated:', data);
-        navigate('/index.html'); // Chuyển hướng sau khi xác thực thành công
-      } else {
-        console.log('User not authenticated.');
-      }
-    } catch (err) {
-      console.error('Error checking auth status:', err);
-    }
-  };
+  // BƯỚC 2: Lấy hàm login từ AuthContext
+  const { login } = useAuth();
 
-
+  // BƯỚC 3: Cập nhật hàm handleSubmit để sử dụng context
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/ver0.0.1/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        navigate('/dashboard');
+      // Gọi hàm login từ context
+      const result = await login(email, password);
+
+      if (result.success) {
+        // --- CHANGE HERE ---
+        // Nếu đăng nhập thành công, chuyển hướng về trang chủ
+        // VÀ gửi kèm một state để hiển thị thông báo
+        navigate('/', { state: { message: 'Đăng nhập thành công!', type: 'success' } });
       } else {
-        setError(data.message || 'Đăng nhập thất bại');
+        // Nếu thất bại, hiển thị thông báo lỗi từ server
+        setError(result.message || 'Đăng nhập thất bại');
       }
     } catch (err) {
+      // Xử lý các lỗi kết nối mạng
       setError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
-    } finally {
+      console.error("Lỗi khi đăng nhập:", err);
     }
   };
 
-
-  // Nếu user đã đăng nhập (ví dụ: sau khi refresh trang và session vẫn còn),
-  // bạn có thể muốn tự động chuyển hướng hoặc hiển thị thông tin user.
-  // Tuy nhiên, với formLogin của Spring Security, việc này thường được xử lý bằng redirect backend.
-  // if (user) {
-  //   return <div>Welcome, {user}!</div>;
-  // }
-
+  // Giao diện component không thay đổi
   return (
       <div className="login-wrapper">
         <div className="login-container">
           <h2>ĐĂNG NHẬP</h2>
           {error && <p className="error-message">{error}</p>}
           <form className="login-form" onSubmit={handleSubmit}>
-            {/* Đảm bảo type là email và tên là email */}
             <input
                 type="email"
-                name="email" // Tên thuộc tính này không thực sự quan trọng khi bạn gửi bằng fetch với URLSearchParams, nhưng giữ nó rõ ràng vẫn tốt
+                name="email"
                 placeholder="Email"
                 required
-                value={email} // Gắn với state 'email'
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
             <input
@@ -86,7 +62,7 @@ const Login = () => {
             <button type="submit">Đăng nhập</button>
           </form>
           <p>
-            Chưa có tài khoản? <Link to="/register.html">Đăng ký tại đây</Link>
+            Chưa có tài khoản? <Link to="/register">Đăng ký tại đây</Link>
           </p>
         </div>
       </div>
