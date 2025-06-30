@@ -39,8 +39,8 @@ public class ProductService {
         productDTO.setProductName(product.getProductName());
         productDTO.setPrice(product.getPrice());
         productDTO.setStockQuantity(product.getStockQuantity());
-        productDTO.setShortdescription(product.getShortDescription());
-        productDTO.setDetaildescription(product.getDetailDescription());
+        productDTO.setShortDescription(product.getShortDescription());
+        productDTO.setDetailDescription(product.getDetailDescription());
         productDTO.setCreatedAt(product.getCreatedAt());
         // Chuyển đổi Category Entity lồng trong Product sang CategoryDTO
         if (product.getCategory() != null) {
