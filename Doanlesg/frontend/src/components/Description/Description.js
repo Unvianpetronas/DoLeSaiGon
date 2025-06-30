@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./Description.css";
 
@@ -8,6 +8,7 @@ const Description = () => {
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const scrollRef = useRef(null);
 
   // Gọi API lấy thông tin sản phẩm theo ID
   useEffect(() => {
@@ -19,14 +20,16 @@ const Description = () => {
         console.log("Kết quả từ API:", data);
 
         // Nếu API trả về các sản phẩm liên quan
-        if (data.relatedProductIds?.length) {
-          const related = await Promise.all(
-            data.relatedProductIds.map((id) =>
-              fetch(`http://localhost:8080/api/ver0.0.1/product/productID?id=${id}`).then((res) => res.json())
-            )
-          );
-          setRelatedProducts(related);
-        }
+        if (data?.category?.id) {
+                const relRes = await fetch(
+                  `http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=50&sort=productName`
+                );
+                const relData = await relRes.json();
+
+                //  Lọc ra chính sản phẩm đang xem
+                const related = (relData.content || []).filter(p => p.id !== data.id);
+                setRelatedProducts(related);
+              }
 
       } catch (err) {
         console.error("Lỗi khi tải sản phẩm:", err);
@@ -53,7 +56,8 @@ const Description = () => {
     if (newIndex >= product.extraImages.length) newIndex = 0;
     setImageIndex(newIndex);
   };
-
+  const scrollLeft = () => { scrollRef.current.scrollBy({ left: -200, behavior: "smooth" }); };
+  const scrollRight = () => { scrollRef.current.scrollBy({ left: 200, behavior: "smooth" }); };
   return (
     <div className="product-detail-container">
       {/* PHẦN 1: Hình ảnh & thông tin */}
@@ -134,16 +138,23 @@ const Description = () => {
       {relatedProducts.length > 0 && (
         <div className="related-products-wrapper">
           <h2>Sản Phẩm Liên Quan</h2>
-          <div className="related-products">
-            {relatedProducts.map((rel) => (
-              <Link to={`/product/${rel.id}`} className="related-item" key={rel.id}>
-                <img src={`/products/${rel.id}.png`} alt={rel.productName} />
-                <p>{rel.productName}</p>
-                <span className="related-price">{rel.price.toLocaleString()}đ</span>
-              </Link>
-            ))}
+          <div className="slider-wrapper">
+            <button onClick={scrollLeft} className="slider-btn left">◀</button>
+            <div className="related-products" ref={scrollRef}>
+              {relatedProducts.map((rel) => (
+                <div className="related-item" key={rel.id}>
+                  <Link to={`/product/${rel.id}`}>
+                    <img src={`/products/${rel.id}.png`} alt={rel.productName} />
+                    <p>{rel.productName}</p>
+                    <span className="related-price">{rel.price.toLocaleString()}đ</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+            <button onClick={scrollRight} className="slider-btn right">▶</button>
           </div>
         </div>
+
       )}
     </div>
   );

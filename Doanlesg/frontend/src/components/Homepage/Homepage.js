@@ -166,6 +166,7 @@ useEffect(() => {
     {giftSets.map(gift => (
       <div key={gift.id} className="gift-item">
         <div className="gift-image">
+        <Link to={`/product/${gift.id}`}>
           <img
             src={`/products/${gift.id}.png`}
             alt={gift.productName}
@@ -175,6 +176,7 @@ useEffect(() => {
             <p>{gift.productName}</p>
             <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
           </div>
+          </Link>
         </div>
       </div>
     ))}
@@ -215,8 +217,13 @@ useEffect(() => {
         <div className="story-content">
           <h4>ĐỒ LỄ SÀI GÒN</h4>
           <h2>CÂU CHUYỆN VỀ DOLESAIGON</h2>
-          <p>"Tài sản lớn nhất của đời người là sức khỏe và trí tuệ"... Sản phẩm đồ lễ phẩm cao cấp của <strong>DOLESAIGON</strong> được tuyển chọn kỹ lưỡng và đóng gói trang trọng, đảm bảo chất lượng tuyệt đối, phù hợp cho các nghi lễ truyền thống và tâm linh.</p>
-          <button className="story-button">Xem chi tiết</button>
+          <p>
+                      Như quý vị đã biết: "Tài sản lớn nhất của đời người là sức khỏe và trí tuệ", có sức khỏe và trí tuệ thì sẽ có tất cả. Sản phẩm đồ lễ phẩm cao cấp là những lễ vật tinh túy, mang lại cho Quý vị sự an tâm, may mắn và khởi đầu thuận lợi trong cuộc sống. Đồ lễ được thị trường đón nhận với phương châm: "Chất lượng uy tín là thương hiệu".<br /><br />
+                      Sản phẩm đồ lễ phẩm cao cấp của <strong>DOLESAIGON</strong> được tuyển chọn kỹ lưỡng và đóng gói trang trọng, đảm bảo chất lượng tuyệt đối, phù hợp cho các nghi lễ truyền thống và tâm linh.
+                    </p>
+
+          <Link to="/introduction" className="story-button">Xem chi tiết</Link>
+
         </div>
         <div className="story-image">
           <img src="./img3.png" alt="Món ăn" />
@@ -246,6 +253,7 @@ useEffect(() => {
                   .filter(p => getSubCategoryName(p) === selectedSubCategory)
                   .map((item, idx) => (
                     <div className="promo-item" key={idx}>
+                    <Link to={`/product/${item.id}`}>
                       <img src={`/products/${item.id}.png`} alt={item.productName} />
                       <span className="discount-tag">-10%</span>
                       <div className="price-box">
@@ -253,6 +261,7 @@ useEffect(() => {
                         <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                         <span className="new-price">{item.price.toLocaleString()}đ</span>
                       </div>
+                      </Link>
                     </div>
                   ))}
               </div>
@@ -282,6 +291,7 @@ useEffect(() => {
                 .filter(p => getMamSubCategoryName(p) === selectedMamSubCategory)
                 .map((item, idx) => (
                   <div className="promo-item" key={idx}>
+                  <Link to={`/product/${item.id}`}>
                     <img src={`/products/${item.id}.png`} alt={item.productName} />
                     <span className="discount-tag">-10%</span>
                     <div className="price-box">
@@ -289,6 +299,7 @@ useEffect(() => {
                       <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                       <span className="new-price">{item.price.toLocaleString()}đ</span>
                     </div>
+                    </Link>
                   </div>
                 ))}
             </div>
