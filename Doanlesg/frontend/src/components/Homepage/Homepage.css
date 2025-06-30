@@ -451,7 +451,7 @@
   padding: 10px;
   border: none;
   height: auto;
-  width: 60%%; /* full width trong cột */
+  width: 60%; /* full width trong cột */
 }
 
 /* Vùng ảnh */
@@ -694,4 +694,48 @@ body {
 .green-background .testimonial-card {
   background: #2a5a45; /* thẻ trắng đổi thành xanh nhạt để nổi bật trên nền xanh đậm */
   color: #fff;
+}
+
+/* Khối chứa tên và giá sản phẩm ban đầu */
+.price-box {
+  /* ... các thuộc tính khác của bạn ... */
+  transition: transform 0.3s ease-out;
+  z-index: 12; /* Đảm bảo tên/giá luôn nổi lên trên */
+  background: rgba(255, 255, 255, 0.9); /* Giữ lại nền trắng mờ ban đầu */
+}
+
+/* Lớp phủ chứa nút bấm */
+.product-hover-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+
+  /* THAY ĐỔI QUAN TRỌNG: Thêm nền trắng cho lớp phủ */
+  background: rgba(255, 255, 255, 0.95); /* Nền trắng gần như đục để trông gọn gàng */
+
+  /* Mặc định sẽ ẩn hoàn toàn bên dưới */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(100%);
+  transition: all 0.3s ease-out;
+
+  z-index: 11; /* Nằm dưới tên/giá nhưng trên ảnh */
+}
+
+/* --- HIỆU ỨNG KHI HOVER --- */
+
+/* 1. Hiện lớp phủ chứa nút bấm */
+.promo-item:hover .product-hover-overlay {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0); /* Di chuyển về vị trí ban đầu */
+}
+
+/* 2. Đẩy khối tên/giá lên trên để không bị che */
+.promo-item:hover .price-box {
+  /* Di chuyển khối giá lên trên một khoảng bằng chiều cao của nút bấm + padding */
+  transform: translateY(-70px);
 }
