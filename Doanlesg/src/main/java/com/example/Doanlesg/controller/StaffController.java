@@ -1,8 +1,8 @@
 package com.example.Doanlesg.controller;
 
-import com.example.Doanlesg.model.Account;
-import com.example.Doanlesg.model.Product;
-import com.example.Doanlesg.model.Order;
+import com.example.Doanlesg.dto.AccountCustomerDTO;
+import com.example.Doanlesg.dto.AccountStaffDTO;
+import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.services.AccountServices;
 import com.example.Doanlesg.services.StaffServices;
 import jakarta.servlet.http.HttpSession;
@@ -117,5 +117,128 @@ public class StaffController {
         if (account.getStaff() != null) roles.add("ROLE_STAFF");
         if (account.getCustomer() != null) roles.add("ROLE_CUSTOMER");
         return roles;
+    }
+
+    // Get all accounts - for admin view
+    @GetMapping("/accounts")
+    public ResponseEntity<?> getAllAccounts(HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+        List<Account> accounts = accountServices.getAllAccounts();
+        return ResponseEntity.ok(accounts);
+    }
+
+    // Get account by ID
+    @GetMapping("/accounts/{id}")
+    public ResponseEntity<?> getAccountById(@PathVariable Long id, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+        Account account = accountServices.findById(id);
+        if (account == null) {
+            return new ResponseEntity<>("Không tìm thấy tài khoản.", HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(account);
+    }
+
+    // Create new customer account
+    @PostMapping("/accounts/new-customer")
+    public ResponseEntity<?> createCustomerAccount(@RequestBody AccountCustomerDTO request, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        // Build Account
+        Account account = new Account();
+        account.setEmail(request.getEmail());
+        account.setPasswordHash(request.getPassword());
+
+        // Build Customer
+        Customer customer = new Customer();
+        customer.setFullName(request.getFullName());
+        customer.setPhoneNumber(request.getPhoneNumber());
+
+        Account createdAccount = accountServices.createCustomerAccount(account, customer);
+        if (createdAccount != null) {
+            return ResponseEntity.ok(createdAccount);
+        } else {
+            return new ResponseEntity<>("Tạo tài khoản thất bại - email đã tồn tại.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Create new staff account
+    @PostMapping("/accounts/new-staff")
+    public ResponseEntity<?> createStaffAccount(@RequestBody AccountStaffDTO request, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        // Build Account
+        Account account = new Account();
+        account.setEmail(request.getEmail());
+        account.setPasswordHash(request.getPassword());
+
+        // Build Staff
+        Staff staff = new Staff();
+        staff.setFullName(request.getFullName());
+        staff.setPhoneNumber(request.getPhoneNumber());
+        staff.setEmployeeId(request.getEmployeeId());
+        staff.setDepartment(request.getDepartment());
+
+        Account createdAccount = accountServices.createStaffAccount(account, staff);
+        if (createdAccount != null) {
+            return ResponseEntity.ok(createdAccount);
+        } else {
+            return new ResponseEntity<>("Tạo tài khoản thất bại - email đã tồn tại.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Update existing customer account
+    @PutMapping("/accounts/customer-{id}")
+    public ResponseEntity<?> updateCustomerAccount(@PathVariable Long id, @RequestBody AccountCustomerDTO request, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        boolean success = accountServices.updateCustomerAccount(id, request.getAccount(), request.getCustomer());
+        if (success) {
+            return new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Cập nhật thất bại - Tài khoản không tồn tại hoặc email đã được sử dụng", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Update existing staff account
+    @PutMapping("/accounts/staff-{id}")
+    public ResponseEntity<?> updateStaffAccount(@PathVariable Long id, @RequestBody AccountStaffDTO request, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        boolean success = accountServices.updateStaffAccount(id, request.getAccount(), request.getStaff());
+        if (success) {
+            return new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Cập nhật thất bại - Tài khoản không tồn tại hoặc email đã được sử dụng", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Delete account
+    @DeleteMapping("/accounts/{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long id, HttpSession session) {
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+        Account account = accountServices.findById(id);
+        if (account == null) {
+            return new ResponseEntity<>("Không tìm thấy tài khoản.", HttpStatus.NOT_FOUND);
+        }
+        boolean deleted = accountServices.deleteAccount(account);
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>("Xóa thất bại", HttpStatus.BAD_REQUEST);
+        }
     }
 }
