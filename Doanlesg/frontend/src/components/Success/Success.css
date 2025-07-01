@@ -4,7 +4,7 @@
   max-width: 1000px;
   margin: 0 auto;
   aspect-ratio: 10 / 13; /* Giữ tỉ lệ khung hình, có thể chỉnh lại nếu ảnh khác */
-  background-image: url('../../assets/Success.png');
+  background-image: url('../../assets/success.png');
   background-size: contain; /* Auto scale hình đúng tỉ lệ */
   background-repeat: no-repeat;
   background-position: center;
