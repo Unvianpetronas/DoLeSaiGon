@@ -1,9 +1,11 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,14 +21,25 @@ public class QRCodeManagermentService {
     private final VietQRService vietQRService;
     private final SingleQrCodePoller poller;
 
+    private final OrderRepository orderRepository;
+
     @Lazy
-    public QRCodeManagermentService(VietQRService vietQRService, SingleQrCodePoller poller) {
+    public QRCodeManagermentService(VietQRService vietQRService, SingleQrCodePoller poller, OrderRepository orderRepository) {
         this.vietQRService = vietQRService;
         this.poller = poller;
+        this.orderRepository = orderRepository;
     }
 
-    public PaymentInfo generateAndTrackCode(BigDecimal amount) {
-        String uniqueCode = "ORDER" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    public String generateCode() {
+        return "ORDER" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    public PaymentInfo getPaymentInfo() {
+        return new PaymentInfo(generateCode(), "", LocalDateTime.now());
+    }
+
+    public PaymentInfo trackCode(BigDecimal amount) {
+        String uniqueCode = generateCode();
         LocalDateTime startTime = LocalDateTime.now();
         LocalDateTime expiryTime = startTime.plusMinutes(5);
 
@@ -43,16 +56,18 @@ public class QRCodeManagermentService {
         return activeCodes.containsKey(code);
     }
 
+    @Transactional
     public void markAsPaid(String code) {
         if (activeCodes.remove(code) != null) {
             logger.info("Code {} has been marked as PAID and removed from tracking.", code);
         }
     }
 
+    @Transactional
     public void markAsExpired(String code) {
         if (activeCodes.remove(code) != null) {
             logger.warn("Code {} has been marked as EXPIRED and removed from tracking.", code);
-            // TODO: Thêm logic xử lý đơn hàng hết hạn ở đây
+            orderRepository.findByCode(code).ifPresent(orderRepository::delete);
         }
     }
 

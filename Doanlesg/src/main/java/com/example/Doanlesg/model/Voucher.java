@@ -16,7 +16,7 @@ public class Voucher {
     @Column(name = "discount_amount", nullable = false)
     private double discountAmount;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "BIT DEFAULT 1")
+    @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
     public Voucher() {
