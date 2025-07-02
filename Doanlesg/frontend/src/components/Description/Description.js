@@ -58,6 +58,7 @@ const Description = () => {
   };
   const scrollLeft = () => { scrollRef.current.scrollBy({ left: -200, behavior: "smooth" }); };
   const scrollRight = () => { scrollRef.current.scrollBy({ left: 200, behavior: "smooth" }); };
+
   return (
     <div className="product-detail-container">
       {/* PHẦN 1: Hình ảnh & thông tin */}

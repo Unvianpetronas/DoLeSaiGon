@@ -18,6 +18,46 @@ body {
   box-sizing: border-box;
   background-color: transparent;
 }
+.sort-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.sort-label {
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.sort-button {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  transition: color 0.3s ease;
+}
+
+.sort-button:hover {
+  color: #c62828; /* đỏ đậm khi hover */
+}
+
+.sort-button.active {
+  font-weight: bold;
+  color: #c62828;
+}
+
+.diamond {
+  font-size: 10px;
+  color: #bbb;
+}
 
 .brand-name {
   font-family: 'Great Vibes', cursive;
@@ -44,34 +84,42 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  margin-top: 20px;
 }
 
 .product-card {
-  background-color: #fff;
-  padding: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  background: #fff;
+  padding: 10px;
+  border: none;
+  height: 350px;
 }
-
 .product-card:hover {
-  transform: translateY(-4px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
-.product-image {
+
+.product-img {
+  position: relative;
   width: 100%;
   height: 220px;
+  overflow: hidden;
+}
+.product-img img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 0px;
-  display: block;
+  transition: transform 0.5s ease;
+}
+.product-card:hover .product-img img {
+  transform: scale(1.1); /* phóng to nhẹ */
 }
 
 .product-name {
-  font-size: 18px;
+  font-size: 16px;
   margin: 8px 0 4px;
   text-align: center;
   color: #222;

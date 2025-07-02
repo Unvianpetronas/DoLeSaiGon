@@ -145,9 +145,6 @@ useEffect(() => {
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p className="error">{error}</p>;
 
-
-
-
   return (
     <div className="homepage">
       <div className="header-banner" style={{ backgroundImage: `url(${bannerImages[currentIndex]})` }}></div>
