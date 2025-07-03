@@ -1,5 +1,6 @@
 package com.example.Doanlesg.repository;
 
+import com.example.Doanlesg.dto.OrderSummaryDTO;
 import com.example.Doanlesg.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,6 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -23,4 +25,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Modifying
     @Query("delete from Order o where upper(o.code) = upper(?1)")
     void deleteOrderByCode(@NonNull String code);
+
+    List<Order> findAllByAccountIdOrderByOrderDateDesc(Long accountId);
 }

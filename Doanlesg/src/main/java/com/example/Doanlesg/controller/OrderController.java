@@ -1,63 +1,67 @@
 package com.example.Doanlesg.controller;
 
-import com.example.Doanlesg.dto.CheckoutRequestDTO;
-import com.example.Doanlesg.dto.OrderTotalDTO;
-import com.example.Doanlesg.model.Order;
+import com.example.Doanlesg.dto.OrderDetailDTO;
+import com.example.Doanlesg.dto.OrderSummaryDTO;
 import com.example.Doanlesg.services.OrderService;
-import com.example.Doanlesg.services.QRCodeManagermentService;
+import jakarta.servlet.http.HttpSession; // 1. Import HttpSession
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
 
-
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/ver0.0.1/orders")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class OrderController {
 
-    private final QRCodeManagermentService qrCodeManagerService;
     private final OrderService orderService;
 
-    public OrderController(QRCodeManagermentService qrCodeManagerService, OrderService orderService) {
-        this.qrCodeManagerService = qrCodeManagerService;
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-    @PostMapping
-    public ResponseEntity<QRCodeManagermentService.PaymentInfo> createPaymentQrCode(@RequestBody CheckoutRequestDTO request) {
-        OrderTotalDTO total = orderService.calculateTotal(request);
-        QRCodeManagermentService.PaymentInfo paymentInfo;
+    /**
+     * Gets a list of all orders for the currently authenticated user from the session.
+     */
+    @GetMapping
+    public ResponseEntity<List<OrderSummaryDTO>> getUserOrders(HttpSession session) {
+        // 2. Get the account ID from the session
+        Long accountId = (Long) session.getAttribute("account_id");
 
-            try {
-                if (request.getPaymentMethodId() == 1) {
-                    paymentInfo = qrCodeManagerService.trackCode(total.getTotalAmount());
-                } else {
-                    paymentInfo = qrCodeManagerService.getPaymentInfo();
-                }
-                if (paymentInfo != null) {
-                    orderService.placeOrder(request, paymentInfo.uniqueCode());
-                }
-            } catch (Exception e) {
-                throw new NumberFormatException("Place Order Failed.");
-            }
+        if (accountId == null) {
+            // If no user is logged in, return an empty list or a 401 Unauthorized error
+            return ResponseEntity.status(401).body(Collections.emptyList());
+        }
 
-        return ResponseEntity.ok(paymentInfo);
+        List<OrderSummaryDTO> orders = orderService.findOrdersByAccountId(1L);
+//        System.out.println(orders);
+        return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/status/{uniqueCode}")
-    public ResponseEntity<Map<String, String>> getOrderStatus(@PathVariable String uniqueCode) {
-        Optional<Order> order = orderService.findOrderByPaymentCode(uniqueCode);
+    /**
+     * Gets the full details of a single order by its ID,
+     * ensuring the user in the session owns the order.
+     */
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDetailDTO> getOrderDetails(@PathVariable Integer orderId, HttpSession session) {
+        // 3. Get the account ID from the session
+        Long accountId = (Long) session.getAttribute("account_id");
 
-        if (order.isEmpty()) {
+        if (accountId == null) {
+            // User is not logged in, they cannot view any order.
+            return ResponseEntity.status(401).build();
+        }
+
+        // 4. The service layer will now handle checking if this accountId owns the order
+        OrderDetailDTO orderDetails = orderService.findOrderDetailsByIdForAccount(orderId, accountId);
+
+        if (orderDetails == null) {
+            // This means either the order doesn't exist OR the user doesn't own it.
+            // Returning 404 is a safe default.
             return ResponseEntity.notFound().build();
         }
 
-        Map<String, String> response = new HashMap<>();
-        response.put("status", order.get().getOrderStatus());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(orderDetails);
     }
 }

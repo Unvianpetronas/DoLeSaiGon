@@ -1,13 +1,10 @@
 package com.example.Doanlesg.services;
 
-import com.example.Doanlesg.dto.CartItemDTO;
-import com.example.Doanlesg.dto.CheckoutRequestDTO;
-import com.example.Doanlesg.dto.OrderTotalDTO;
+import com.example.Doanlesg.dto.*;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -191,5 +188,91 @@ public class OrderService {
 
     public Optional<Order> findOrderByPaymentCode(String code) {
         return orderRepository.findByCode(code);
+    }
+
+    public List<OrderSummaryDTO> findOrdersByAccountId(Long accountId) {
+        // 1. Fetch the full Order objects
+        List<Order> orders = orderRepository.findAllByAccountIdOrderByOrderDateDesc(accountId);
+//        System.out.println(orders);
+        // 2. Manually convert (map) each Order to an OrderSummaryDTO
+        return orders.stream()
+                .map(this::convertToSummaryDTO) // You would create this helper method
+                .toList();
+    }
+
+    // Helper method to perform the conversion
+    private OrderSummaryDTO convertToSummaryDTO(Order order) {
+        OrderSummaryDTO dto = new OrderSummaryDTO();
+        dto.setId(order.getId());
+        dto.setOrderCode(order.getCode());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setOrderStatus(order.getOrderStatus());
+        return dto;
+    }
+
+    /**
+     * Finds an order by its ID and converts it to a detailed DTO.
+     * Includes a security check to ensure the user owns the order.
+     * @param orderId The ID of the order to find.
+     * @param accountId The ID of the currently logged-in user from the session.
+     * @return An OrderDetailDTO if found and authorized, otherwise null.
+     */
+    public OrderDetailDTO findOrderDetailsByIdForAccount(Integer orderId, Long accountId) {
+        // 1. Fetch the order and its related items from the database
+        Order order = orderRepository.findById(orderId).orElse(null);
+
+        // 2. Security Check:
+        // Return null if the order doesn't exist, or if the user doesn't own it.
+        if (order == null || order.getAccount() == null || !order.getAccount().getId().equals(accountId)) {
+            return null;
+        }
+
+        // 3. If authorized, convert the Order entity to an OrderDetailDTO
+        OrderDetailDTO dto = new OrderDetailDTO();
+
+        // --- Basic Info ---
+        dto.setId(order.getId());
+        dto.setOrderCode(order.getCode());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setOrderStatus(order.getOrderStatus());
+
+        // --- Receiver & Shipping Info ---
+        dto.setReceiverFullName(order.getReceiverFullName());
+        dto.setReceiverEmail(order.getReceiverEmail());
+        dto.setReceiverPhoneNumber(order.getReceiverPhoneNumber());
+        dto.setFullShippingAddress(order.getFullShippingAddress());
+        dto.setNotes(order.getNotes());
+
+        // --- Method Names (Safely check for nulls) ---
+        dto.setPaymentMethodName(order.getPaymentMethod() != null ? order.getPaymentMethod().getMethodName() : "N/A");
+        dto.setShippingMethodName(order.getShippingMethod() != null ? order.getShippingMethod().getMethodName() : "N/A");
+
+        // --- Map the list of OrderItem entities to a list of OrderItemDTOs ---
+        List<OrderItemDTO> itemDTOs = order.getOrderItems().stream()
+                .map(item -> new OrderItemDTO(
+                        item.getProduct().getId(),
+                        item.getProduct().getProductName(),
+                        item.getQuantity(),
+                        item.getUnitPrice(),
+                        item.getTotal()
+                ))
+                .collect(Collectors.toList());
+        dto.setOrderItems(itemDTOs);
+
+        // --- Financial Breakdown ---
+        // Calculate the subtotal from the items list
+        BigDecimal itemsSubtotal = itemDTOs.stream()
+                .map(OrderItemDTO::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        dto.setItemsSubtotal(itemsSubtotal);
+
+        // Set other financial details from the order
+        // You might need to add these fields (e.g., shippingFee, voucherDiscount) to your Order entity
+        dto.setShippingFee(order.getShippingMethod() != null ? BigDecimal.valueOf(order.getShippingMethod().getPrice()) : BigDecimal.ZERO);
+        dto.setVoucherDiscount(order.getVoucher() != null ? BigDecimal.valueOf(order.getVoucher().getDiscountAmount()) : BigDecimal.ZERO);
+        dto.setTotalAmount(order.getTotalAmount());
+
+        return dto;
     }
 }

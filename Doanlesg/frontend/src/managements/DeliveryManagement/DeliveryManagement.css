@@ -1,0 +1,149 @@
+.delivery-management {
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.admin-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn.pink {
+  background-color: #fddcdc;
+}
+
+.btn.yellow {
+  background-color: #fef6c1;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-product-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.admin-product-table th,
+.admin-product-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.admin-product-table th {
+  background-color: #1b3b2f;
+  color: white;
+  text-align: center;
+}
+
+.admin-product-table td:nth-child(1),
+.admin-product-table td:nth-child(5),
+.admin-product-table td:nth-child(6),
+.admin-product-table td:nth-child(7) {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.admin-product-table td:nth-child(6) input[type="checkbox"] {
+  transform: scale(1.5);
+  cursor: pointer;
+}
+
+.icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.icon.delete {
+  color: #f44336;
+}
+
+/* Popup Filter */
+.filter-container {
+  position: relative;
+}
+
+.filter-popup {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 10;
+  width: 200px;
+  display: none;
+}
+
+.filter-popup.show {
+  display: block;
+}
+
+.filter-commands {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.filter-commands .link {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.filter-checkbox {
+  margin-right: 6px;
+}
+
+.filter-label {
+  font-size: 14px;
+}
+
+.no-category {
+  font-style: italic;
+  font-size: 13px;
+  color: gray;
+}
+
+.staff-dropdown {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 8px;
+  cursor: pointer;
+  background-color: #fff;
+  text-align: center;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+}
