@@ -1,147 +1,164 @@
-// src/pages/Details.js
-import React from "react";
-import { useParams } from "react-router-dom";
-import "./Details.css";
-import detailsImg from '../../assets/Xoingusac.png';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { FaBoxOpen, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // Added cancel icon
+import './Details.css';
 
-const orders = [
-  {
-    id: '214354675XFH',
-    date: '2025-06-23',
-    status: 'Đang giao',
-    items: [
-      { name: 'Xôi ngũ sắc trưng bày hình hoa mai năm cánh + Mâm trái cây tam sắc', quantity: 1, price: 99000 },
-      { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
-    ],
-    address: "546 Nguyễn Văn A, p1, q7, tp.hcm",
-    receiver: "Lê Văn A",
-    phone: "+84 123 456 789",
-    payment: "Chuyển khoản",
-    shipping: 20000,
-    discount: 20000
-  },
-   {
-      id: 'DH001',
-      date: '2025-06-23',
-      status: 'Đang giao',
-      items: [
-        { name: 'Xôi ngũ sắc trưng bày hình hoa mai năm cánh + Mâm trái cây tam sắc', quantity: 1, price: 99000 },
-        { name: 'Tháp bánh trung thu', quantity: 1, price: 350000 },
-      ],
-      address: "546 Nguyễn Văn A, p1, q7, tp.hcm",
-      receiver: "Lê Văn A",
-      phone: "+84 123 456 789",
-      payment: "Chuyển khoản",
-      shipping: 20000,
-      discount: 20000
-    },
-  {
-    id: 'DH003',
-    date: '2025-06-24',
-    status: 'Đang chuẩn bị',
-    items: [{ name: 'Mâm lễ chay', quantity: 1, price: 500000 }],
-    address: "Số 1 Võ Văn Ngân, Thủ Đức, HCM",
-    receiver: "Nguyễn B",
-    phone: "+84 999 888 777",
-    payment: "Tiền mặt",
-    shipping: 0,
-    discount: 0
-  },
-  {
-    id: 'DH002',
-    date: '2025-06-24',
-    status: 'Đã nhận',
-    items: [{ name: 'Mâm lễ chay', quantity: 1, price: 500000 }],
-    address: "Số 1 Võ Văn Ngân, Thủ Đức, HCM",
-    receiver: "Nguyễn B",
-    phone: "+84 999 888 777",
-    payment: "Tiền mặt",
-    shipping: 0,
-    discount: 0
-  }
+// --- THIS IS THE FIX ---
+
+// 1. Define the visual steps for the tracker in the UI
+const visualSteps = [
+  { name: 'Đang chuẩn bị', icon: <FaBoxOpen /> },
+  { name: 'Đang giao', icon: <FaTruck /> },
+  { name: 'Đã nhận', icon: <FaCheckCircle /> }
 ];
+
+// 2. Create a mapping from the BACKEND status string to the step INDEX
+const statusToIndex = {
+  'Pending': 0,
+  'Paid': 0,
+  'Cash': 0,
+  'Shipping': 1,
+  'Complete': 2,
+  'Cancel': -1 // A special index for cancelled orders
+};
+
+// 3. Create a map to get the display name for any status
+const statusDisplayName = {
+  'Pending': 'Đang chuẩn bị',
+  'Paid': 'Đang chuẩn bị',
+  'Cash': 'Đang chuẩn bị',
+  'Shipping': 'Đang giao',
+  'Complete': 'Đã nhận',
+  'Cancel': 'Đã hủy'
+};
+
 
 export default function Details() {
   const { orderId } = useParams();
-  const order = orders.find(o => o.id === orderId);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!order) {
-    return <div className="details-container"><h2>Không tìm thấy đơn hàng</h2></div>;
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`http://localhost:8080/api/ver0.0.1/orders/${orderId}`, {
+          credentials: 'include',
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Bạn không có quyền xem đơn hàng này.');
+        }
+        if (!response.ok) {
+          throw new Error(`Không tìm thấy đơn hàng với mã: ${orderId}`);
+        }
+
+        const data = await response.json();
+        setOrder(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetails().then();
+  }, [orderId]);
+
+  if (loading) {
+    return <div className="details-container"><p>Đang tải chi tiết đơn hàng...</p></div>;
   }
 
-  const getStepClass = (stepName) => {
-    return order.status === stepName ? "step active" : "step inactive";
-  };
+  if (error) {
+    return <div className="details-container error-message"><h2>Lỗi</h2><p>{error}</p></div>;
+  }
 
-  // ✅ Tính tổng tiền hàng dựa trên các item
-  const calculateSubTotal = () => {
-    return order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
+  if (!order) {
+    return <div className="details-container"><h2>Không có thông tin đơn hàng</h2></div>;
+  }
 
-  const calculateTotal = () => {
-    return (calculateSubTotal() + order.shipping - order.discount).toLocaleString();
-  };
+  // 4. Use the maps to get the current step index and display name
+  const currentStepIndex = statusToIndex[order.orderStatus] ?? -1;
+  const displayStatus = statusDisplayName[order.orderStatus] || order.orderStatus;
 
   return (
-    <div className="details-container">
-      <div className="order-status">
+      <div className="details-container">
         <h2>Trạng thái đơn hàng</h2>
-        <div className="status-steps">
-          <span className={getStepClass("Đang chuẩn bị")}>Đang chuẩn bị</span>
-          <span className="arrow">→</span>
-          <span className={getStepClass("Đang giao")}>Đang giao</span>
-          <span className="arrow">→</span>
-          <span className={getStepClass("Đã nhận")}>Đã nhận</span>
-        </div>
-      </div>
 
-      <hr className="divider" />
-      <div className="order-info">
+        {/* 5. Conditionally render the status tracker or a "Cancelled" message */}
+        {order.orderStatus === 'Cancel' ? (
+            <div className="status-steps-cancelled">
+              <FaTimesCircle />
+              <span>Đơn hàng đã bị hủy</span>
+            </div>
+        ) : (
+            <div className="status-steps">
+              {visualSteps.map((step, index) => (
+                  <React.Fragment key={step.name}>
+                    <div className={`step ${index <= currentStepIndex ? 'active' : ''}`}>
+                      {step.icon}
+                      <span className="step-label">{step.name}</span>
+                    </div>
+                    {index < visualSteps.length - 1 && <span className="arrow">→</span>}
+                  </React.Fragment>
+              ))}
+            </div>
+        )}
+
+        <hr className="divider" />
+
         <h2>Thông tin đơn hàng</h2>
-
         <div className="order-meta">
-          <p><strong>Mã đơn hàng:</strong> {order.id}</p>
-          <p><strong>Phương thức thanh toán:</strong> {order.payment}</p>
-          <p><strong>Địa chỉ nhận hàng:</strong> {order.address}</p>
-          <p><strong>Người nhận:</strong> {order.receiver} ({order.phone})</p>
+          <p><strong>Mã đơn hàng:</strong> {order.orderCode}</p>
+          <p><strong>Trạng thái:</strong> {displayStatus}</p>
+          <p><strong>Phương thức thanh toán:</strong> {order.paymentMethodName}</p>
+          <p><strong>Địa chỉ nhận hàng:</strong> {order.fullShippingAddress}</p>
+          <p><strong>Người nhận:</strong> {order.receiverFullName} ({order.receiverPhoneNumber})</p>
         </div>
 
         <hr className="divider" />
-        {order.items.map((item, index) => (
-          <div className="product-row" key={index}>
-            <img src={detailsImg} alt={item.name} className="product-img" />
-            <div className="product-name">{item.name}</div>
-            <div className="product-details">
-              <span className="product-qty">x{item.quantity}</span>
-              <span className="product-price">{(item.price * item.quantity).toLocaleString()}₫</span>
+
+        {order.orderItems?.map(item => (
+            <div className="product-row" key={item.productId}>
+              <img
+                  src={`/products/${item.productId}.png`}
+                  alt={item.productName}
+                  className="product-img"
+                  onError={(e) => { e.target.src = '/products/default.png'; }}
+              />
+              <div className="product-name">{item.productName}</div>
+              <div className="product-details">
+                <span className="product-qty">x{item.quantity}</span>
+                <span className="product-price">{(item.price * item.quantity).toLocaleString()}₫</span>
+              </div>
             </div>
-          </div>
         ))}
 
         <hr className="divider" />
+
         <div className="price-breakdown">
           <div className="line-item">
             <span>Tổng tiền hàng</span>
-            <span>{calculateSubTotal().toLocaleString()}₫</span>
+            <span>{order.itemsSubtotal.toLocaleString()}₫</span>
           </div>
           <div className="line-item">
             <span>Phí vận chuyển</span>
-            <span>{order.shipping.toLocaleString()}₫</span>
+            <span>{order.shippingFee.toLocaleString()}₫</span>
           </div>
-          <div className="line-item">
-            <span>Ưu đãi</span>
-            <span>-{order.discount.toLocaleString()}₫</span>
+          {order.voucherDiscount > 0 && (
+              <div className="line-item">
+                <span>Ưu đãi</span>
+                <span className="discount-value">-{order.voucherDiscount.toLocaleString()}₫</span>
+              </div>
+          )}
+          <hr className="divider-sub" />
+          <div className="total-line">
+            <span className="total-label">Thành tiền</span>
+            <span className="total-value">{order.totalAmount.toLocaleString()}₫</span>
           </div>
-         <hr className="divider" />
-         <div className="total-line">
-           <span className="total-label">Thành tiền</span>
-           <span className="total-value">{calculateTotal()}₫</span>
-         </div>
-
         </div>
-
-
       </div>
-    </div>
   );
 }

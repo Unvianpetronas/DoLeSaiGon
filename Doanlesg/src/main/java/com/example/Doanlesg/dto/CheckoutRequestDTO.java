@@ -18,9 +18,6 @@ public class CheckoutRequestDTO {
     private Long paymentMethodId;
     private String voucherCode;// (Tùy chọn)
 
-    private BigDecimal shippingFee;
-
-
 
 
     // Danh sách sản phẩm trong giỏ hàng (quan trọng cho guest)
@@ -97,14 +94,6 @@ public class CheckoutRequestDTO {
 
     public void setItems(List<CartItemDTO> items) {
         this.items = items;
-    }
-
-    public BigDecimal getShippingFee() {
-        return shippingFee;
-    }
-
-    public void setShippingFee(BigDecimal shippingFee) {
-        this.shippingFee = shippingFee;
     }
 
 }

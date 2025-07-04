@@ -22,6 +22,7 @@ public class DoanlesgApplication {
 
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+		System.setProperty("casso.api.key", dotenv.get("CASSO_API_KEY"));
 		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 		SpringApplication.run(DoanlesgApplication.class, args);
 	}

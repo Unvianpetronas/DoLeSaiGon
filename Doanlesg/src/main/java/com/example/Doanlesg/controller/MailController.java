@@ -24,19 +24,9 @@ public class MailController {
     public MailController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
     }
-    private String getLogoAsBase64() throws IOException {
-        // ClassPathResource sẽ tìm file trong thư mục 'src/main/resources'
-        ClassPathResource logoResource = new ClassPathResource("static/logo.png");
-
-        // Đọc toàn bộ file ảnh thành một mảng byte
-        byte[] logoBytes = logoResource.getInputStream().readAllBytes();
-
-        // Mã hóa mảng byte thành chuỗi Base64 và thêm tiền tố để tạo Data URL
-        return "data:image/png;base64," + Base64.getEncoder().encodeToString(logoBytes);
-    }
 
     @PostMapping("/send-invoice")
-    public String sendInvoice(  RedirectAttributes redirectAttributes) {
+    public String sendInvoice(RedirectAttributes redirectAttributes) {
         String msg = "";
 
         try {
@@ -49,11 +39,11 @@ public class MailController {
             InvoiceData data = new InvoiceData(
                     "2025-SP-001",
                     "10/06/2025",
-                    "Công ty Của Bạn\n123 ABC, Q1, TPHCM",
-                    "Khách Hàng Lớn\n456 DEF, Q7, TPHCM",
+                    "Đồ lễ sài gòn\n 7 Đ. D1, Long Thạnh Mỹ, Thủ Đức, Hồ Chí Minh",
+                    "Khách Hàng\n",
                     items,
                     total, // Không còn taxRate
-                    getLogoAsBase64()
+                    invoiceService.getLogoAsBase64()
             );
 
             invoiceService.createAndEmailInvoice(data, "azinz850@gmail.com");

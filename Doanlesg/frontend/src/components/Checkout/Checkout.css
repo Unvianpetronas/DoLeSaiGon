@@ -119,3 +119,44 @@
   color: #444;
   line-height: 1.6;
 }
+/* Add this to your existing Checkout.css file */
+
+.shipping-method-box {
+  border: 1px solid #eee;
+  padding: 20px;
+  border-radius: 4px;
+  margin-top: 20px; /* Add space between payment and shipping boxes */
+}
+
+.shipping-method-box label, .payment-method-box label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.voucher-section {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.voucher-input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.apply-voucher-btn {
+  padding: 0 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.apply-voucher-btn:hover {
+  background-color: #e0e0e0;
+}

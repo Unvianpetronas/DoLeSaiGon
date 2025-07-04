@@ -56,7 +56,7 @@ const Description = () => {
       }
     };
 
-    fetchProduct();
+    fetchProduct().then();
   }, [productId]);
 
   if (!product) return <div className="not-found">Đang tải sản phẩm...</div>;
