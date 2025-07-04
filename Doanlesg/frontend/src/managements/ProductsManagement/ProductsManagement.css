@@ -1,0 +1,176 @@
+/* ========== Layout & Fonts ========== */
+.products-management {
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ========== Controls Header ========== */
+.admin-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* ========== Button Styles ========== */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+}
+
+.btn.green {
+  background-color: #d5f0c1;
+  color: black;
+}
+
+.btn.pink {
+  background-color: #f7c8c8;
+  color: black;
+}
+
+.btn.yellow {
+  background-color: #fef3a5;
+  color: black;
+}
+
+/* ========== Filter Popup ========== */
+.filter-container {
+  position: relative;
+}
+
+.filter-popup {
+  display: none;
+  position: absolute;
+  top: 45px;
+  left: 0;
+  width: 240px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 10px;
+}
+
+.filter-popup.show {
+  display: block;
+}
+
+/* Các thao tác trong popup: Select All, Invert... */
+.filter-commands {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: #007bff;
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+.filter-commands .link {
+  cursor: pointer;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.filter-commands .link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* ========== Filter Option Item (checkbox + text) ========== */
+.filter-options {
+  max-height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 0;
+}
+
+.filter-option-item {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #333;
+  padding: 4px 8px;
+  gap: 6px;
+}
+
+.filter-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: blue;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.filter-label {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+/* ========== Table ========== */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-product-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.admin-product-table thead {
+  background-color: #f0f0f0;
+}
+
+.admin-product-table th,
+.admin-product-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+.admin-product-table th {
+  background-color: #1b3b2f;
+  color: white;
+}
+/* ========== Status Colors ========== */
+.status.in {
+  color: green;
+  font-weight: bold;
+}
+
+.status.out {
+  color: red;
+  font-weight: bold;
+}
+
+/* ========== Icons ========== */
+.icon {
+  font-size: 18px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.icon.edit {
+  color: #007bff;
+}
+
+.icon.delete {
+  color: #dc3545;
+}
+
+/* ========== No Image Placeholder ========== */
+.no-image {
+  font-size: 20px;
+  color: #999;
+}
