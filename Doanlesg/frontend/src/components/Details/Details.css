@@ -1,186 +1,210 @@
+/* src/components/Details/Details.css (Corrected) */
+
 .details-container {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 40px auto;
+  padding: 30px;
   font-family: 'Segoe UI', sans-serif;
   font-size: 14px;
   background-color: #fff;
-  background-repeat: no-repeat;
-  background-position: top right;
-  background-size: 220px auto;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  line-height: 1.6;
 }
 
 .divider {
   border: none;
-  border-top: 1px solid #000;
-  margin: 20px 0px 20px;
+  border-top: 1px solid #eee;
+  margin: 25px 0;
 }
 
-/* KHUNG 1: Trạng thái đơn hàng */
+.divider-sub {
+  border: none;
+  border-top: 1px dashed #ccc;
+  margin: 10px 0;
+}
+
+/* --- START: CORRECTED STATUS STYLES --- */
+
 .details-container h2 {
-  font-size: 34px;
+  font-size: 28px;
   text-align: center;
-  color: #600000;
-  margin-bottom: 20px;
+  color: #1f3f32; /* Changed to match theme */
+  margin-bottom: 25px;
   font-weight: bold;
 }
 
 .status-steps {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 15px;
 }
 
 .step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 20px;
-  background-color: #ffe8e0;
-  border: 2px solid #d87d4a;
+  justify-content: center;
+  padding: 15px;
+  background-color: #f0f0f0; /* Default inactive state */
+  border: 1px solid #ddd;
   border-radius: 12px;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  color: #888; /* Inactive text color */
 }
 
-.step:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px rgba(215, 69, 10, 0.5);
-}
-
-.step svg,
-.step i {
+.step svg {
   font-size: 24px;
-  margin-bottom: 6px;
-  color: #6E0707;
+  margin-bottom: 8px;
 }
 
 .step-label {
   font-size: 14px;
   font-weight: 600;
-  color: #6E0707;
   text-align: center;
 }
 
+/* This is the active state for a step, matching OrderPage */
 .step.active {
-  background-color: rgba(5, 43, 33, 0.8); /* Xanh lá trong suốt */
+  background-color: #1f3f32;
+  border-color: #1f3f32;
   color: white;
-}
-.arrow {
-  font-size: 24px;
-  color: #6E0707;
-  align-self: center;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* KHUNG 2: Thông tin đơn hàng */
+.arrow {
+  font-size: 24px;
+  color: #ccc;
+  font-weight: bold;
+}
+
+/* New style for the cancelled status message */
+.status-steps-cancelled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background-color: #fbebeb;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  color: #dc3545;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.status-steps-cancelled svg {
+  font-size: 2em;
+}
+
+
+/* --- END: CORRECTED STATUS STYLES --- */
+
+
+/* Order Info Section */
+.order-meta {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.order-meta p {
+  margin: 5px 0;
+}
+
+/* Product List Section */
 .product-row {
   display: grid;
-  grid-template-columns: 100px 1fr auto;
-  gap: 0px;
+  grid-template-columns: 80px 1fr auto;
+  gap: 20px;
   align-items: center;
-  margin-bottom: 26px;
+  padding: 10px 0;
 }
 
 .product-img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid #eee;
 }
 
 .product-name {
-  font-weight: 500;
+  font-weight: 600;
   color: #222;
-  max-width: 300px;
-  word-wrap: break-word;
   line-height: 1.4;
   text-align: left;
-  margin-left: 40px;
 }
 
 .product-details {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 5px;
 }
 
 .product-qty {
-  font-size: 16px;
-  color: #555;
+  font-size: 14px;
+  color: #666;
 }
 
 .product-price {
-  font-weight: 500;
+  font-weight: 600;
   color: #222;
-  font-size: 18px;
+  font-size: 16px;
 }
 
+/* Price Breakdown Section */
 .price-breakdown {
   margin-top: 10px;
-  margin-bottom: 10px;
-  font-size: 19px;
+  font-size: 16px;
   color: #333;
 }
 
-.line-item,
-.total-line {
+.line-item {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
+  padding: 8px 0;
 }
 
 .line-item span:first-child {
-  color: #000;
-  font-weight: 600;
+  color: #555;
 }
 
 .line-item span:last-child {
   font-weight: 600;
-  color: #b31a1a;
+}
+
+.discount-value {
+  color: #28a745; /* Green for discount */
 }
 
 .total-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 14px;
-  margin-top: 14px;
+  padding-top: 15px;
+  margin-top: 15px;
 }
 
 .total-label {
   font-size: 18px;
-  font-weight: 600;
-  color: #b31a1a; /* có thể đổi màu tại đây */
+  font-weight: bold;
+  color: #333;
 }
 
 .total-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #b31a1a; /* màu giá tiền, ví dụ: đỏ đậm */
+  font-size: 22px;
+  font-weight: bold;
+  color: #b31a1a;
 }
 
-
-.order-meta {
-  margin-top: 30px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #031913;
-}
-
-.order-meta i {
-  margin-right: 8px;
-}
-.step.active-step {
-  background-color: #d94a00;
-  border-color: #b22222;
-  color: white;
-}
-
-.step.active-step i {
-  color: white;
+.error-message {
+  text-align: center;
+  color: #b31a1a;
 }

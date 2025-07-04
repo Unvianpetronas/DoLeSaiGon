@@ -13,7 +13,7 @@ public class PaymentMethod {
     @Column(name = "method_name", nullable = false, length = 50)
     private String methodName;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "BIT DEFAULT 1")
+    @Column(name = "status", nullable = false, columnDefinition = "BIT DEFAULT 1")
     private boolean isActive = true;
 
     public PaymentMethod() {

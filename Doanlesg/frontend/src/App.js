@@ -8,6 +8,9 @@
     } from 'react-icons/fa';
 
     import { AuthProvider, useAuth } from './contexts/AuthContext';
+    import { NotificationProvider } from './contexts/NotificationContext';
+    import './components/common/Notification.css';
+
     import Shop from './components/Shop/Shop';
     import Like from './components/Like/Like';
     import Login from './components/Login/Login';
@@ -25,6 +28,7 @@
     import Checkout from './components/Checkout/Checkout';
     import Success from './components/Success/Success';
     import Details from './components/Details/Details';
+    import Payment from './components/Payment/Payment';
 
     import AdminDashboard from './managements/AdminDashboard/AdminDashboard';
     import AdminLayoutComponent from './managements/AdminLayout/AdminLayout';
@@ -36,6 +40,7 @@
     import DeliveryManagement from './managements/DeliveryManagement/DeliveryManagement';
     import StaffsManagement from './managements/StaffsManagement/StaffsManagement';
     import CustomersManagement from './managements/CustomersManagement/CustomersManagement';
+
     function MainLayout({ label, children }) {
       return (
         <>
@@ -64,85 +69,111 @@
     }
 
     function App() {
-      return (
-      <AuthProvider>
-        <Router>
-          <Routes>
-            {/* Giao diện khách có Breadcrumb */}
-            <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
-            <Route path="/contact" element={<MainLayout label="Liên hệ"><Contact /></MainLayout>} />
-            <Route path="/products" element={<MainLayout label="Sản phẩm"><Products /></MainLayout>} />
-            <Route path="/introduction" element={<MainLayout label="Giới thiệu"><Introduction /></MainLayout>} />
-            <Route path="/checkout" element={<MainLayout label="Thanh toán ngay"><Checkout /></MainLayout>} />
-            <Route path="/success" element={<MainLayout label="Đặt hàng thành công"><Success /></MainLayout>} />
-            <Route path="/details/:orderId" element={<MainLayout label="Chi tiết đơn hàng"><Details /></MainLayout>} />
-            <Route path="/shop" element={<MainLayout label="Hệ thống cửa hàng"><Shop /></MainLayout>} />
-            <Route path="/like" element={<MainLayout label="Yêu thích"><Like /></MainLayout>} />
-            <Route path="/orderpage" element={<MainLayout label="Đơn hàng"><OrderPage /></MainLayout>} />
-            <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
-            <Route path="/policy/:policyType" element={<PolicyWrapper />} />
-            <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
-            <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
-            <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
-            <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
+        return (
+            <Router>
+                <Routes>
+                    {/* --- Customer Routes with Breadcrumb --- */}
+                    <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
+                    <Route path="/contact" element={<MainLayout label="Liên hệ"><Contact /></MainLayout>} />
+                    <Route path="/products" element={<MainLayout label="Sản phẩm"><Products /></MainLayout>} />
+                    <Route path="/introduction" element={<MainLayout label="Giới thiệu"><Introduction /></MainLayout>} />
+                    <Route path="/checkout" element={<MainLayout label="Thanh toán"><Checkout /></MainLayout>} />
+                    <Route path="/payment" element={<MainLayout label="Thanh toán đơn hàng"><Payment /></MainLayout>} />
+                    <Route path="/success" element={<MainLayout label="Đặt hàng thành công"><Success /></MainLayout>} />
+                    <Route path="/details/:orderId" element={<MainLayout label="Chi tiết đơn hàng"><Details /></MainLayout>} />
+                    <Route path="/shop" element={<MainLayout label="Hệ thống cửa hàng"><Shop /></MainLayout>} />
+                    <Route path="/like" element={<MainLayout label="Yêu thích"><Like /></MainLayout>} />
+                    <Route path="/orderpage" element={<MainLayout label="Đơn hàng"><OrderPage /></MainLayout>} />
+                    <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
+                    <Route path="/policy/:policyType" element={<PolicyWrapper />} />
 
-            {/* Giao diện không Breadcrumb (Login/Register/Description...) */}
-            <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
+                    {/* --- Customer Routes without Breadcrumb --- */}
+                    <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
+                    <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
+                    <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
+                    <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
+                    <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
 
-            {/* Giao diện Admin dùng layout chung */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="products" element={<ProductsManagement />} />
-              <Route path="create" element={<CreateProducts />} />
-              <Route path="orders" element={<OrdersManagement />} />
-              <Route path="edit/:id" element={<EditProducts />} />
-              <Route path="warehouse" element={<WarehouseManagement />} />
-              <Route path="delivery" element={<DeliveryManagement />} />
-              <Route path="staff" element={<StaffsManagement />} />
-              <Route path="customer" element={<CustomersManagement />} />
-            </Route>
-          </Routes>
-        </Router>
-
-        </AuthProvider>
-      );
+                    {/* --- Admin Routes with Admin Layout --- */}
+                    <Route path="/admin" element={<AdminLayout />}>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="products" element={<ProductsManagement />} />
+                        <Route path="create" element={<CreateProducts />} />
+                        <Route path="orders" element={<OrdersManagement />} />
+                        <Route path="edit/:id" element={<EditProducts />} />
+                        <Route path="warehouse" element={<WarehouseManagement />} />
+                        <Route path="delivery" element={<DeliveryManagement />} />
+                        <Route path="staff" element={<StaffsManagement />} />
+                        <Route path="customer" element={<CustomersManagement />} />
+                    </Route>
+                </Routes>
+            </Router>
+        );
     }
 
     function Header() {
+    const { user, logout, isLoading } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+    };
+
       return (
         <header className="header">
-          <div className="top-header">
-            <div className="logo">
-              <Link to="/">
-                <img src="/images/logo.png" alt="Logo" />
-              </Link>
-            </div>
-            <div className="search-bar">
-              <input type="text" placeholder="Tìm sản phẩm..." />
-              <button><CiSearch size={20} /></button>
-            </div>
-            <div className="icon-group">
-              <Link to="/shop" className="icon-item">
-                <FaMapMarkerAlt />
-                <div className="icon-text">Cửa hàng</div>
-              </Link>
-              <Link to="/like" className="icon-item">
-                <FaRegHeart />
-                <div className="icon-text">Yêu thích</div>
-              </Link>
-              <div className="icon-item account-dropdown">
-                <FaUser />
-                <div className="icon-text">Tài khoản ▾</div>
-                <div className="dropdown-content">
-                  <Link to="/login">Đăng nhập</Link>
-                  <Link to="/register">Đăng ký</Link>
-                  <Link to="/admin/dashboard">Admin</Link>
-                </div>
+              <div className="top-header">
+                  <div className="logo">
+                      <Link to="/"><img src="/images/logo.png" alt="Logo" /></Link>
+                  </div>
+                  <div className="search-bar">
+                      <input type="text" placeholder="Tìm sản phẩm..." />
+                      <button><CiSearch size={20} /></button>
+                  </div>
+                  <div className="icon-group">
+                      <Link to="/shop" className="icon-item">
+                          <FaMapMarkerAlt />
+                          <div className="icon-text">Cửa hàng</div>
+                      </Link>
+                      <Link to="/like" className="icon-item">
+                          <FaRegHeart />
+                          <div className="icon-text">Yêu thích</div>
+                      </Link>
+
+                      {/* --- THIS IS THE FIX --- */}
+                      <div className="icon-item account-dropdown">
+                          <FaUser />
+                          {/* 1. While loading, show a generic state */}
+                          {isLoading ? (
+                              <div className="icon-text">Tài khoản ▾</div>
+
+                              /* 2. When loading is false AND user exists, show user info */
+                          ) : user ? (
+                              <>
+                                  <div className="icon-text">{user.email} ▾</div>
+                                  <div className="dropdown-content">
+                                      <Link to="/profile">Thông tin tài khoản</Link>
+                                      {user.roles?.includes("ROLE_ADMIN") && (
+                                          <Link to="/admin/dashboard">Admin</Link>
+                                      )}
+                                      <button onClick={handleLogout} className="logout-button">Đăng xuất</button>
+                                  </div>
+                              </>
+
+                              /* 3. When loading is false AND user is null, show login links */
+                          ) : (
+                              <>
+                                  <div className="icon-text">Tài khoản ▾</div>
+                                  <div className="dropdown-content">
+                                      <Link to="/login">Đăng nhập</Link>
+                                      <Link to="/register">Đăng ký</Link>
+                                  </div>
+                              </>
+                          )}
+                      </div>
+
+                      <Link to="/cart" className="icon-item"><FaShoppingCart /><div className="icon-text">Giỏ hàng</div></Link>
+                      <Link to="/orderpage" className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></Link>
+                  </div>
               </div>
-              <Link to="/cart" className="icon-item"><FaShoppingCart /><div className="icon-text">Giỏ hàng</div></Link>
-              <Link to="/orderpage" className="icon-item"><FaClipboardList /><div className="icon-text">Đơn hàng</div></Link>
-            </div>
-          </div>
           <nav className="bottom-menu">
             <div className="menu-item category-menu">
               <CategoryMenu />

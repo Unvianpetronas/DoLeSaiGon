@@ -1,0 +1,226 @@
+.warehouse-page {
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.warehouse-page h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Thanh công cụ */
+.admin-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Bảng */
+.warehouse-table-wrapper {
+  overflow-x: auto;
+}
+
+.warehouse-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  table-layout: fixed;
+}
+
+.warehouse-table th,
+.warehouse-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Đặt chiều rộng cố định */
+.warehouse-table th:nth-child(1),
+.warehouse-table td:nth-child(1) {
+  width: 150px;
+}
+
+.warehouse-table th:nth-child(2),
+.warehouse-table td:nth-child(2) {
+  width: 60px;
+}
+
+.warehouse-table th:nth-child(3),
+.warehouse-table td:nth-child(3) {
+  width: 80px;
+}
+
+.warehouse-table th:nth-child(4),
+.warehouse-table td:nth-child(4) {
+  width: 70px;
+}
+
+.warehouse-table th:nth-child(5),
+.warehouse-table td:nth-child(5) {
+  width: 130px;
+}
+
+.warehouse-table th:nth-child(6),
+.warehouse-table td:nth-child(6) {
+  width: 90px;
+}
+
+.warehouse-table th:nth-child(7),
+.warehouse-table td:nth-child(7) {
+  width: 80px;
+}
+
+.warehouse-table th:nth-child(8),
+.warehouse-table td:nth-child(8) {
+  width: 140px;
+}
+
+/* Header */
+.warehouse-table thead {
+  background-color: #29513a;
+  color: white;
+}
+
+/* Dropdown trạng thái không có khung */
+.status-select {
+  background: none;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  padding: 4px;
+}
+
+.status-select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.status-select.enough {
+  color: #4caf50;
+}
+
+.status-select.over {
+  color: #ff9800;
+}
+
+.status-select.lack {
+  color: #f44336;
+}
+
+/* Ghi chú: không khung */
+.warehouse-textarea {
+  width: 100%;
+  resize: vertical;
+  max-height: 200px;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0px 0px;
+  border: none;
+  background: none;
+  outline: none;
+  min-height: 36px;
+  color: #333;
+}
+/* MODAL */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 700px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.import-form-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.import-form-table th,
+.import-form-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.import-form-table input {
+  width: 100%;
+  padding: 4px;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Textarea trong modal (phiếu nhập hàng) */
+.import-form-table textarea {
+  width: 100%;
+  min-height: 36px;
+  max-height: 200px;
+  padding: 4px;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #333;
+  resize: vertical;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Nút Hủy */
+.modal-actions .cancel-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ddd;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+

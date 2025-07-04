@@ -17,13 +17,15 @@ public class SingleQrCodePoller {
     private static final Logger logger = LoggerFactory.getLogger(SingleQrCodePoller.class);
     private final CassoService cassoService;
     private final QRCodeManagermentService qrCodeManager;
+    private final OrderService orderService;
 
     @Value("${casso.polling.delay-ms}")
     private long pollIntervalMillis;
 
-    public SingleQrCodePoller(CassoService cassoService, QRCodeManagermentService qrCodeManager) {
+    public SingleQrCodePoller(CassoService cassoService, QRCodeManagermentService qrCodeManager, OrderService orderService) {
         this.cassoService = cassoService;
         this.qrCodeManager = qrCodeManager;
+        this.orderService = orderService;
     }
 
     @Async

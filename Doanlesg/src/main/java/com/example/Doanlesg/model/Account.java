@@ -142,4 +142,35 @@ public class Account {
     public void setOrder(List<Order> order) {
         this.order = order;
     }
+
+    @Transient
+    public String getFullName() {
+        if (this.customer != null) {
+            return this.customer.getFullName();
+        }
+        if (this.admin != null) {
+            return this.admin.getFullName();
+        }
+        if (this.staff != null) {
+            return this.staff.getFullName();
+        }
+        return "";
+    }
+
+    /**
+     * Business logic method to get the phone number from the correct related entity.
+     */
+    @Transient
+    public String getPhoneNumber() {
+        if (this.customer != null) {
+            return this.customer.getPhoneNumber();
+        }
+        if (this.staff != null) {
+            return this.staff.getPhoneNumber();
+        }
+        if (this.admin != null) {
+            return this.admin.getPhoneNumber();
+        }
+        return ""; // Return empty string instead of null
+    }
 }
