@@ -27,27 +27,14 @@ h2 {
   font-weight: 500;
   color: white;
 }
-
-.btn.green {
-  background-color: #d5f0c1;
-  color: black;
-}
-
-.btn.pink {
-  background-color: #f7c8c8;
-  color: black;
-}
-
-.btn.yellow {
-  background-color: #fef3a5;
-  color: black;
-}
+.btn.green { background-color: #d5f0c1; color: black; }
+.btn.pink { background-color: #f7c8c8; color: black; }
+.btn.yellow { background-color: #fef3a5; color: black; }
 
 /* ========== Filter Popup ========== */
 .filter-container {
   position: relative;
 }
-
 .filter-popup {
   display: none;
   position: absolute;
@@ -61,12 +48,9 @@ h2 {
   z-index: 100;
   padding: 10px;
 }
-
 .filter-popup.show {
   display: block;
 }
-
-/* Các thao tác trong popup: Select All, Invert... */
 .filter-commands {
   display: flex;
   gap: 10px;
@@ -75,19 +59,14 @@ h2 {
   margin-bottom: 6px;
   padding-left: 2px;
 }
-
 .filter-commands .link {
   cursor: pointer;
-  color: #007bff;
   font-weight: 500;
 }
-
 .filter-commands .link:hover {
   color: #0056b3;
   text-decoration: underline;
 }
-
-/* ========== Filter Option Item (checkbox + text) ========== */
 .filter-options {
   max-height: 160px;
   overflow-y: auto;
@@ -95,7 +74,6 @@ h2 {
   border-bottom: 1px solid #eee;
   padding: 0;
 }
-
 .filter-option-item {
   display: flex;
   align-items: center;
@@ -105,50 +83,101 @@ h2 {
   gap: 6px;
 }
 
-.filter-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: blue;
-  margin: 0;
-  flex-shrink: 0;
-}
-
 .filter-label {
   font-size: 16px;
   line-height: 1.2;
 }
 
-/* ========== Table ========== */
+/* ========== Table Wrapper ========== */
 .table-wrapper {
   overflow-x: auto;
 }
 
+/* ========== Table Styles ========== */
 .admin-product-table {
   width: 100%;
+  table-layout: fixed; /* ✅ Cố định chiều rộng */
   border-collapse: collapse;
   background-color: white;
 }
 
 .admin-product-table thead {
-  background-color: #f0f0f0;
+  background-color: #1b3b2f;
+  color: white;
 }
 
+/* ========== Table Cells ========== */
 .admin-product-table th,
 .admin-product-table td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+  vertical-align: top;
+  line-height: 1.4;
 }
-.admin-product-table th {
-  background-color: #1b3b2f;
-  color: white;
+
+/* ✅ Tên sản phẩm (cột 2) + Tiêu đề (cột 3) căn giữa và xuống dòng */
+.admin-product-table th:nth-child(2),
+.admin-product-table td:nth-child(2),
+.admin-product-table th:nth-child(3),
+.admin-product-table td:nth-child(3) {
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.4;
 }
-/* ========== Status Colors ========== */
+
+/* ✅ Hình ảnh (cột 6) căn giữa */
+.admin-product-table td:nth-child(6) {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.product-image {
+  display: block;
+  margin: 0 auto;
+  width: 60px;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ========== Cố định chiều rộng các cột ========== */
+.admin-product-table th:nth-child(1),
+.admin-product-table td:nth-child(1) { width: 70px; }    /* Mã */
+
+.admin-product-table th:nth-child(2),
+.admin-product-table td:nth-child(2) { width: 200px; }  /* Tên sản phẩm */
+
+.admin-product-table th:nth-child(3),
+.admin-product-table td:nth-child(3) { width: 120px; }  /* Tiêu đề */
+
+.admin-product-table th:nth-child(4),
+.admin-product-table td:nth-child(4) { width: 90px; }  /* Đơn giá */
+
+.admin-product-table th:nth-child(5),
+.admin-product-table td:nth-child(5) { width: 80px; }  /* Số lượng */
+
+.admin-product-table th:nth-child(6),
+.admin-product-table td:nth-child(6) { width: 90px; }  /* Hình ảnh */
+
+.admin-product-table th:nth-child(7),
+.admin-product-table td:nth-child(7) { width: 100px; }  /* Trạng thái */
+
+.admin-product-table th:nth-child(8),
+.admin-product-table td:nth-child(8) { width: 90px; }  /* Hành động */
+
+/* ========== Status Styles ========== */
 .status.in {
   color: green;
   font-weight: bold;
 }
-
 .status.out {
   color: red;
   font-weight: bold;
@@ -160,17 +189,13 @@ h2 {
   margin: 0 5px;
   cursor: pointer;
 }
+.icon.edit { color: #007bff; }
+.icon.delete { color: #dc3545; }
 
-.icon.edit {
-  color: #007bff;
-}
-
-.icon.delete {
-  color: #dc3545;
-}
-
-/* ========== No Image Placeholder ========== */
-.no-image {
-  font-size: 20px;
+/* ========== Empty State ========== */
+.no-category {
+  padding: 10px;
   color: #999;
+  font-size: 14px;
+  text-align: center;
 }

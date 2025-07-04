@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom'; // THÊM Outlet
-import logo from '../../assets/logo.png';
 import './AdminLayout.css';
 
 export default function AdminLayout() {
@@ -10,7 +9,7 @@ export default function AdminLayout() {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-logo-container">
-          <img src={logo} alt="Logo" className="admin-logo-image" />
+          <img src="/images/logo.png" alt="Logo" className="admin-logo-image" />
         </div>
         <div className="admin-menu-wrapper">
           <div className="menu-section">
@@ -45,6 +44,9 @@ export default function AdminLayout() {
             </ul>
           </div>
         </div>
+        <div className="back-home-link">
+                <Link to="/" className="btn-back-home">Trang chủ</Link>
+              </div>
       </aside>
 
       <main className="admin-content">
