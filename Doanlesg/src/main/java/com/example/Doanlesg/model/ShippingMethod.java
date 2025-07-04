@@ -13,7 +13,7 @@ public class ShippingMethod {
     @Column(name = "method_name", nullable = false, length = 50)
     private String methodName;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "cost", nullable = false)
     private double price;
 
     @Column(name = "status", nullable = false, columnDefinition = "BIT DEFAULT 1")

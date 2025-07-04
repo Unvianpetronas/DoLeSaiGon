@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        checkUserStatus();
+        checkUserStatus().then();
     }, []);
 
     // The login function is correct
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
             if (data.success) {
                 setUser(data.user);
             }
-
+            console.log(data.user);
             return data;
         } catch (error) {
             console.error("Lỗi đăng nhập:", error);
