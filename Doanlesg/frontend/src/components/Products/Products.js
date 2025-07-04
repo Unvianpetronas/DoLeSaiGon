@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import './Products.css';
+import AddToCartButton from "../AddToCart/AddToCartButton";
+
 
 const ProductsPage = () => {
   const { categorySlug } = useParams();
@@ -141,7 +143,12 @@ const ProductsPage = () => {
                                                 >
                                                   <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
                                                 </button>
-                                                <button className="add-btn" onClick={() => addToCart(item)}>Thêm vào giỏ</button>
+                                                <div className="product-hover-overlay">
+                                                                      <AddToCartButton
+                                                                          product={item}
+                                                                          quantity={1}
+                                                                      />
+                                                                    </div>
                                               </div>
                        </div>
                      </Link>
