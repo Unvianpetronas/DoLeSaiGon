@@ -2,12 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import './Products.css';
+import AddToCartButton from "../AddToCart/AddToCartButton";
+
 
 const ProductsPage = () => {
   const { categorySlug } = useParams();
   const [products, setProducts] = useState([]);
   const [sortOption, setSortOption] = useState('default');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -65,7 +71,9 @@ const ProductsPage = () => {
         return 0;
     }
   });
-
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sorted.slice(indexOfFirstItem, indexOfLastItem);
   return (
     <div className="products-wrapper">
       {/* Banner khi không có danh mục */}
@@ -123,33 +131,50 @@ const ProductsPage = () => {
              {sorted.length === 0 ? (
                <p className="no-products">Không có sản phẩm nào.</p>
              ) : (
-               <div className="promo-grid-products">
-                 {sorted.map(item => (
-                   <div key={item.id} className="promo-item">
+               <div className="product-grid">
+                 {currentItems.map(item => (
+                   <div key={item.id} className="promo-item-products">
                      <Link to={`/product/${item.id}`}>
                        <img src={`/products/${item.id}.png`} alt={item.productName} />
                        <span className="discount-tag">-{Math.round(10)}%</span>
-                       <div className="price-box">
-                         <h4>{item.productName}</h4>
-                         <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                         <span className="new-price">{item.price.toLocaleString()}đ</span>
-                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '5px 0' }}>
-                          <button
-                              className="heart-btn"
-                                onClick={() => toggleFavorite(item.id)}
-                                   title="Yêu thích"
-                                                >
-                                                  <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
-                                                </button>
-                                                <button className="add-btn" onClick={() => addToCart(item)}>Thêm vào giỏ</button>
-                                              </div>
-                       </div>
+
                      </Link>
 
+                     {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
+                     <div className="price-box-products">
+                          <h4>{item.productName}</h4>
+                          <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
+                          <span className="new-price-products">{item.price.toLocaleString()}đ</span>
+                          <div className="action-buttons">
+                               <AddToCartButton product={item} quantity={1} />
+                               <button
+                                 className="heart-btn"
+                                 onClick={() => toggleFavorite(item.id)}
+                                 title="Yêu thích"
+                               >
+                                 <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                               </button>
+                             </div>
+                        </div>
+
+
                    </div>
+
                  ))}
                </div>
              )}
+             <div className="pagination">
+               {Array.from({ length: Math.ceil(sorted.length / itemsPerPage) }, (_, i) => (
+                 <button
+                   key={i + 1}
+                   onClick={() => setCurrentPage(i + 1)}
+                   className={currentPage === i + 1 ? 'active' : ''}
+                 >
+                   {i + 1}
+                 </button>
+               ))}
+             </div>
+
     </div>
   );
 };

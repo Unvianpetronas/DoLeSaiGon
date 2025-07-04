@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './Homepage.css';
 import { useParams, Link } from "react-router-dom";
 import { FaTruck, FaHeadset, FaCreditCard, FaGift } from 'react-icons/fa';
+import AddToCartButton from "../AddToCart/AddToCartButton";
+import { FaHeart } from 'react-icons/fa';
 
 export default function Homepage() {
   const bannerImages = [
@@ -21,7 +23,7 @@ export default function Homepage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [selectedMamSubCategory, setSelectedMamSubCategory] = useState('');
   const [giftSets, setGiftSets] = useState([]);
-
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -80,6 +82,7 @@ export default function Homepage() {
         setMamProducts(mamData.content || []);
         setGiftSets(giftData.content || []);
         console.log(giftData);
+        setProducts(allData.content || []);
       } catch (err) {
         console.error('Lỗi khi gọi API:', err);
         setError('Không thể tải dữ liệu sản phẩm.');
@@ -144,7 +147,13 @@ useEffect(() => {
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p className="error">{error}</p>;
-
+ const toggleFavorite = (id) => {
+    setProducts(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+      )
+    );
+  };
   return (
     <div className="homepage">
       <div className="header-banner" style={{ backgroundImage: `url(${bannerImages[currentIndex]})` }}></div>
@@ -156,29 +165,29 @@ useEffect(() => {
         <div className="feature-item"><div className="line"></div><div className="icon"><FaGift /></div><div className="text"><strong>Giải pháp quà tặng</strong><p>Dành cho doanh nghiệp</p></div></div>
       </div>
 
-<div className="section">
-  <h2>BỘ SƯU TẬP QUÀ TẶNG CAO CẤP</h2>
-  <p className="section-subtitle">DOLESAIGON là giải pháp quà Tết, Trung Thu, quà doanh nghiệp</p>
-  <div className="gift-collection">
-    {giftSets.map(gift => (
-      <div key={gift.id} className="gift-item">
-        <div className="gift-image">
-        <Link to={`/product/${gift.id}`}>
-          <img
-            src={`/products/${gift.id}.png`}
-            alt={gift.productName}
-            onError={(e) => { e.target.src = '/products/default.png'; }}
-          />
-          <div className="gift-info">
-            <p>{gift.productName}</p>
-            <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
+    <div className="section">
+      <h2>BỘ SƯU TẬP QUÀ TẶNG CAO CẤP</h2>
+      <p className="section-subtitle">DOLESAIGON là giải pháp quà Tết, Trung Thu, quà doanh nghiệp</p>
+      <div className="gift-collection">
+        {giftSets.map(gift => (
+          <div key={gift.id} className="gift-item">
+            <div className="gift-image">
+            <Link to={`/product/${gift.id}`}>
+              <img
+                src={`/products/${gift.id}.png`}
+                alt={gift.productName}
+                onError={(e) => { e.target.src = '/products/default.png'; }}
+              />
+              <div className="gift-info">
+                <p>{gift.productName}</p>
+                <span>Giá chỉ từ {gift.price.toLocaleString()}đ</span>
+              </div>
+              </Link>
+            </div>
           </div>
-          </Link>
-        </div>
+        ))}
       </div>
-    ))}
-  </div>
-</div>
+    </div>
 
 
       <div className="section promo-section">
@@ -190,20 +199,32 @@ useEffect(() => {
           <div><span id="minutes">0</span><br />Phút</div>
           <div><span id="seconds">0</span><br />Giây</div>
         </div>
-        <div className="promo-grid">
+        <div className="promo-grid-homepage">
           {promoProducts.map((item, idx) => (
-            <div className="promo-item" key={idx}>
+            <div className="promo-item-homepage" key={idx}>
                 <Link to={`/product/${item.id}`} className="related-item" key={item.id}>
                   <img src={`/products/${item.id}.png`} alt={item.productName || 'Sản phẩm'} />
                   <span className="discount-tag">
                     -{Math.round(((item.originalPrice ?? item.price * 1.1) - item.price) / (item.originalPrice ?? item.price * 1.1) * 100)}%
                   </span>
-                  <div className="price-box">
+                </Link>
+                <div className="price-box">
+                <Link to={`/product/${item.id}`} className="related-item" key={item.id}>
                     <h4>{item.productName}</h4>
                     <span className="old-price">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
                     <span className="new-price">{item.price.toLocaleString()}đ</span>
-                  </div>
                 </Link>
+                    <div className="action-buttons-homepage">
+                       <AddToCartButton product={item} quantity={1} />
+                       <button
+                         className="heart-btn"
+                         onClick={() => toggleFavorite(item.id)}
+                         title="Yêu thích"
+                       >
+                         <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                       </button>
+                     </div>
+                </div>
             </div>
           ))}
         </div>
@@ -249,16 +270,28 @@ useEffect(() => {
                 {allXoiChe
                   .filter(p => getSubCategoryName(p) === selectedSubCategory)
                   .map((item, idx) => (
-                    <div className="promo-item" key={idx}>
-                    <Link to={`/product/${item.id}`}>
-                      <img src={`/products/${item.id}.png`} alt={item.productName} />
-                      <span className="discount-tag">-10%</span>
-                      <div className="price-box">
-                        <h4>{item.productName}</h4>
-                        <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                        <span className="new-price">{item.price.toLocaleString()}đ</span>
-                      </div>
-                      </Link>
+                    <div className="promo-item-homepage" key={idx}>
+                      <Link to={`/product/${item.id}`}>
+                        <img src={`/products/${item.id}.png`} alt={item.productName} />
+                        <span className="discount-tag">-10%</span>
+                        </Link>
+                        <div className="price-box">
+                        <Link to={`/product/${item.id}`}>
+                          <h4>{item.productName}</h4>
+                          <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                          <span className="new-price">{item.price.toLocaleString()}đ</span>
+                          </Link>
+                                <div className="action-buttons-homepage">
+                                   <AddToCartButton product={item} quantity={1} />
+                                   <button
+                                     className="heart-btn"
+                                     onClick={() => toggleFavorite(item.id)}
+                                     title="Yêu thích"
+                                   >
+                                     <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                                   </button>
+                                 </div>
+                        </div>
                     </div>
                   ))}
               </div>
@@ -287,16 +320,29 @@ useEffect(() => {
               {mamProducts
                 .filter(p => getMamSubCategoryName(p) === selectedMamSubCategory)
                 .map((item, idx) => (
-                  <div className="promo-item" key={idx}>
-                  <Link to={`/product/${item.id}`}>
-                    <img src={`/products/${item.id}.png`} alt={item.productName} />
-                    <span className="discount-tag">-10%</span>
-                    <div className="price-box">
-                      <h4>{item.productName}</h4>
-                      <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                      <span className="new-price">{item.price.toLocaleString()}đ</span>
-                    </div>
+                  <div className="promo-item-homepage" key={idx}>
+                    <Link to={`/product/${item.id}`}>
+                      <img src={`/products/${item.id}.png`} alt={item.productName} />
+                      <span className="discount-tag">-10%</span>
                     </Link>
+                    <div className="price-box">
+                    <Link to={`/product/${item.id}`}>
+                        <h4>{item.productName}</h4>
+                        <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                        <span className="new-price">{item.price.toLocaleString()}đ</span>
+                    </Link>
+                         <div className="action-buttons-homepage">
+                            <AddToCartButton product={item} quantity={1} />
+                            <button
+                              className="heart-btn"
+                              onClick={() => toggleFavorite(item.id)}
+                              title="Yêu thích"
+                            >
+                              <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                            </button>
+                          </div>
+                    </div>
+
                   </div>
                 ))}
             </div>
