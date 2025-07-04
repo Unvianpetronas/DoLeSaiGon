@@ -123,7 +123,7 @@ const ProductsPage = () => {
              {sorted.length === 0 ? (
                <p className="no-products">Không có sản phẩm nào.</p>
              ) : (
-               <div className="promo-grid">
+               <div className="promo-grid-products">
                  {sorted.map(item => (
                    <div key={item.id} className="promo-item">
                      <Link to={`/product/${item.id}`}>
@@ -133,18 +133,19 @@ const ProductsPage = () => {
                          <h4>{item.productName}</h4>
                          <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                          <span className="new-price">{item.price.toLocaleString()}đ</span>
+                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '5px 0' }}>
+                          <button
+                              className="heart-btn"
+                                onClick={() => toggleFavorite(item.id)}
+                                   title="Yêu thích"
+                                                >
+                                                  <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                                                </button>
+                                                <button className="add-btn" onClick={() => addToCart(item)}>Thêm vào giỏ</button>
+                                              </div>
                        </div>
                      </Link>
-                     <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '5px 0' }}>
-                       <button
-                         className="heart-btn"
-                         onClick={() => toggleFavorite(item.id)}
-                         title="Yêu thích"
-                       >
-                         <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
-                       </button>
-                       <button className="add-btn" onClick={() => addToCart(item)}>Thêm vào giỏ</button>
-                     </div>
+
                    </div>
                  ))}
                </div>
