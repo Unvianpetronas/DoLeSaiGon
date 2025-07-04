@@ -184,7 +184,7 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.product-description-wrapper h2 {
+.product-description-wrapper h3 {
   font-size: 25px;
   color: #333;
   margin-bottom: 20px;
@@ -196,6 +196,19 @@ body {
   font-size: 20px;
   line-height: 1.6;
   color: #555;
+}
+.description-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.description-content {
+  font-weight: normal;
+  text-transform: none;
+  margin-left: 12px;
+  margin-bottom: 4px;
+  color: #444;
 }
 
 /* ========== PHẦN 3: SẢN PHẨM LIÊN QUAN ========== */
