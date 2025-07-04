@@ -121,7 +121,7 @@ body {
   font-size: 18px;
   font-weight: bold;
   transition: transform 0.3s ease;
-}
+ }
 
 .promo-item-products:hover .new-price-products {
   transform: translateY(-5px);

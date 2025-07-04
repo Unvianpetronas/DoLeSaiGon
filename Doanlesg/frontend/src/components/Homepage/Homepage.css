@@ -235,7 +235,7 @@
 }
 
 .promo-item-homepage:hover .price-box {
-  transform: translateY(-5px); /* hoặc -15px nếu muốn trồi nhiều hơn */
+  transform: translateY(-5px); /* hoặc -15px nếu muốn trồi nhiều hơnn */
 }
 
 .promo-item-homepage img {

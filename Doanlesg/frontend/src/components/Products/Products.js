@@ -85,7 +85,7 @@ const ProductsPage = () => {
               <strong>🌸 Gửi trọn tình thân, trao chọn nghĩa lễ 🌸</strong><br />
               Tại DoleSaigon, mỗi món quà không chỉ là sản phẩm, mà là lời chúc lành – sự gắn kết thiêng liêng giữa các thế hệ.<br />
               Chúng tôi mang đến những <em>mâm lễ tươm tất</em>, <em>quà biếu tinh tế</em> – kết hợp hài hòa giữa giá trị truyền thống và chuẩn mực hiện đại.<br />
-              Hơn cả một thương hiệu, DoleSaigon là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
+              Hơn cả một thương hiệu, DoleSaigon sẽ là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
             </p>
           </div>
           <h2 className="products-title">Tất cả sản phẩm</h2>

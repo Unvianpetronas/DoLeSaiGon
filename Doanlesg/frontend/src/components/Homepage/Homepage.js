@@ -374,7 +374,7 @@ useEffect(() => {
         </div>
         <div className="testimonial-list">
           <div className="testimonial-card">
-            <img className="avatar" src="./img_2.png" alt="Ngọc Vy" />
+            <img className="avatar" src="./img_2.png" alt="Ngọc Vỹ" />
             <div className="quote-icon">❝</div>
             <h4>Ngọc Vy</h4>
             <p className="job">Kế toán</p>
