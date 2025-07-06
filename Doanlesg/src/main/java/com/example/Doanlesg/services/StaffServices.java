@@ -29,12 +29,17 @@ public class StaffServices {
         return productRepository.findAll();
     }
 
-    // Update existing product
+    // Update existing product - same for both staff and admin
     public Optional<Product> updateProduct(Long productId, Product updatedProduct) {
         return productRepository.findById(productId).map(product -> {
             product.setProductName(updatedProduct.getProductName());
             product.setPrice(updatedProduct.getPrice());
             product.setCategory(updatedProduct.getCategory());
+            product.setShortDescription(updatedProduct.getShortDescription());
+            product.setDetailDescription(updatedProduct.getDetailDescription());
+            product.setStockQuantity(updatedProduct.getStockQuantity());
+            product.setStatus(updatedProduct.isStatus());
+
             return productRepository.save(product);
         });
     }
@@ -60,5 +65,10 @@ public class StaffServices {
     // Get order details by ID
     public Order getOrderDetails(Integer orderId) {
         return orderRepository.findById(orderId).orElse(null);
+    }
+
+    // Find product by ID
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id);
     }
 }

@@ -8,18 +8,30 @@ import com.example.Doanlesg.services.StaffServices;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 // REMOVE: Spring Security import
 // import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/staff") // Consider changing to /api/ver0.0.1/staff for consistency
 public class StaffController {
+
+    @Value("${product.images.path}")
+    private String uploadDir;
 
     @Autowired
     private StaffServices staffServices;
@@ -43,31 +55,111 @@ public class StaffController {
         return null; // Not authorized
     }
 
+    // Helper to check if user is either staff or admin
+    private Account getStaffOrAdmin(HttpSession session) {
+        Account account = getAuthorizedAccount(session, "ROLE_STAFF");
+        if (account == null) {
+            // If not staff, check if admin
+            account = getAuthorizedAccount(session, "ROLE_ADMIN");
+        }
+        return account;
+    }
+
+    //Get products
     @GetMapping("/products")
     public ResponseEntity<?> getAllProducts(HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+        Account account = getStaffOrAdmin(session);
+        if (account == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(staffServices.getAllProducts());
+        // Return all products without filtering but with a high limit
+        return getFilteredProducts(null, null, null, 0, Integer.MAX_VALUE, session);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<?> createProduct(@RequestBody Product product, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+    // Get products with filtering and pagination - Chỉnh sửa lại nếu sử dụng
+    @GetMapping("/products/filter")
+    public ResponseEntity<?> getFilteredProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
+
+        Account account = getStaffOrAdmin(session);
+        if (account == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(staffServices.createProduct(product));
+
+        List<Product> filteredProducts = staffServices.getAllProducts().stream()
+                .filter(p -> name == null || p.getProductName().toLowerCase().contains(name.toLowerCase()))
+                .filter(p -> categoryId == null || (p.getCategory() != null && p.getCategory().getId().equals(categoryId)))
+                .filter(p -> inStock == null || p.isStatus() == inStock)
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
+
+        return ResponseEntity.ok(filteredProducts);
     }
 
+    //Create product
+    @PostMapping("/products/new")
+    public ResponseEntity<?> createProduct(
+            @RequestPart("product") Product product,
+            @RequestPart("image") MultipartFile imageFile,
+            HttpSession session) {
+
+        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối. Chỉ quản trị viên mới có thể tạo sản phẩm.", HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            // Sanitize product name to use as filename
+            String fileName = getImageName(product, imageFile);
+            Path filePath = Paths.get(this.uploadDir, fileName);
+
+            // Save the image file
+            Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return ResponseEntity.ok(staffServices.createProduct(product));
+
+        } catch (IOException e) {
+            return new ResponseEntity<>("Lỗi khi lưu ảnh sản phẩm.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Helper function to generate image name
+    private static String getImageName(Product product, MultipartFile imageFile) {
+        String rawName = Optional.ofNullable(product.getProductName()).orElse("image");
+        String safeName = rawName
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]", "") // remove special chars
+                .replaceAll("\\s+", "");     // remove whitespace
+
+        // Extract file extension
+        String originalName = imageFile.getOriginalFilename();
+        String extension = "";
+        if (originalName != null && originalName.contains(".")) {
+            extension = originalName.substring(originalName.lastIndexOf('.'));
+        }
+
+        // Combine into final filename
+        String fileName = safeName + extension;
+        return fileName;
+    }
+
+    //Update product
     @PutMapping("/products/{id}")
     @Transactional
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+        Account account = getStaffOrAdmin(session);
+        if (account == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.of(staffServices.updateProduct(id, product));
     }
 
+    //Delete product
     @DeleteMapping("/products/{id}")
     @Transactional
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id, HttpSession session) {
@@ -76,6 +168,22 @@ public class StaffController {
         }
         staffServices.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Get product by ID - for both staff and admin
+    @GetMapping("/products/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable Long id, HttpSession session) {
+        Account account = getStaffOrAdmin(session);
+        if (account == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        Optional<Product> product = staffServices.getProductById(id);
+        if (product.isPresent()) {
+            return ResponseEntity.ok(product.get());
+        } else {
+            return new ResponseEntity<>("Không tìm thấy sản phẩm.", HttpStatus.NOT_FOUND);
+        }
     }
 
     // View all orders
@@ -241,4 +349,5 @@ public class StaffController {
             return new ResponseEntity<>("Xóa thất bại", HttpStatus.BAD_REQUEST);
         }
     }
+    
 }
