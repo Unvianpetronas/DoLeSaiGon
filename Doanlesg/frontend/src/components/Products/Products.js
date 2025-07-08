@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import './Products.css';
 import AddToCartButton from "../AddToCart/AddToCartButton";
-
+import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 
 const ProductsPage = () => {
   const { categorySlug } = useParams();
@@ -28,13 +28,6 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-  const toggleFavorite = (id) => {
-    setProducts(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-      )
-    );
-  };
 
   const addToCart = (item) => {
     alert(`Đã thêm "${item.productName}" vào giỏ hàng!`);
@@ -73,7 +66,24 @@ const ProductsPage = () => {
   });
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sorted.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = sorted
+      .slice(indexOfFirstItem, indexOfLastItem)
+      .map(item => ({
+        ...item,
+        isFavorite: isItemFavorite(item.id),
+      }));
+
+
+  const toggleFavorite = (item) => {
+    toggleFavoriteItem(item);
+    setProducts(prev =>
+      prev.map(p =>
+        p.id === item.id ? { ...p, isFavorite: !p.isFavorite } : p
+      )
+    );
+  };
+
+
   return (
     <div className="products-wrapper">
       {/* Banner khi không có danh mục */}
@@ -142,18 +152,21 @@ const ProductsPage = () => {
 
                      {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
                      <div className="price-box-products">
+                     <Link to={`/product/${item.id}`}>
                           <h4>{item.productName}</h4>
                           <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
                           <span className="new-price-products">{item.price.toLocaleString()}đ</span>
+                          </Link>
                           <div className="action-buttons">
                                <AddToCartButton product={item} quantity={1} />
                                <button
                                  className="heart-btn"
-                                 onClick={() => toggleFavorite(item.id)}
-                                 title="Yêu thích"
+                                 onClick={() => toggleFavorite(item)}
+                                 title={item.isFavorite ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
                                >
                                  <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
                                </button>
+
                              </div>
                         </div>
 
