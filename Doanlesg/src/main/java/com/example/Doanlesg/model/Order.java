@@ -3,9 +3,11 @@ package com.example.Doanlesg.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
@@ -25,7 +27,9 @@ public class Order {
     @Column(name = "order_code", nullable = false)
     private String code;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  
     @JoinColumn(name = "account_id", nullable = true)
+
     private Account account;
 
     @Column(name = "receiver_fullname", nullable = false)
@@ -70,4 +74,5 @@ public class Order {
 
     @OneToMany(mappedBy ="order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
+
 }

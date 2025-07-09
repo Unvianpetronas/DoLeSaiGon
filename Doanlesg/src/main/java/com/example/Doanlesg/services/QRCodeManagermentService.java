@@ -34,12 +34,14 @@ public class QRCodeManagermentService {
         return "ORDER" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+
     public PaymentInfo getPaymentInfo() {
         return new PaymentInfo(generateCode(), "", LocalDateTime.now());
     }
 
     public PaymentInfo trackCode(BigDecimal amount) {
         String uniqueCode = generateCode();
+
         LocalDateTime startTime = LocalDateTime.now();
         LocalDateTime expiryTime = startTime.plusMinutes(5);
 
