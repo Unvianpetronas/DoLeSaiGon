@@ -1,0 +1,201 @@
+/* Giao diện chính */
+.staffs-management {
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Bảng */
+.table-wrapper {
+  overflow-x: auto;
+}
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+.staff-table th,
+.staff-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal;
+  word-break: break-word;
+}
+.staff-table th {
+  background-color: #1b3b2f;
+  color: white;
+}
+
+/* Cố định chiều rộng cột */
+.staff-table th:nth-child(1),
+.staff-table td:nth-child(1) {
+  width: 110px;
+}
+.staff-table th:nth-child(2),
+.staff-table td:nth-child(2) {
+  width: 130px;
+}
+.staff-table th:nth-child(3),
+.staff-table td:nth-child(3) {
+  width: 180px;
+}
+.staff-table th:nth-child(4),
+.staff-table td:nth-child(4) {
+  width: 150px;
+}
+.staff-table th:nth-child(5),
+.staff-table td:nth-child(5) {
+  width: 120px;
+}
+.staff-table th:nth-child(6),
+.staff-table td:nth-child(6) {
+  width: 100px;
+}
+.staff-table th:nth-child(7),
+.staff-table td:nth-child(7) {
+  width: 140px;
+}
+.staff-table th:nth-child(8),
+.staff-table td:nth-child(8) {
+  width: 110px;
+}
+
+/* Icon chức năng */
+.icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+.icon.edit {
+  color: #f4b400;
+  margin-right: 8px;
+}
+.icon.delete {
+  color: #f44336;
+}
+
+/* Dropdown tình trạng */
+.staff-dropdown {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 8px;
+  cursor: pointer;
+  background-color: #fff;
+  text-align: center;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  appearance: none;
+  background-image: none;
+}
+
+/* Bộ lọc popup */
+.filter-container {
+  position: relative;
+}
+.filter-popup {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 10;
+  width: 200px;
+  display: none;
+}
+.filter-popup.show {
+  display: block;
+}
+.filter-commands {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.filter-commands .link {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.filter-option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.filter-checkbox {
+  margin-right: 6px;
+}
+.filter-label {
+  font-size: 14px;
+}
+
+/* Modal overlay */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Form tạo nhân viên */
+.create-staff-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  padding: 8px;
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+}
+
+.avatar-preview {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 120px;
+  aspect-ratio: 1;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.no-image {
+  font-size: 36px;
+  color: #666;
+}

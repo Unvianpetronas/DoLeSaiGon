@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 
 @Service
 public class InvoiceService {
@@ -40,6 +41,17 @@ public class InvoiceService {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("invoice", invoiceData);
         return templateEngine.process("invoice-template.html", thymeleafContext);
+    }
+
+    public String getLogoAsBase64() throws IOException {
+        // ClassPathResource sẽ tìm file trong thư mục 'src/main/resources'
+        ClassPathResource logoResource = new ClassPathResource("static/logo.png");
+
+        // Đọc toàn bộ file ảnh thành một mảng byte
+        byte[] logoBytes = logoResource.getInputStream().readAllBytes();
+
+        // Mã hóa mảng byte thành chuỗi Base64 và thêm tiền tố để tạo Data URL
+        return "data:image/png;base64," + Base64.getEncoder().encodeToString(logoBytes);
     }
 
     private byte[] generatePdfFromHtml(String html) throws IOException {
