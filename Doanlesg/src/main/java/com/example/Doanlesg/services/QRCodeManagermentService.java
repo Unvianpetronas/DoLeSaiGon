@@ -34,14 +34,12 @@ public class QRCodeManagermentService {
         return "ORDER" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-
     public PaymentInfo getPaymentInfo() {
         return new PaymentInfo(generateCode(), "", LocalDateTime.now());
     }
 
     public PaymentInfo trackCode(BigDecimal amount) {
         String uniqueCode = generateCode();
-
         LocalDateTime startTime = LocalDateTime.now();
         LocalDateTime expiryTime = startTime.plusMinutes(5);
 
@@ -67,18 +65,9 @@ public class QRCodeManagermentService {
 
     @Transactional
     public void markAsExpired(String code) {
-        // First, remove the code from the active tracking map to stop polling.
         if (activeCodes.remove(code) != null) {
             logger.warn("Code {} has been marked as EXPIRED and removed from tracking.", code);
-
-            orderRepository.findByCode(code).ifPresent(order -> {
-                if ("Pending".equalsIgnoreCase(order.getOrderStatus())) {
-                    orderRepository.delete(order);
-                    logger.info("Expired order with code {} has been deleted.", code);
-                } else {
-                    logger.info("Order with code {} expired but was already paid or processed. No action taken.", code);
-                }
-            });
+            orderRepository.findByCode(code).ifPresent(orderRepository::delete);
         }
     }
 

@@ -1,12 +1,11 @@
 package com.example.Doanlesg.services;
 
-
 import com.example.Doanlesg.dto.*;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -14,12 +13,10 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
-
 
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -46,13 +43,11 @@ public class OrderService {
 
     @Transactional
     public void placeOrder(CheckoutRequestDTO request, String code) {
-
         Order order = new Order();
         // 1. Xác định người đặt hàng (Customer hay Guest)
         if (request.getCustomerId() != null) {
             // Là khách hàng đã đăng nhập
             Optional<Account> customer = accountRepository.findById(request.getCustomerId());
-
             customer.ifPresent(order::setAccount);
             order.setReceiverEmail(request.getGuestEmail());
         } else {
@@ -77,7 +72,6 @@ public class OrderService {
         // 3. Xử lý các mặt hàng trong đơn
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
-
 
         for (CartItemDTO itemDTO : request.getItems()) {
 
@@ -162,29 +156,7 @@ public class OrderService {
 
         // 4. Stop tracking this code as it's now processed
         qrCodeManager.markAsPaid(uniqueCode);
-
     }
-    public OrderTotalDTO calculateTotal(CheckoutRequestDTO request) {
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        // 1. Tính tổng tiền các sản phẩm
-        for (CartItemDTO itemDTO : request.getItems()) {
-            Product product = productRepository.findById(itemDTO.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
-            totalAmount = totalAmount.add(product.getPrice().multiply(new BigDecimal(itemDTO.getQuantity())));
-        }
-
-        // 2. Cộng phí vận chuyển
-        // Giả sử phí vận chuyển được gửi trực tiếp từ request
-        if (request.getShippingFee() != null) {
-            totalAmount = totalAmount.add(request.getShippingFee());
-        }
-        // TODO: Thêm logic trừ tiền voucher nếu có
-        // Ví dụ:
-        // if (request.getVoucherCode() != null) {
-        //     Voucher voucher = voucherRepository.findByCode(request.getVoucherCode());
-        //     totalAmount = totalAmount.subtract(voucher.getDiscountAmount());
-        // }
-
 
     public OrderTotalDTO calculateTotal(CheckoutRequestDTO request) {
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -196,7 +168,6 @@ public class OrderService {
         }
 
         ShippingMethod shippingMethod = shippingRepository.findById(request.getShippingMethodId()).orElse(null);
-
 
         // 2. Cộng phí vận chuyển
         // Giả sử phí vận chuyển được gửi trực tiếp từ request
@@ -230,10 +201,9 @@ public class OrderService {
                 .toList();
     }
 
-    // Helper method to perform the conversion
     private OrderSummaryDTO convertToSummaryDTO(Order order) {
         OrderSummaryDTO dto = new OrderSummaryDTO();
-        dto.setId(order.getId());
+        dto.setId(Long.valueOf(order.getId()));
         dto.setOrderCode(order.getCode());
         dto.setOrderDate(order.getOrderDate());
         dto.setTotalAmount(order.getTotalAmount());

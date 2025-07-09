@@ -116,7 +116,7 @@
 }
 
 /* Ghi chú: không khung */
-warehouse-textarea {
+.warehouse-textarea {
   width: 100%;
   resize: vertical;
   max-height: 200px;

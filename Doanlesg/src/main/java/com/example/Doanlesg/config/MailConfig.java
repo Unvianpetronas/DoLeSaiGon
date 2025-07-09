@@ -27,7 +27,7 @@ public class MailConfig {
     @Bean
     public JavaMailSender getJavaMailSender() {
         // Tải các biến môi trường từ file .env ở thư mục gốc
-        Dotenv dotenv = Dotenv.load();
+        // Dotenv dotenv = Dotenv.load();
 
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 

@@ -14,4 +14,3 @@ public class OrderTotalDTO {
         this.totalAmount = totalAmount;
     }
 }
-

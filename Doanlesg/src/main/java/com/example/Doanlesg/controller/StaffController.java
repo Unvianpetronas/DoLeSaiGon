@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/staff") // Consider changing to /api/ver0.0.1/staff for consistency
+@RequestMapping("/api/ver0.0.1/staff")
+@CrossOrigin(value = "localhost:3000")// Consider changing to /api/ver0.0.1/staff for consistency
 public class StaffController {
 
     @Value("${product.images.path}")
@@ -189,7 +190,7 @@ public class StaffController {
     // View all orders
     @GetMapping("/orders")
     public ResponseEntity<?> getAllOrders(HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+        if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(staffServices.getAllOrders());
@@ -199,7 +200,7 @@ public class StaffController {
 
     @GetMapping("/orders/search")
     public ResponseEntity<?> searchOrders(@RequestParam("keyword") String keyword, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+        if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(staffServices.searchOrders(keyword));
@@ -207,7 +208,7 @@ public class StaffController {
 
     @GetMapping("/orders/{id}")
     public ResponseEntity<?> getOrderDetails(@PathVariable Integer id, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_STAFF") == null) {
+        if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         Order order = staffServices.getOrderDetails(id);

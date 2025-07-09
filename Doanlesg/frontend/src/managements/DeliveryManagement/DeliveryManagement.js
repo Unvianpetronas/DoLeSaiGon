@@ -176,11 +176,11 @@ const handleStaffSelectChange = (id, newStaff) => {
             <tr>
               <th style={{ width: '100px' }}>Mã đơn hàng</th>
               <th style={{ width: '150px' }}>Tên KH</th>
-              <th style={{ width: '120px' }}>SĐT</th>
+              <th style={{ width: '90px' }}>SĐT</th>
               <th style={{ width: '220px' }}>Địa chỉ</th>
-              <th style={{ width: '150px' }}>Nhân viên</th>
-              <th style={{ width: '90px' }}>Confirm</th>
-              <th style={{ width: '100px' }}>Tính năng</th>
+              <th style={{ width: '140px' }}>Nhân viên</th>
+              <th style={{ width: '80px' }}>Confirm</th>
+              <th style={{ width: '80px' }}>Tính năng</th>
             </tr>
           </thead>
           <tbody>

@@ -2,37 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './EditProducts.css';
 
-// ✅ Dữ liệu mẫu giả lập
-const fakeProductList = [
-  {
-    id: 1,
-    name: 'Mâm Cúng Tết Đoan Ngọ',
-    code: '389033',
-    quantity: 50,
-    status: 'in',
-    category: '1',
-    date: '2025-06-01',
-    price: '1392000',
-    image: '/images/logo.png',
-    shortDesc: 'Mô tả ngắn gọn',
-    detailDesc: 'Mô tả chi tiết sản phẩm đầy đủ'
-  },
-  // thêm các sản phẩm khác nếu cần
-];
-
 export default function EditProduct() {
-  const { id } = useParams(); // ✅ Lấy ID từ URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [allCategories, setAllCategories] = useState([]);
 
-  // ✅ Khi load trang, lấy dữ liệu sản phẩm theo ID
+  // Gọi API lấy sản phẩm theo ID
   useEffect(() => {
-    const foundProduct = fakeProductList.find((p) => p.id === Number(id));
-    if (foundProduct) {
-      setProduct({ ...foundProduct });
-    } else {
-      alert('Không tìm thấy sản phẩm!');
-    }
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/ver0.0.1/product/productID?id=${id}`);
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        console.error('Lỗi khi lấy sản phẩm:', err);
+        alert('Không tìm thấy sản phẩm!');
+      }
+    };
+    fetchProduct();
   }, [id]);
+
+  // Gọi API lấy toàn bộ sản phẩm để lọc danh mục duy nhất
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id');
+        const data = await res.json();
+        const uniqueCategories = [...new Set(data.content.map(p => p.category?.categoryName || ''))];
+        setAllCategories(uniqueCategories);
+      } catch (err) {
+        console.error('Lỗi khi lấy danh mục:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -41,12 +44,47 @@ export default function EditProduct() {
       [name]: files ? files[0] : value
     }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Đã cập nhật sản phẩm:', product);
-    // Gửi API cập nhật tại đây
-  };
+  // Tách ảnh nếu là File, còn lại là dữ liệu sản phẩm
+  const { image, ...dataToSend } = product;
+
+  const formData = new FormData();
+
+  // Đưa phần dữ liệu sản phẩm dưới dạng JSON (gói trong Blob)
+  formData.append(
+    "product",
+    new Blob([JSON.stringify(dataToSend)], { type: "application/json" })
+  );
+
+  // Nếu có ảnh là File (tức người dùng vừa upload), thêm vào form
+  if (image instanceof File) {
+    formData.append("image", image);
+  }
+
+  try {
+    const res = await fetch(`http://localhost:8080/staff/products/${id}`, {
+      method: "PUT",
+      credentials: "include", // gửi cookie session
+      body: formData,
+    });
+
+    if (res.ok) {
+      alert("✅ Cập nhật sản phẩm thành công!");
+    } else if (res.status === 403) {
+      alert("⛔ Bạn không có quyền cập nhật sản phẩm.");
+    } else if (res.status === 404) {
+      alert("❌ Không tìm thấy sản phẩm.");
+    } else {
+      const text = await res.text();
+      alert("❌ Lỗi cập nhật sản phẩm: " + text);
+    }
+  } catch (err) {
+    console.error("❌ Lỗi khi gửi cập nhật:", err);
+    alert("⚠️ Không thể kết nối đến máy chủ.");
+  }
+};
 
   if (!product) return <div>Đang tải sản phẩm...</div>;
 
@@ -57,46 +95,48 @@ export default function EditProduct() {
         <div className="form-left">
           <div className="form-group">
             <label>Tên sản phẩm</label>
-            <input name="name" value={product.name} onChange={handleChange} />
+            <input name="productName" value={product.productName || ''} onChange={handleChange} />
           </div>
           <div className="form-group">
             <label>Số lượng</label>
-            <input name="quantity" value={product.quantity} onChange={handleChange} />
+            <input name="stockQuantity" value={product.stockQuantity || ''} onChange={handleChange} />
           </div>
           <div className="form-group">
-            <label>Mã danh mục</label>
-            <select name="category" value={product.category} onChange={handleChange}>
-              <option value="">--chọn danh mục--</option>
-              <option value="1">Mâm quả</option>
-              <option value="2">Tháp trái cây</option>
-            </select>
+            <label>Danh mục</label>
+            <input
+              type="text"
+              value={product.category?.categoryName || 'Không xác định'}
+              readOnly
+            />
           </div>
           <div className="form-group">
-            <label>Đơn giá gốc</label>
-            <input name="price" value={product.price} onChange={handleChange} />
+            <label>Đơn giá</label>
+            <input name="price" value={product.price || ''} onChange={handleChange} />
           </div>
           <div className="form-group full-width">
             <label>Mô tả chi tiết</label>
-            <textarea name="detailDesc" value={product.detailDesc} onChange={handleChange} rows="6" />
+            <textarea
+              name="detailDescription"
+              value={product.detailDescription || ''}
+              onChange={handleChange}
+              rows="6"
+            />
           </div>
         </div>
 
         <div className="form-right">
           <div className="form-group">
             <label>Mã sản phẩm</label>
-            <input name="code" value={product.code} onChange={handleChange} />
+            <input name="id" value={product.id || ''} readOnly />
           </div>
           <div className="form-group">
             <label>Tình trạng</label>
-            <select name="status" value={product.status} onChange={handleChange}>
-              <option value="">--chọn tình trạng--</option>
-              <option value="in">Còn hàng</option>
-              <option value="out">Hết hàng</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Ngày tạo</label>
-            <input type="date" name="date" value={product.date} onChange={handleChange} />
+            <input
+              type="text"
+              value={product.stockQuantity === 0 ? 'Hết hàng' : 'Còn hàng'}
+              readOnly
+              style={{ color: product.stockQuantity === 0 ? 'red' : 'green', fontWeight: 'bold' }}
+            />
           </div>
           <div className="form-group">
             <label>Ảnh sản phẩm</label>
@@ -114,7 +154,12 @@ export default function EditProduct() {
           </div>
           <div className="form-group full-width">
             <label>Mô tả ngắn</label>
-            <textarea name="shortDesc" value={product.shortDesc} onChange={handleChange} rows="4" />
+            <textarea
+              name="shortDescription"
+              value={product.shortDescription || ''}
+              onChange={handleChange}
+              rows="4"
+            />
           </div>
           <button className="save-btn" type="submit">CẬP NHẬT</button>
         </div>

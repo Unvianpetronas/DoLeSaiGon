@@ -19,6 +19,7 @@ public class CheckoutRequestDTO {
     private String voucherCode;// (Tùy chọn)
 
 
+
     // Danh sách sản phẩm trong giỏ hàng (quan trọng cho guest)
     // Đối với customer đã đăng nhập, có thể lấy từ cart của họ trong DB
     private List<CartItemDTO> items;
@@ -94,4 +95,5 @@ public class CheckoutRequestDTO {
     public void setItems(List<CartItemDTO> items) {
         this.items = items;
     }
+
 }

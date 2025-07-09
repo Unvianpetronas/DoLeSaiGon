@@ -1,28 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './WarehouseManagement.css';
 import { CiSearch } from 'react-icons/ci';
 
-const initialStock = [
-  { id: 1, name: 'Táo Mỹ loại 1 siêu ngọt trái to nhập khẩu bằng đươờng máy bay', unit: 'trái', quantity: 150, price: 10000, total: 1500000, warehouse: 150, status: 'Đủ', note: '' },
-  { id: 2, name: 'Xoài cát Hòa Lộc', unit: 'trái', quantity: 100, price: 5000, total: 500000, warehouse: 150, status: 'Thừa', note: '' },
-  { id: 3, name: 'Ổi ruột đỏ không hạt', unit: 'trái', quantity: 40, price: 2000, total: 80000, warehouse: 50, status: 'Đủ', note: '' },
-  { id: 4, name: 'Gạo nếp cái hoa vàng', unit: 'kg', quantity: 40, price: 21000, total: 840000, warehouse: 40, status: 'Thiếu', note: '' },
-  { id: 5, name: 'Hoa hồng đỏ loại 1 nhập khẩu Ecuador', unit: 'bông', quantity: 300, price: 3000, total: 900000, warehouse: 310, status: 'Đủ', note: '' },
-  { id: 6, name: 'Bơ sáp Đắk Lắk', unit: 'kg', quantity: 2, price: 120000, total: 240000, warehouse: 2, status: 'Thiếu', note: '' },
-  { id: 7, name: 'Gà trống thiến cúng lễ', unit: 'con', quantity: 154, price: 210000, total: 32340000, warehouse: 154, status: 'Đủ', note: '' },
-];
-
 export default function WarehouseManagement() {
   const [search, setSearch] = useState('');
-  const [stock, setStock] = useState(initialStock);
+  const [stock, setStock] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const isAdmin = true;
 
-  // 👉 Giả định quyền admin
-  const isAdmin = true; // Đặt false để test nếu không phải admin
+  const getTodayKey = () => new Date().toISOString().split('T')[0];
 
-  const handleCreate = () => {
-    setShowModal(true);
-  };
+  // ✅ Load dữ liệu hôm nay nếu còn hợp lệ
+  useEffect(() => {
+    const today = getTodayKey();
+    const savedData = localStorage.getItem('warehouse-stock');
+    const expireDate = localStorage.getItem('warehouse-stock-expire');
+
+    if (expireDate === today && savedData) {
+      setStock(JSON.parse(savedData));
+    } else {
+      localStorage.removeItem('warehouse-stock');
+      localStorage.removeItem('warehouse-stock-expire');
+      setStock([]);
+    }
+  }, []);
+
+  // ✅ Tự động lưu và set ngày hết hạn
+  useEffect(() => {
+    if (stock.length > 0) {
+      const today = getTodayKey();
+      localStorage.setItem('warehouse-stock', JSON.stringify(stock));
+      localStorage.setItem('warehouse-stock-expire', today);
+    }
+  }, [stock]);
+
+  const handleCreate = () => setShowModal(true);
 
   const handleStatusChange = (id, newStatus) => {
     const updated = stock.map(item =>
@@ -44,6 +56,7 @@ export default function WarehouseManagement() {
 
   const handleSave = () => {
     const newItems = [];
+
     for (let i = 0; i < 5; i++) {
       const name = document.querySelector(`input[name="name-${i}"]`)?.value.trim();
       const unit = document.querySelector(`input[name="unit-${i}"]`)?.value.trim();
@@ -53,21 +66,22 @@ export default function WarehouseManagement() {
       if (name && unit && !isNaN(quantity) && !isNaN(price)) {
         const total = quantity * price;
         newItems.push({
-          id: stock.length + i + 1,
+          id: Date.now() + i,
           name,
           unit,
           quantity,
           price,
           total,
           warehouse: quantity,
-          status: 'Đủ',
+          status: '',
           note: ''
         });
       }
     }
 
     if (newItems.length > 0) {
-      setStock([...stock, ...newItems]);
+      const updatedStock = [...stock, ...newItems];
+      setStock(updatedStock);
     }
 
     setShowModal(false);
@@ -117,21 +131,24 @@ export default function WarehouseManagement() {
                 <td>{item.warehouse}</td>
                 <td>
                   <select
-                    className={`status-select ${item.status === 'Đủ' ? 'enough' : item.status === 'Thừa' ? 'over' : 'lack'}`}
+                    className={`status-select ${item.status === 'Đủ' ? 'enough' : item.status === 'Thừa' ? 'over' : item.status === 'Thiếu' ? 'lack' : ''}`}
                     value={item.status}
                     onChange={(e) => handleStatusChange(item.id, e.target.value)}
                   >
+                    <option value="">--</option>
                     <option value="Đủ">Đủ</option>
                     <option value="Thừa">Thừa</option>
                     <option value="Thiếu">Thiếu</option>
                   </select>
+
                 </td>
                 <td>
-                  <warehouse-textarea
+                  <textarea
                     value={item.note}
                     onChange={(e) => handleNoteChange(item.id, e.target.value)}
                     rows={2}
                     placeholder="Nhập ghi chú..."
+                    className="warehouse-textarea"
                   />
                 </td>
               </tr>
@@ -147,51 +164,39 @@ export default function WarehouseManagement() {
         </table>
       </div>
 
-      {/* Modal phiếu nhập hàng */}
-{showModal && (
-  <div className="modal-backdrop">
-    <div className="modal-content create-staff-form">
-      <h3>Phiếu nhập hàng</h3>
-      <table className="import-form-table">
-        <thead>
-          <tr>
-            <th>Tên sản phẩm</th>
-            <th>Đơn vị</th>
-            <th>Số lượng</th>
-            <th>Đơn giá</th>
-            <th>Tổng</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(5)].map((_, index) => (
-            <tr key={index}>
-              <td>
-                <input type="text" name={`name-${index}`} placeholder="Nhập tên..." />
-              </td>
-              <td>
-                <input type="text" name={`unit-${index}`} placeholder="kg, trái..." />
-              </td>
-              <td>
-                <input type="number" name={`quantity-${index}`} placeholder="0" />
-              </td>
-              <td>
-                <input type="number" name={`price-${index}`} placeholder="0" />
-              </td>
-              <td>
-                <input type="text" name={`total-${index}`} placeholder="Tự động tính" disabled />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="modal-actions">
-        <button className="cancel-btn" onClick={() => setShowModal(false)}>Hủy</button>
-        <button className="save-btn" onClick={handleSave}>SAVE</button>
-      </div>
-    </div>
-  </div>
-)}
-
+      {showModal && (
+        <div className="modal-backdrop">
+          <div className="modal-content create-staff-form">
+            <h3>Phiếu nhập hàng</h3>
+            <table className="import-form-table">
+              <thead>
+                <tr>
+                  <th>Tên sản phẩm</th>
+                  <th>Đơn vị</th>
+                  <th>Số lượng</th>
+                  <th>Đơn giá</th>
+                  <th>Tổng</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...Array(5)].map((_, index) => (
+                  <tr key={index}>
+                    <td><input type="text" name={`name-${index}`} placeholder="Nhập tên..." /></td>
+                    <td><input type="text" name={`unit-${index}`} placeholder="kg, trái..." /></td>
+                    <td><input type="number" name={`quantity-${index}`} placeholder="0" /></td>
+                    <td><input type="number" name={`price-${index}`} placeholder="0" /></td>
+                    <td><input type="text" name={`total-${index}`} placeholder="Tự động tính" disabled /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setShowModal(false)}>Hủy</button>
+              <button className="save-btn" onClick={handleSave}>SAVE</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

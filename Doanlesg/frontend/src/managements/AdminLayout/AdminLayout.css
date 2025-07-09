@@ -188,3 +188,23 @@
   cursor: pointer;
   margin: 0 5px;
 }
+
+.back-home-link {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.btn-back-home {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #ddd;
+  color: #333;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-back-home:hover {
+  background-color: #ccc;
+}

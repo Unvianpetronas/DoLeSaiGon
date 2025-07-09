@@ -4,52 +4,8 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 
-// ✅ Dữ liệu mẫu (chưa kết nối API)
-const initialProductData = [
-  {
-    id: 1,
-    code: '389033',
-    name: 'Mâm Cúng Tết Đoan Ngọ',
-    category: 'Mâm lễ',
-    price: '1.392.000',
-    quantity: 50,
-    status: 'Còn hàng',
-    image: '/images/BoQuaBonMua.png' // ✅ đường dẫn ảnh
-  },
-  {
-    id: 7,
-    code: '389033',
-    name: 'Mâm Cúng Tết Đoan Ngọ',
-    category: 'Tháp lễ trái cây',
-    price: '1.392.000',
-    quantity: 50,
-    status: 'Còn hàng',
-    image: '/images/AnNhienPhuQuy.png'
-  },
-  {
-    id: 2,
-    code: '389034',
-    name: 'Mâm Cúng Trung Thu',
-    category: 'Mâm lễ',
-    price: '1.500.000',
-    quantity: 0,
-    status: 'Hết hàng',
-    image: '/images/Xoingusac.png'
-  },
-  {
-    id: 3,
-    code: '389035',
-    name: 'Mâm Cúng Giao Thừa',
-    category: 'Tháp trái cây',
-    price: '1.800.000',
-    quantity: 30,
-    status: 'Còn hàng',
-    image: '/images/ChieuTaiDonLoc.png'
-  }
-];
-
-const ProductsManagement = () => {
-  const [products, setProducts] = useState(initialProductData);
+export default function ProductsManagement() {
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [allCategories, setAllCategories] = useState([]);
@@ -59,26 +15,61 @@ const ProductsManagement = () => {
   const navigate = useNavigate();
   const filterRef = useRef(null);
 
-  // ✅ Cập nhật danh mục và giữ lại những danh mục đang còn
+  // Gọi API lấy toàn bộ sản phẩm
+  const fetchAllProducts = async () => {
+    try {
+      const res = await fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id');
+      const data = await res.json();
+      console.log('Tất cả sản phẩm:', data.content);
+      setProducts(data.content || []);
+    } catch (err) {
+      console.error('Lỗi khi gọi API allProducts:', err);
+    }
+  };
+
+  // Gọi API tìm kiếm sản phẩm theo tên
+  const fetchByKeyword = async (keyword) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/ver0.0.1/product/productname?keyword=${searchKeyword}&page=0&size=100&sort=productName`)
+      const data = await res.json();
+      console.log('Kết quả tìm kiếm:', data.content);
+      setProducts(data.content || []);
+    } catch (err) {
+      console.error('Lỗi khi gọi API tìm kiếm:', err);
+    }
+  };
+
+  // Thay đổi từ khóa → gọi API hoặc load toàn bộ
   useEffect(() => {
-    const uniqueCategories = [...new Set(products.map(p => p.category))];
+    if (searchKeyword.trim()) {
+      fetchByKeyword(searchKeyword);
+    } else {
+      fetchAllProducts();
+    }
+  }, [searchKeyword]);
+
+  // Lấy danh mục sản phẩm từ dữ liệu
+  useEffect(() => {
+    const uniqueCategories = [...new Set(products.map(p => p.category?.categoryName || ''))];
+    console.log('Danh sách danh mục:', uniqueCategories);
     setAllCategories(uniqueCategories);
     setSelectedCategories(prev =>
       prev.length === 0 ? uniqueCategories : prev.filter(c => uniqueCategories.includes(c))
     );
   }, [products]);
 
-  // ✅ Lọc sản phẩm theo danh mục & tên
+  // Lọc sản phẩm theo danh mục & từ khóa
   useEffect(() => {
-    const result = products.filter(
-      (p) =>
-        selectedCategories.includes(p.category) &&
-        p.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    const keyword = searchKeyword.toLowerCase();
+    const result = products.filter(p =>
+      selectedCategories.includes(p.category?.categoryName) &&
+      p.productName?.toLowerCase().includes(keyword)
     );
+    console.log('Sản phẩm hiển thị sau khi lọc:', result);
     setFilteredProducts(result);
   }, [products, selectedCategories, searchKeyword]);
 
-  // ✅ Tự đóng popup filter nếu click ra ngoài
+  // Tự đóng popup filter khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -89,47 +80,52 @@ const ProductsManagement = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ✅ Xử lý xóa sản phẩm
-  const handleDelete = (id) => {
-    const updated = products.filter(p => p.id !== id);
-    setProducts(updated);
-  };
+  // Hành động
+    const handleDelete = async (id) => {
+      if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
+        try {
+        const response = await fetch(`http://localhost:8080/staff/products/${id}`, {
+          method: "DELETE",
+          credentials: "include", // cần thiết để gửi session cookie
+        });
+        if (response.ok) {
+          alert("Sản phẩm đã được xóa");
+          // Cập nhật danh sách sản phẩm sau khi xóa
+          setProducts(prev => prev.filter(p => p.id !== id));
+        } else if (response.status === 403) {
+          alert("Bạn không có quyền xóa sản phẩm.");
+        } else if (response.status === 404) {
+          alert("Sản phẩm không tồn tại.");
+        } else {
+          const text = await response.text();
+          console.error("Lỗi khi xóa sản phẩm:", text);
+          alert(`Lỗi khi xóa sản phẩm: ${text}`);
+        }
+      } catch (error) {
+        console.error("Lỗi kết nối:", error);
+        alert("Không thể kết nối đến máy chủ.");
+      }
+    };
 
-  // ✅ Chuyển sang trang tạo sản phẩm
-  const handleCreate = () => {
-    navigate('/admin/create');
-  };
+  const handleCreate = () => navigate('/admin/create');
+  const handleEdit = (id) => navigate(`/admin/edit/${id}`);
 
-  // ✅ Chuyển sang trang chỉnh sửa sản phẩm
-  const handleEdit = (id) => {
-    navigate(`/admin/edit/${id}`);
-  };
-
-  // ✅ Thay đổi danh mục được chọn
-  const handleCategoryChange = (category) => {
+  const handleCategoryChange = (cat) =>
     setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
-  };
 
-  // ✅ Chọn tất cả danh mục
-  const handleSelectAll = () => {
-    setSelectedCategories(allCategories);
-  };
+  const handleSelectAll = () => setSelectedCategories(allCategories);
 
-  // ✅ Đảo ngược lựa chọn
-  const handleInvert = () => {
-    const inverted = allCategories.filter(c => !selectedCategories.includes(c));
-    setSelectedCategories(inverted);
-  };
-
-  // ✅ Export CSV và tải về máy
   const handleExportCSV = () => {
     const headers = ['Mã', 'Tên sản phẩm', 'Danh mục', 'Đơn giá', 'Số lượng', 'Trạng thái'];
     const rows = filteredProducts.map(p => [
-      p.code, p.name, p.category, p.price, p.quantity, p.status
+      p.id,
+      p.productName,
+      p.category?.categoryName,
+      p.price,
+      p.stockQuantity,
+      p.stockQuantity === 0 ? 'Hết hàng' : 'Còn hàng'
     ]);
 
     const csvContent = [headers, ...rows]
@@ -150,24 +146,20 @@ const ProductsManagement = () => {
     <div className="products-management">
       <h2>Danh Sách Sản Phẩm</h2>
 
-      {/* ✅ Thanh công cụ */}
       <div className="admin-controls">
         <button className="btn green" onClick={handleCreate}>CREATE</button>
 
-        {/* ✅ Bộ lọc danh mục */}
         <div className="filter-container" ref={filterRef}>
           <button className="btn pink" onClick={() => setShowFilter(prev => !prev)}>FILTER</button>
           <div className={`filter-popup ${showFilter ? 'show' : ''}`}>
             <div className="filter-commands">
               <span className="link" onClick={handleSelectAll}>Select All</span>
-              <span className="link" onClick={handleInvert}>Invert</span>
             </div>
             <div className="filter-options">
               {allCategories.map((cat, idx) => (
                 <label key={idx} className="filter-option-item">
                   <input
                     type="checkbox"
-                    className="filter-checkbox"
                     checked={selectedCategories.includes(cat)}
                     onChange={() => handleCategoryChange(cat)}
                   />
@@ -183,7 +175,6 @@ const ProductsManagement = () => {
 
         <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
 
-        {/* ✅ Tìm kiếm theo tên */}
         <div className="search-bar">
           <input
             type="text"
@@ -195,12 +186,10 @@ const ProductsManagement = () => {
         </div>
       </div>
 
-      {/* ✅ Bảng hiển thị danh sách sản phẩm */}
       <div className="table-wrapper">
         <table className="admin-product-table">
           <thead>
             <tr>
-              <th><input type="checkbox" /></th>
               <th>Mã</th>
               <th>Tên sản phẩm</th>
               <th>Danh mục</th>
@@ -212,43 +201,30 @@ const ProductsManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product) => (
-              <tr key={product.id}>
-                <td><input type="checkbox" /></td>
-                <td>{product.code}</td>
-                <td>{product.name}</td>
-                <td>{product.category}</td>
-                <td>{product.price}</td>
-                <td>{product.quantity}</td>
+            {filteredProducts.map(p => (
+              <tr key={p.id}>
+                <td>{p.id}</td>
+                <td>{p.productName}</td>
+                <td>{p.category?.categoryName}</td>
+                <td>{p.price}</td>
+                <td>{p.stockQuantity}</td>
                 <td>
-                  {product.image ? (
-                    <img src={product.image} alt={product.name} className="product-image" />
-                  ) : (
-                    <span className="no-image">🚫</span>
-                  )}
+                  {p.image
+                    ? <img src={p.image} alt={p.productName} className="product-image" />
+                    : <span className="no-image">🚫</span>}
                 </td>
-                <td className={product.status === 'Hết hàng' ? 'status out' : 'status in'}>
-                  {product.status}
+                <td className={p.stockQuantity === 0 ? 'status out' : 'status in'}>
+                  {p.stockQuantity === 0 ? 'Hết hàng' : 'Còn hàng'}
                 </td>
                 <td>
-                  <FaEdit
-                    className="icon edit"
-                    title="Chỉnh sửa"
-                    onClick={() => handleEdit(product.id)}
-                  />
-                  <FaTrashAlt
-                    className="icon delete"
-                    title="Xóa"
-                    onClick={() => handleDelete(product.id)}
-                  />
+                  <FaEdit className="icon edit" onClick={() => handleEdit(p.id)} />
+                  <FaTrashAlt className="icon delete" onClick={() => handleDelete(p.id)} />
                 </td>
               </tr>
             ))}
             {filteredProducts.length === 0 && (
               <tr>
-                <td colSpan="9" style={{ textAlign: 'center', padding: '20px' }}>
-                  Không có sản phẩm nào phù hợp.
-                </td>
+                <td colSpan="8" style={{ textAlign: 'center' }}>Không có sản phẩm nào phù hợp.</td>
               </tr>
             )}
           </tbody>
@@ -256,6 +232,4 @@ const ProductsManagement = () => {
       </div>
     </div>
   );
-};
-
-export default ProductsManagement;
+}

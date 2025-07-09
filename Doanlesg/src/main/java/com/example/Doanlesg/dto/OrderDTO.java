@@ -2,7 +2,6 @@ package com.example.Doanlesg.dto;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.LocalDateTime;
 
 public class OrderDTO {
     private Long accountId;
@@ -10,7 +9,7 @@ public class OrderDTO {
     private String email;
     private String phone;
     private String address;
-    private LocalDateTime orderDate;
+    private Date orderDate;
     private Long voucherId;
     private BigDecimal amount;
     private Long paymentMethodID;
@@ -58,11 +57,11 @@ public class OrderDTO {
         this.address = address;
     }
 
-    public LocalDateTime getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDateTime orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 

@@ -49,7 +49,7 @@ public class CartServices {
             dto.setProductId(product.getId());
             dto.setProductName(product.getProductName());
         }
-        dto.setPriceAtAddition(cartItem.getPriceAtAddition());
+        dto.setPriceAtAddition(BigDecimal.valueOf(cartItem.getPriceAtAddition()));
         return dto;
     }
 
@@ -68,8 +68,9 @@ public class CartServices {
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
-            cartItem.setPriceAtAddition(product.getPrice());
+            cartItem.setPriceAtAddition(product.getPrice().doubleValue());
             cartItemRepository.save(cartItem);
+
         }
     }
 

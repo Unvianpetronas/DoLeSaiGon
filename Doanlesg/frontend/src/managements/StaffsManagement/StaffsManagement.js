@@ -3,13 +3,8 @@ import './StaffsManagement.css';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 
-const initialEmployeeData = [
-  { id: 1, status: '', code: '389033', name: 'Nguyễn Văn A', phone: '0928472839', department: 'Admin', avatar: '/images/avatar.png', accountId: '88728291' },
-  { id: 2, status: 'Nghỉ phép', code: '389034', name: 'Trần Thị A', phone: '0987654321', department: 'P7', avatar: '/images/avatar.png', accountId: '88728291' },
-];
-
 const StaffsManagement = () => {
-  const [employees, setEmployees] = useState(initialEmployeeData);
+  const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [allStatus] = useState(['-', 'Nghỉ phép']);
@@ -19,23 +14,38 @@ const StaffsManagement = () => {
   const [editingId, setEditingId] = useState(null);
 
   const [newStaff, setNewStaff] = useState({
-    name: '',
-    code: '',
-    phone: '',
-    department: '',
-    accountId: '',
-    avatar: '',
-    adminLevel: ''
+    name: '', code: '', phone: '', department: '', accountId: '',
+    avatar: '', adminLevel: ''
   });
 
   const filterRef = useRef(null);
 
   useEffect(() => {
-    const result = employees.filter(
-      (e) =>
-        selectedStatus.includes(e.status || '-') &&
-        (e.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-          e.code.includes(searchKeyword))
+    fetch('/api/accounts', { method: 'GET', credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        const staffAccounts = data
+          .filter(acc => acc.staff !== null)
+          .map(acc => ({
+            id: acc.id,
+            accountId: acc.email,
+            name: acc.staff.fullName,
+            code: acc.staff.employeeId,
+            phone: acc.staff.phoneNumber,
+            department: acc.staff.department,
+            status: acc.staff.status || '-',
+            avatar: acc.staff.avatar || '',
+          }));
+
+        setEmployees(staffAccounts);
+      })
+      .catch(err => console.error('Lỗi khi tải danh sách:', err));
+  }, []);
+
+  useEffect(() => {
+    const result = employees.filter(e =>
+      selectedStatus.includes(e.status || '-') &&
+      (e.name?.toLowerCase().includes(searchKeyword.toLowerCase()) || e.code?.includes(searchKeyword))
     );
     setFilteredEmployees(result);
   }, [employees, searchKeyword, selectedStatus]);
@@ -51,7 +61,18 @@ const StaffsManagement = () => {
   }, []);
 
   const handleDelete = (id) => {
-    setEmployees(employees.filter(e => e.id !== id));
+    fetch(`/api/accounts/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.ok) {
+          setEmployees(prev => prev.filter(e => e.id !== id));
+        } else {
+          console.error('Xoá thất bại');
+        }
+      })
+      .catch(err => console.error('Lỗi xoá:', err));
   };
 
   const handleStatusChange = (id, newStatus) => {
@@ -70,8 +91,7 @@ const StaffsManagement = () => {
   };
 
   const handleSelectAll = () => setSelectedStatus(allStatus);
-  const handleInvert = () =>
-    setSelectedStatus(allStatus.filter(s => !selectedStatus.includes(s)));
+  const handleInvert = () => setSelectedStatus(allStatus.filter(s => !selectedStatus.includes(s)));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -99,36 +119,77 @@ const StaffsManagement = () => {
   };
 
   const handleSave = () => {
+    const payload = {
+      email: newStaff.accountId,
+      password: 'default123',
+      fullName: newStaff.name,
+      phoneNumber: newStaff.phone,
+      employeeId: newStaff.code,
+      department: newStaff.department
+    };
+
     if (editingId !== null) {
-      const updated = employees.map(e => e.id === editingId ? { ...newStaff, id: editingId } : e);
-      setEmployees(updated);
+      fetch(`/api/accounts/staff-${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      })
+        .then(res => {
+          if (res.ok) {
+            const updated = employees.map(e =>
+              e.id === editingId ? { ...newStaff, id: editingId } : e
+            );
+            setEmployees(updated);
+            setShowModal(false);
+          }
+        })
+        .catch(err => console.error('Lỗi cập nhật:', err));
     } else {
-      const newId = employees.length + 1;
-      const added = { id: newId, status: '', ...newStaff };
-      setEmployees([added, ...employees]);
+      fetch('/api/accounts/new-staff', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => {
+          const newEmployee = {
+            id: data.id,
+            accountId: data.email,
+            name: data.fullName,
+            code: data.employeeId,
+            phone: data.phoneNumber,
+            department: data.department,
+            status: '-', // default
+            avatar: '',
+          };
+          setEmployees(prev => [newEmployee, ...prev]);
+          setShowModal(false);
+        })
+        .catch(err => console.error('Lỗi tạo tài khoản:', err));
     }
-    setShowModal(false);
   };
 
-const handleExportCSV = () => {
-  const headers = ['Mã nhân viên', 'Họ và tên', 'Số điện thoại', 'Phòng ban', 'Mã tài khoản', 'Tình trạng'];
-  const rows = filteredEmployees.map(e => [
-    e.code, e.name, e.phone, e.department, e.accountId, e.status || '-'
-  ]);
+  const handleExportCSV = () => {
+    const headers = ['Mã nhân viên', 'Họ và tên', 'Số điện thoại', 'Phòng ban', 'Mã tài khoản', 'Tình trạng'];
+    const rows = filteredEmployees.map(e => [
+      e.code, e.name, e.phone, e.department, e.accountId, e.status || '-'
+    ]);
 
-  const csvContent = [headers, ...rows]
-    .map(row => row.map(value => `"${value}"`).join(','))
-    .join('\n');
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(val => `"${val}"`).join(','))
+      .join('\n');
 
-  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'danh_sach_nhan_vien.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'danh_sach_nhan_vien.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="staffs-management">
@@ -259,7 +320,7 @@ const handleExportCSV = () => {
                   {newStaff.avatar ? (
                     <img src={newStaff.avatar} alt="preview" />
                   ) : (
-                    <span className="no-image"></span>
+                    <span className="no-image">🚫</span>
                   )}
                 </div>
               </div>

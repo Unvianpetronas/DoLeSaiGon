@@ -1,8 +1,6 @@
 package com.example.Doanlesg.model;
 
 import jakarta.persistence.*;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -21,7 +19,7 @@ public class CartItem {
     @Column(name = "quantity", nullable = false)
     private int quantity;
     @Column(name = "price_at_addition",nullable = false)
-    private BigDecimal priceAtAddition;
+    private double priceAtAddition;
 
     public Long getId() {
         return id;
@@ -55,11 +53,11 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public BigDecimal getPriceAtAddition() {
+    public double getPriceAtAddition() {
         return priceAtAddition;
     }
 
-    public void setPriceAtAddition(BigDecimal priceAtAddition) {
+    public void setPriceAtAddition(double priceAtAddition) {
         this.priceAtAddition = priceAtAddition;
     }
 }

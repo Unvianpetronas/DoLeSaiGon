@@ -14,15 +14,18 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ver0.0.1")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true") // Added allowCredentials
 public class AuthController {
 
     private final AccountServices accountServices;
 
-    // ✅ The shared userDetails map has been REMOVED.
+    private final Map<String, Object> userDetails;
+
+    private final static String IS_AUTHENTICATED = "isAuthenticated";
+    private final static String SUCCESS = "success";
 
     public AuthController(AccountServices accountServices) {
         this.accountServices = accountServices;
+        userDetails = new HashMap<>();
     }
 
     @PostMapping("/login")
@@ -36,15 +39,18 @@ public class AuthController {
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("account_id", account.getId());
 
-            response.put("success", true);
+            response.put(SUCCESS, true);
             response.put("message", "Đăng nhập thành công");
 
-            // ✅ User details are now created locally and passed in the response.
-            response.put("user", createUserDetailsMap(account));
+            userDetails.put("email", account.getEmail());
+            userDetails.put("roles", getRolesForAccount(account));
+            userDetails.put("fullName", account.getFullName()); // Uses your new method
+            userDetails.put("phone", account.getPhoneNumber());     // Uses your new method
+            response.put("user", userDetails);
 
             return ResponseEntity.ok(response);
         } else {
-            response.put("success", false);
+            response.put(SUCCESS, false);
             response.put("message", "Email, mật khẩu không đúng hoặc tài khoản đã bị khóa.");
             return ResponseEntity.status(401).body(response);
         }
@@ -55,22 +61,21 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         Long accountId = (Long) session.getAttribute("account_id");
 
-        if (accountId != null) {
+        if (accountId != null && userDetails.containsKey("email")) {
             Account account = accountServices.findById(accountId);
             if (account != null && account.isStatus()) {
-                response.put("isAuthenticated", true);
-                // ✅ THIS IS THE FIX: The full user object is now returned on every status check.
-                response.put("user", createUserDetailsMap(account));
+                response.put(IS_AUTHENTICATED, true);
             } else {
-                response.put("isAuthenticated", false);
-                session.invalidate(); // Invalidate if account is inactive or not found
+                response.put(IS_AUTHENTICATED, false);
+                session.invalidate();
             }
         } else {
-            response.put("isAuthenticated", false);
+            response.put(IS_AUTHENTICATED, false);
         }
         return ResponseEntity.ok(response);
     }
 
+    // ... (logout and getRolesForAccount methods remain the same) ...
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -80,39 +85,21 @@ public class AuthController {
             session.invalidate();
         }
 
-        response.put("success", true);
+        response.put(SUCCESS, true);
         response.put("message", "Đăng xuất thành công");
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * A private helper method to build the user details map consistently.
-     * This avoids code duplication and ensures both /login and /auth/status return the same object.
-     */
-    private Map<String, Object> createUserDetailsMap(Account account) {
-        Map<String, Object> userDetails = new HashMap<>();
-        userDetails.put("id", account.getId()); // Also useful to have the ID on the frontend
-        userDetails.put("email", account.getEmail());
-        userDetails.put("roles", getRolesForAccount(account)); // Returns a list of roles
-        userDetails.put("fullName", account.getFullName());
-        userDetails.put("phone", account.getPhoneNumber());
-        return userDetails;
-    }
-
-    /**
-     * Returns a list of roles for the account.
-     */
-    private List<String> getRolesForAccount(Account account) {
-        List<String> roles = new ArrayList<>();
+    private String getRolesForAccount(Account account) {
         if (account.getAdmin() != null) {
-            roles.add("ROLE_ADMIN");
+            return "ROLE_ADMIN";
         }
         if (account.getStaff() != null) {
-            roles.add("ROLE_STAFF");
+            return "ROLE_STAFF";
         }
         if (account.getCustomer() != null) {
-            roles.add("ROLE_CUSTOMER");
+            return "ROLE_CUSTOMER";
         }
-        return roles;
+        return "";
     }
 }
