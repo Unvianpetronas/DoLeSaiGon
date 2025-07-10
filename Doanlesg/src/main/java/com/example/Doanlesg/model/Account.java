@@ -1,11 +1,17 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "account") // Ánh xạ tới bảng account
+@Table(name = "account")
+@Getter
+@Setter
 public class Account {
 
     @Id
@@ -33,115 +39,25 @@ public class Account {
 
 
     // Mối quan hệ một khách hàng có nhiều địa chỉ
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
-    // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
-    // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
-    // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
-    // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonManagedReference("account-admin")
     private Admin admin;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonManagedReference("account-staff")
     private Staff staff;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonManagedReference("account-customer")
     private Customer customer;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonManagedReference("account-cart")
     private Cart cart;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // mappedBy = "user": trỏ tới thuộc tính 'customer' trong entity Address
-    // cascade = CascadeType.ALL: các thao tác (persist, merge, remove) trên Customer sẽ áp dụng cho Address liên quan
-    // orphanRemoval = true: nếu một Address bị xóa khỏi danh sách addresses của Customer, nó cũng sẽ bị xóa khỏi DB
-    // fetch = FetchType.LAZY: chỉ tải danh sách địa chỉ khi thực sự cần đến
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("account-orders")
     private List<Order> order;
-
-    public Account() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-
-    public Admin getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public void setStaff(Staff staff) {
-        this.staff = staff;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
-
-    public List<Order> getOrder() {
-        return order;
-    }
-
-    public void setOrder(List<Order> order) {
-        this.order = order;
-    }
 
     @Transient
     public String getFullName() {

@@ -14,18 +14,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ver0.0.1")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AuthController {
 
     private final AccountServices accountServices;
 
-    private final Map<String, Object> userDetails;
-
-    private final static String IS_AUTHENTICATED = "isAuthenticated";
-    private final static String SUCCESS = "success";
-
     public AuthController(AccountServices accountServices) {
         this.accountServices = accountServices;
-        userDetails = new HashMap<>();
     }
 
     @PostMapping("/login")
@@ -39,18 +34,13 @@ public class AuthController {
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("account_id", account.getId());
 
-            response.put(SUCCESS, true);
+            response.put("success", true);
             response.put("message", "Đăng nhập thành công");
-
-            userDetails.put("email", account.getEmail());
-            userDetails.put("roles", getRolesForAccount(account));
-            userDetails.put("fullName", account.getFullName()); // Uses your new method
-            userDetails.put("phone", account.getPhoneNumber());     // Uses your new method
-            response.put("user", userDetails);
+            response.put("user", createUserDetailsMap(account));
 
             return ResponseEntity.ok(response);
         } else {
-            response.put(SUCCESS, false);
+            response.put("success", false);
             response.put("message", "Email, mật khẩu không đúng hoặc tài khoản đã bị khóa.");
             return ResponseEntity.status(401).body(response);
         }
@@ -61,45 +51,49 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         Long accountId = (Long) session.getAttribute("account_id");
 
-        if (accountId != null && userDetails.containsKey("email")) {
+        if (accountId != null) {
             Account account = accountServices.findById(accountId);
             if (account != null && account.isStatus()) {
-                response.put(IS_AUTHENTICATED, true);
+                response.put("isAuthenticated", true);
+                // ✅ THIS IS THE FIX: The full user object is always returned.
+                response.put("user", createUserDetailsMap(account));
             } else {
-                response.put(IS_AUTHENTICATED, false);
+                response.put("isAuthenticated", false);
                 session.invalidate();
             }
         } else {
-            response.put(IS_AUTHENTICATED, false);
+            response.put("isAuthenticated", false);
         }
         return ResponseEntity.ok(response);
     }
 
-    // ... (logout and getRolesForAccount methods remain the same) ...
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         HttpSession session = request.getSession(false);
-
         if (session != null) {
             session.invalidate();
         }
-
-        response.put(SUCCESS, true);
+        response.put("success", true);
         response.put("message", "Đăng xuất thành công");
         return ResponseEntity.ok(response);
     }
 
-    private String getRolesForAccount(Account account) {
-        if (account.getAdmin() != null) {
-            return "ROLE_ADMIN";
-        }
-        if (account.getStaff() != null) {
-            return "ROLE_STAFF";
-        }
-        if (account.getCustomer() != null) {
-            return "ROLE_CUSTOMER";
-        }
-        return "";
+    private Map<String, Object> createUserDetailsMap(Account account) {
+        Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("id", account.getId());
+        userDetails.put("email", account.getEmail());
+        userDetails.put("roles", getRolesForAccount(account));
+        userDetails.put("fullName", account.getFullName());
+        userDetails.put("phone", account.getPhoneNumber());
+        return userDetails;
+    }
+
+    private List<String> getRolesForAccount(Account account) {
+        List<String> roles = new ArrayList<>();
+        if (account.getAdmin() != null) roles.add("ROLE_ADMIN");
+        if (account.getStaff() != null) roles.add("ROLE_STAFF");
+        if (account.getCustomer() != null) roles.add("ROLE_CUSTOMER");
+        return roles;
     }
 }

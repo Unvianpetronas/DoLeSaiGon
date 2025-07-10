@@ -1,94 +1,145 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CustomersManagement.css';
 import { CiSearch } from 'react-icons/ci';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 
-const initialCustomerData = [
-  { id: 1, code: 'KH001', name: 'Nguyễn Văn A', phone: '0928472839', email: 'admin@gmail.com', address: 'Bình Thạnh, Hồ Chí Minh' },
-  { id: 2, code: 'KH002', name: 'Trần Thị A', phone: '0987654321', email: 'atrangthi@gmail.com', address: 'Thủ Đức, Hồ Chí Minh' },
-];
-
-const CustomersManagement = () => {
-  const [customers] = useState(initialCustomerData);
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [searchPhone, setSearchPhone] = useState('');
-
-  useEffect(() => {
-    const result = customers.filter(
-      (c) => c.phone.includes(searchPhone)
-    );
-    setFilteredCustomers(result);
-  }, [customers, searchPhone]);
-
-const handleExportCSV = () => {
-  const headers = ['Mã KH', 'Họ và tên', 'Số điện thoại', 'Email', 'Địa chỉ'];
-  const rows = filteredCustomers.map(c => [
-    c.code, c.name, c.phone, c.email, c.address
-  ]);
-
-  const csvContent = [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
-    .join('\n');
-
-  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'danh_sach_khach_hang.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+// Helper function to safely check for a user's role
+const hasRole = (user, role) => {
+  if (!user || !user.roles) return false;
+  if (Array.isArray(user.roles)) {
+    return user.roles.includes(role);
+  }
+  return user.roles === role;
 };
 
+const CustomersManagement = () => {
+  const navigate = useNavigate();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { addNotification } = useNotification();
+
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchPhone, setSearchPhone] = useState('');
+
+  // Effect to handle authorization and data fetching
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    // ✅ FIX: Use the robust hasRole helper for the check
+    if (!user || !hasRole(user, 'ROLE_ADMIN')) {
+      addNotification('Bạn không có quyền truy cập trang này.', 'error');
+      navigate('/login');
+      return;
+    }
+
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('http://localhost:8080/api/ver0.0.1/staff/accounts', {
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Không thể tải danh sách khách hàng.');
+        }
+        const data = await response.json();
+        const customerAccounts = data.filter(acc => acc.customer !== null);
+        setCustomers(customerAccounts);
+      } catch (err) {
+        setError(err.message);
+        addNotification(err.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomers();
+  }, [user, isAuthLoading, navigate, addNotification]);
+
+  const filteredCustomers = customers.filter((c) =>
+      c.customer?.phoneNumber?.includes(searchPhone)
+  );
+
+  const handleExportCSV = () => {
+    const headers = ['Mã KH', 'Họ và tên', 'Số điện thoại', 'Email'];
+    const rows = filteredCustomers.map(c => [
+      `KH${c.id}`,
+      c.customer.fullName,
+      c.customer.phoneNumber,
+      c.email,
+    ]);
+
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(cell => `"${cell || ''}"`).join(','))
+        .join('\n');
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'danh_sach_khach_hang.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (isAuthLoading || loading) {
+    return <div>Đang tải dữ liệu khách hàng...</div>;
+  }
+
+  if (error) {
+    return <div className="customers-management-error">Lỗi: {error}</div>
+  }
+
   return (
-    <div className="customers-management">
-      <h2>Danh Sách Khách Hàng</h2>
-
-      <div className="admin-controls">
-        <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
-
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Lọc theo số điện thoại..."
-            value={searchPhone}
-            onChange={(e) => setSearchPhone(e.target.value)}
-          />
-          <button><CiSearch size={20} /></button>
+      <div className="customers-management">
+        <h2>Danh Sách Khách Hàng</h2>
+        <div className="admin-controls">
+          <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
+          <div className="search-bar">
+            <input
+                type="text"
+                placeholder="Lọc theo số điện thoại..."
+                value={searchPhone}
+                onChange={(e) => setSearchPhone(e.target.value)}
+            />
+            <button><CiSearch size={20} /></button>
+          </div>
         </div>
-      </div>
-
-      <div className="table-wrapper">
-        <table className="customer-table">
-          <thead>
+        <div className="table-wrapper">
+          <table className="customer-table">
+            <thead>
             <tr>
               <th>Mã KH</th>
               <th>Họ và tên</th>
               <th>Số điện thoại</th>
               <th>Email</th>
-              <th>Địa chỉ</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {filteredCustomers.map((c) => (
-              <tr key={c.id}>
-                <td>{c.code}</td>
-                <td>{c.name}</td>
-                <td>{c.phone}</td>
-                <td>{c.email}</td>
-                <td>{c.address}</td>
-              </tr>
+                <tr key={c.id}>
+                  <td>{`KH${c.id}`}</td>
+                  <td>{c.customer.fullName}</td>
+                  <td>{c.customer.phoneNumber}</td>
+                  <td>{c.email}</td>
+                </tr>
             ))}
             {filteredCustomers.length === 0 && (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                  Không tìm thấy khách hàng.
-                </td>
-              </tr>
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
+                    Không tìm thấy khách hàng.
+                  </td>
+                </tr>
             )}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
   );
 };
 

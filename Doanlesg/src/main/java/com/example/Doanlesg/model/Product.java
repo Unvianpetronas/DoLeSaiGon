@@ -1,8 +1,11 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
@@ -14,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "product")
+@Getter @Setter
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +37,10 @@ public class Product {
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
     private java.util.Date createdAt;  */
 
-    @ManyToOne(fetch = FetchType.LAZY) // Hoặc FetchType.EAGER tùy nhu cầu
-    @JoinColumn(name = "category_id") // nullable = true là mặc định, khớp với SQL
-    @JsonManagedReference
+    // ✅ This is correct. It's the "many" side and has the back reference.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @JsonBackReference
     private Category category; // Hoặc Category nếu bạn đặt tên Entity là Category
 
     @Column(name = "status",nullable = false,columnDefinition = "1")

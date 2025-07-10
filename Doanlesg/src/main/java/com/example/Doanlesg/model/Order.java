@@ -1,5 +1,6 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,8 +25,10 @@ public class Order {
 
     @Column(name = "order_code", nullable = false)
     private String code;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id", nullable = true)
+    @JsonBackReference("account-orders")
     private Account account;
 
     @Column(name = "receiver_fullname", nullable = false)

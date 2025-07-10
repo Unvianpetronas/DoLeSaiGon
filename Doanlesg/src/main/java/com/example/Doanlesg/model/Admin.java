@@ -1,5 +1,6 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,9 +9,11 @@ public class Admin {
     @Id
     @Column(name = "account_id")
     private Long id;
+
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "account_id")
+    @JsonBackReference("account-admin")
     private Account account;
 
     @Column(name = "full_name",nullable = false)

@@ -1,5 +1,6 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -14,8 +15,10 @@ public class Cart {
     @Column(name = "cart_id", nullable = false)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "customer_account_id")
+    @JsonBackReference("account-cart")
     private Account account;
 
     // Các trường từ YAML

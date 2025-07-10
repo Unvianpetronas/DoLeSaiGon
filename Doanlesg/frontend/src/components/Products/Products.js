@@ -3,13 +3,17 @@ import { Link, useParams } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import './Products.css';
 import AddToCartButton from "../AddToCart/AddToCartButton";
-
+import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 
 const ProductsPage = () => {
   const { categorySlug } = useParams();
   const [products, setProducts] = useState([]);
   const [sortOption, setSortOption] = useState('default');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,13 +28,6 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-  const toggleFavorite = (id) => {
-    setProducts(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-      )
-    );
-  };
 
   const addToCart = (item) => {
     alert(`Đã thêm "${item.productName}" vào giỏ hàng!`);
@@ -67,6 +64,25 @@ const ProductsPage = () => {
         return 0;
     }
   });
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = sorted
+      .slice(indexOfFirstItem, indexOfLastItem)
+      .map(item => ({
+        ...item,
+        isFavorite: isItemFavorite(item.id),
+      }));
+
+
+  const toggleFavorite = (item) => {
+    toggleFavoriteItem(item);
+    setProducts(prev =>
+      prev.map(p =>
+        p.id === item.id ? { ...p, isFavorite: !p.isFavorite } : p
+      )
+    );
+  };
+
 
   return (
     <div className="products-wrapper">
@@ -79,7 +95,7 @@ const ProductsPage = () => {
               <strong>🌸 Gửi trọn tình thân, trao chọn nghĩa lễ 🌸</strong><br />
               Tại DoleSaigon, mỗi món quà không chỉ là sản phẩm, mà là lời chúc lành – sự gắn kết thiêng liêng giữa các thế hệ.<br />
               Chúng tôi mang đến những <em>mâm lễ tươm tất</em>, <em>quà biếu tinh tế</em> – kết hợp hài hòa giữa giá trị truyền thống và chuẩn mực hiện đại.<br />
-              Hơn cả một thương hiệu, DoleSaigon là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
+              Hơn cả một thương hiệu, DoleSaigon sẽ là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
             </p>
           </div>
           <h2 className="products-title">Tất cả sản phẩm</h2>
@@ -125,38 +141,53 @@ const ProductsPage = () => {
              {sorted.length === 0 ? (
                <p className="no-products">Không có sản phẩm nào.</p>
              ) : (
-               <div className="promo-grid-products">
-                 {sorted.map(item => (
-                   <div key={item.id} className="promo-item">
+               <div className="product-grid">
+                 {currentItems.map(item => (
+                   <div key={item.id} className="promo-item-products">
                      <Link to={`/product/${item.id}`}>
                        <img src={`/products/${item.id}.png`} alt={item.productName} />
                        <span className="discount-tag">-{Math.round(10)}%</span>
-                       <div className="price-box">
-                         <h4>{item.productName}</h4>
-                         <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
-                         <span className="new-price">{item.price.toLocaleString()}đ</span>
-                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '5px 0' }}>
-                          <button
-                              className="heart-btn"
-                                onClick={() => toggleFavorite(item.id)}
-                                   title="Yêu thích"
-                                                >
-                                                  <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
-                                                </button>
-                                                <div className="product-hover-overlay">
-                                                                      <AddToCartButton
-                                                                          product={item}
-                                                                          quantity={1}
-                                                                      />
-                                                                    </div>
-                                              </div>
-                       </div>
+
                      </Link>
 
+                     {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
+                     <div className="price-box-products">
+                     <Link to={`/product/${item.id}`}>
+                          <h4>{item.productName}</h4>
+                          <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
+                          <span className="new-price-products">{item.price.toLocaleString()}đ</span>
+                          </Link>
+                          <div className="action-buttons">
+                               <AddToCartButton product={item} quantity={1} />
+                               <button
+                                 className="heart-btn"
+                                 onClick={() => toggleFavorite(item)}
+                                 title={item.isFavorite ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
+                               >
+                                 <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                               </button>
+
+                             </div>
+                        </div>
+
+
                    </div>
+
                  ))}
                </div>
              )}
+             <div className="pagination">
+               {Array.from({ length: Math.ceil(sorted.length / itemsPerPage) }, (_, i) => (
+                 <button
+                   key={i + 1}
+                   onClick={() => setCurrentPage(i + 1)}
+                   className={currentPage === i + 1 ? 'active' : ''}
+                 >
+                   {i + 1}
+                 </button>
+               ))}
+             </div>
+
     </div>
   );
 };

@@ -3,6 +3,8 @@ import './Homepage.css';
 import { useParams, Link } from "react-router-dom";
 import { FaTruck, FaHeadset, FaCreditCard, FaGift } from 'react-icons/fa';
 import AddToCartButton from "../AddToCart/AddToCartButton";
+import { FaHeart } from 'react-icons/fa';
+import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 
 export default function Homepage() {
   const bannerImages = [
@@ -22,7 +24,7 @@ export default function Homepage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [selectedMamSubCategory, setSelectedMamSubCategory] = useState('');
   const [giftSets, setGiftSets] = useState([]);
-
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,6 +83,7 @@ export default function Homepage() {
         setMamProducts(mamData.content || []);
         setGiftSets(giftData.content || []);
         console.log(giftData);
+        setProducts(allData.content || []);
       } catch (err) {
         console.error('Lỗi khi gọi API:', err);
         setError('Không thể tải dữ liệu sản phẩm.');
@@ -145,6 +148,14 @@ useEffect(() => {
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p className="error">{error}</p>;
+ const toggleFavorite = (item) => {
+   toggleFavoriteItem(item);
+   setProducts(prev =>
+     prev.map(p =>
+       p.id === item.id ? { ...p, isFavorite: !p.isFavorite } : p
+     )
+   );
+ };
 
   return (
     <div className="homepage">
@@ -191,28 +202,36 @@ useEffect(() => {
           <div><span id="minutes">0</span><br />Phút</div>
           <div><span id="seconds">0</span><br />Giây</div>
         </div>
-        <div className="promo-grid">
-          {promoProducts.map((item, idx) => (
-            <div className="promo-item" key={idx}>
-                <Link to={`/product/${item.id}`} className="related-item" key={item.id}>
-                  <img src={`/products/${item.id}.png`} alt={item.productName || 'Sản phẩm'} />
-                  <span className="discount-tag">
-                    -{Math.round(((item.originalPrice ?? item.price * 1.1) - item.price) / (item.originalPrice ?? item.price * 1.1) * 100)}%
-                  </span>
-                  <div className="price-box">
-                    <h4>{item.productName}</h4>
-                    <span className="old-price">{(item.originalPrice ?? item.price * 1.1).toLocaleString()}đ</span>
-                    <span className="new-price">{item.price.toLocaleString()}đ</span>
-                  </div>
+        <div className="promo-grid-homepage">
+          {promoProducts.map((item, idx) => {
+            const isFavorite = isItemFavorite(item.id);
+            return (
+              <div className="promo-item-homepage" key={idx}>
+                <Link to={`/product/${item.id}`} className="related-item">
+                  <img src={`/products/${item.id}.png`} alt={item.productName} />
+                  <span className="discount-tag">-10%</span>
                 </Link>
-                <div className="product-hover-overlay">
-                  <AddToCartButton
-                      product={item}
-                      quantity={1}
-                  />
+                <div className="price-box">
+                  <Link to={`/product/${item.id}`}>
+                    <h4>{item.productName}</h4>
+                    <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                    <span className="new-price">{item.price.toLocaleString()}đ</span>
+                  </Link>
+                  <div className="action-buttons-homepage">
+                    <AddToCartButton product={item} quantity={1} />
+                    <button
+                      className="heart-btn"
+                      onClick={() => toggleFavorite(item)}
+                      title="Yêu thích"
+                    >
+                      <FaHeart className={`heart-icon ${isFavorite ? 'red' : ''}`} />
+                    </button>
+                  </div>
                 </div>
-            </div>
-          ))}
+              </div>
+            );
+          })}
+
         </div>
       </div>
 
@@ -255,25 +274,34 @@ useEffect(() => {
               <div className="product-grid">
                 {allXoiChe
                   .filter(p => getSubCategoryName(p) === selectedSubCategory)
-                  .map((item, idx) => (
-                    <div className="promo-item" key={idx}>
+                  .map((item, idx) => {
+                  const isFavorite = isItemFavorite(item.id);
+                  return (
+                    <div className="promo-item-homepage" key={idx}>
                       <Link to={`/product/${item.id}`}>
                         <img src={`/products/${item.id}.png`} alt={item.productName} />
                         <span className="discount-tag">-10%</span>
+                        </Link>
                         <div className="price-box">
+                        <Link to={`/product/${item.id}`}>
                           <h4>{item.productName}</h4>
                           <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                           <span className="new-price">{item.price.toLocaleString()}đ</span>
-                        </div>
-                        </Link>
-                        <div className="product-hover-overlay">
-                          <AddToCartButton
-                              product={item}
-                              quantity={1}
-                          />
+                          </Link>
+                                <div className="action-buttons-homepage">
+                                   <AddToCartButton product={item} quantity={1} />
+                                   <button
+                                     className="heart-btn"
+                                     onClick={() => toggleFavorite(item)}
+                                     title="Yêu thích"
+                                   >
+                                     <FaHeart className={`heart-icon ${isFavorite ? 'red' : ''}`} />
+                                   </button>
+                                 </div>
                         </div>
                     </div>
-                  ))}
+                  );
+                })}
               </div>
             </div>
       </div>
@@ -299,25 +327,35 @@ useEffect(() => {
             <div className="product-grid">
               {mamProducts
                 .filter(p => getMamSubCategoryName(p) === selectedMamSubCategory)
-                .map((item, idx) => (
-                  <div className="promo-item" key={idx}>
+                .map((item, idx) => {
+                const isFavorite = isItemFavorite(item.id);
+                return(
+                  <div className="promo-item-homepage" key={idx}>
                     <Link to={`/product/${item.id}`}>
                       <img src={`/products/${item.id}.png`} alt={item.productName} />
                       <span className="discount-tag">-10%</span>
-                      <div className="price-box">
+                    </Link>
+                    <div className="price-box">
+                    <Link to={`/product/${item.id}`}>
                         <h4>{item.productName}</h4>
                         <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
                         <span className="new-price">{item.price.toLocaleString()}đ</span>
-                      </div>
                     </Link>
-                    <div className="product-hover-overlay">
-                      <AddToCartButton
-                          product={item}
-                          quantity={1}
-                      />
+                         <div className="action-buttons-homepage">
+                            <AddToCartButton product={item} quantity={1} />
+                            <button
+                             className="heart-btn"
+                             onClick={() => toggleFavorite(item)}
+                             title="Yêu thích"
+                           >
+                             <FaHeart className={`heart-icon ${isFavorite ? 'red' : ''}`} />
+                           </button>
+                          </div>
                     </div>
+
                   </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
       </div>
@@ -347,7 +385,7 @@ useEffect(() => {
         </div>
         <div className="testimonial-list">
           <div className="testimonial-card">
-            <img className="avatar" src="./img_2.png" alt="Ngọc Vy" />
+            <img className="avatar" src="./img_2.png" alt="Ngọc Vỹ" />
             <div className="quote-icon">❝</div>
             <h4>Ngọc Vy</h4>
             <p className="job">Kế toán</p>

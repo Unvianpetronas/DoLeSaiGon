@@ -3,8 +3,21 @@ import './ProductsManagement.css';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
+import {useAuth} from "../../contexts/AuthContext";
+import {useNotification} from "../../contexts/NotificationContext";
+
+const hasRole = (user, role) => {
+  if (!user.roles || !user) return false;
+  if (Array.isArray(user.roles)) {
+    return user.roles.includes(role);
+  }
+  return user.roles === role;
+};
 
 export default function ProductsManagement() {
+  const { user, isLoading } = useAuth();
+  const { addNotification } = useNotification();
+
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -14,6 +27,15 @@ export default function ProductsManagement() {
 
   const navigate = useNavigate();
   const filterRef = useRef(null);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user || (!hasRole(user, 'ROLE_ADMIN') && !hasRole(user, 'ROLE_STAFF')) ) {
+        addNotification('Bạn không có quyền truy cập trang này.', 'error');
+        navigate('/login');
+      }
+    }
+  }, [user, isLoading, navigate, addNotification]);
 
   // Gọi API lấy toàn bộ sản phẩm
   const fetchAllProducts = async () => {

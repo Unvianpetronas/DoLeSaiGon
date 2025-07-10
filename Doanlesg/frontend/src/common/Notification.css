@@ -1,0 +1,36 @@
+/* Notification Container in the top right corner */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    z-index: 1000;
+    min-width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.5s forwards;
+}
+
+/* Specific style for error messages */
+.notification.error {
+    background-color: #d9534f; /* A standard red color for errors */
+}
+
+/* Specific style for success messages */
+.notification.success {
+    background-color: #5cb85c; /* A standard green for success */
+}
+
+/* Animation to slide in from the right */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

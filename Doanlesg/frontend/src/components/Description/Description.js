@@ -2,6 +2,26 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./Description.css";
 
+// ✅ Đặt hàm ở trên
+const parseDescription = (rawDescription) => {
+  if (!rawDescription) return [];
+
+  const hasSections = rawDescription.includes('#') && rawDescription.includes('||');
+  if (!hasSections) return [];
+
+  return rawDescription
+    .split('#')
+    .map((section) => {
+      const [title, content] = section.trim().split('||');
+      return {
+        title: title?.trim(),
+        content: content?.trim()
+      };
+    })
+    .filter(section => section.title && section.content);
+};
+
+
 const Description = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
@@ -59,6 +79,8 @@ const Description = () => {
   const scrollLeft = () => { scrollRef.current.scrollBy({ left: -200, behavior: "smooth" }); };
   const scrollRight = () => { scrollRef.current.scrollBy({ left: 200, behavior: "smooth" }); };
 
+    // ✅ Bọc parseDescription trong điều kiện kiểm tra
+    const sections = parseDescription(product?.detailDescription);
   return (
     <div className="product-detail-container">
       {/* PHẦN 1: Hình ảnh & thông tin */}
@@ -132,8 +154,20 @@ const Description = () => {
       {/* PHẦN 2: Mô tả */}
       <div className="product-description-wrapper">
         <h2>Mô Tả Sản Phẩm</h2>
-        <p>{product.detailDescription || product.shortDescription || "Chưa có mô tả."}</p>
+        {sections.length > 0 ? (
+          sections.map((section, idx) => (
+            <div key={idx} className="description-section">
+              <h3>{section.title}</h3>
+              {(section.content || '').split('\n').map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
+            </div>
+          ))
+        ) : (
+          <p>Chưa có mô tả.</p>
+        )}
       </div>
+
 
       {/* PHẦN 3: Sản phẩm liên quan */}
       {relatedProducts.length > 0 && (

@@ -1,5 +1,6 @@
 package com.example.Doanlesg.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -13,9 +14,12 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
+    // ✅ This is correct. It's the "many" side and has the back reference.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
+    @JsonBackReference
     private Product product;
+
     @Column(name = "quantity", nullable = false)
     private int quantity;
     @Column(name = "price_at_addition",nullable = false)

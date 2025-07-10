@@ -28,7 +28,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/staff")
-@CrossOrigin(value = "localhost:3000")// Consider changing to /api/ver0.0.1/staff for consistency
 public class StaffController {
 
     @Value("${product.images.path}")
