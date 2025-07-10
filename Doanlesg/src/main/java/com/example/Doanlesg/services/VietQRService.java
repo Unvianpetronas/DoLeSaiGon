@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class VietQRService {
 
     // Thay thế bằng thông tin tài khoản của bạn
-    private static final String VIETQR_TEMPLATE = "https://api.vietqr.io/image/970448-0908517568-WEMdHcP.jpg?accountName=DOLESAIGON&amount=%s&addInfo=%s";
+    private static final String VIETQR_TEMPLATE = "https://api.vietqr.io/image/970448-CASS0908517568-WEMdHcP.jpg?accountName=DOLESAIGON&amount=%s&addInfo=%s";
 
     public String generateQrCodeUrl(BigDecimal amount, String description) {
         try {

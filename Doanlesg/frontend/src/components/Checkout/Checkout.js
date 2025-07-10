@@ -1,33 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // 1. Import useLocation
 import "./Checkout.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartProvider";
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const location = useLocation(); // 2. Get the location object to access state
 
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { cartItems, loading: isCartLoading, clearCart } = useCart();
+  const { cartItems: mainCartItems, loading: isCartLoading, clearCart } = useCart();
+
+  // --- 3. THIS IS THE KEY LOGIC FOR "BUY NOW" ---
+  // Decide which cart to use: the single "buy now" item or the main cart from the context.
+  const buyNowCart = location.state?.buyNowCart;
+  const cartItems = buyNowCart || mainCartItems; // Prioritize the "buy now" item
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  // --- 1. ADD NEW FIELDS TO THE FORM STATE ---
   const [form, setForm] = useState({
     email: "",
     name: "",
     phone: "",
     address: "",
     ward: "",
+    district: "",
     city: "",
     note: "",
     paymentMethod: "transfer",
-    shippingMethodId: 1, // Default to the first shipping option
+    shippingMethodId: 1,
     voucherCode: "",
   });
 
-  // This useEffect handles auto-filling the user's info
   useEffect(() => {
     if (!isAuthLoading && user) {
       setForm(prevForm => ({
@@ -41,7 +46,6 @@ export default function Checkout() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    // Convert value to a number if it's the shippingMethodId radio button
     const finalValue = name === 'shippingMethodId' ? parseInt(value, 10) : value;
     setForm({ ...form, [name]: finalValue });
   };
@@ -56,13 +60,10 @@ export default function Checkout() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Combine separate address fields into a single string.
-    const guestAddress = [form.address, form.ward, form.city]
+    const guestAddress = [form.address, form.ward, form.district, form.city]
         .filter(part => part && part.trim() !== '')
         .join(', ');
 
-    // --- 2. BUILD THE FINAL JSON PAYLOAD ---
-    // This now includes all fields from your DTO
     const checkoutRequest = {
       customerId: user ? user.id : null,
       guestName: form.name,
@@ -70,7 +71,7 @@ export default function Checkout() {
       guestPhone: form.phone,
       guestAddress: guestAddress,
       shippingMethodId: form.shippingMethodId,
-      paymentMethodId: form.paymentMethod === 'transfer' ? 1 : 2, // Assuming 1=transfer, 2=cash
+      paymentMethodId: form.paymentMethod === 'transfer' ? 1 : 2,
       voucherCode: form.voucherCode.trim() === '' ? null : form.voucherCode.trim(),
       items: cartItems.map(item => ({
         productId: item.productId,
@@ -79,7 +80,6 @@ export default function Checkout() {
     };
 
     try {
-      // The rest of the fetch logic remains the same
       const response = await fetch("http://localhost:8080/api/ver0.0.1/orders", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,14 +92,21 @@ export default function Checkout() {
         throw new Error(errorData.message);
       }
 
+      const isBuyNow = !!buyNowCart;
+
+      // --- 4. HANDLE DIFFERENT PAYMENT FLOWS ---
       if (form.paymentMethod === 'transfer') {
-        // FLOW 1: For Bank Transfer, get QR info and go to payment page
+        // For Bank Transfer, go to the QR code payment page
         const paymentInfo = await response.json();
-        // The cart will be cleared AFTER payment is confirmed on the next page
-        navigate("/payment", { state: { paymentInfo, orderData: checkoutRequest } });
+
+        // Don't clear the cart yet, wait for payment confirmation
+        navigate("/payment", { state: { paymentInfo, orderData: checkoutRequest, isBuyNow } });
       } else {
-        // FLOW 2: For Cash on Delivery, clear cart and go directly to success
-        clearCart();
+        // For Cash, go directly to the success page
+        // Only clear the main cart if we weren't in a "buy now" flow
+        if (!buyNowCart) {
+          clearCart();
+        }
         navigate("/success");
       }
 
@@ -110,10 +117,11 @@ export default function Checkout() {
     }
   };
 
+  // Calculations now correctly use the dynamic 'cartItems' variable
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.priceAtAddition || item.price) * item.quantity, 0);
 
-  if (isAuthLoading || isCartLoading) {
+  if (isAuthLoading || (isCartLoading && !buyNowCart)) {
     return <div className="checkout-container"><p>Đang tải thông tin thanh toán...</p></div>;
   }
 
@@ -133,20 +141,17 @@ export default function Checkout() {
               </div>
               <div className="right-column">
                 <textarea name="note" placeholder="Ghi chú (tùy chọn)" value={form.note} onChange={handleChange} className="form-textarea" />
-
-                {/* --- 3. ADD SHIPPING METHOD OPTIONS --- */}
-                <div className="payment-method-box">
+                <div className="shipping-method-box">
                   <label>Phương thức vận chuyển</label>
                   <label className="radio-label">
-                    <input type="radio" name="shippingMethodId" value="1" checked={form.shippingMethodId === 1} onChange={handleChange} />
-                    <span>lấy tại cửa hàng</span>
+                    <input type="radio" name="shippingMethodId" value={1} checked={form.shippingMethodId === 1} onChange={handleChange} />
+                    <span>Lấy tại cửa hàng</span>
                   </label>
                   <label className="radio-label">
-                    <input type="radio" name="shippingMethodId" value="2" checked={form.shippingMethodId === 2} onChange={handleChange} />
+                    <input type="radio" name="shippingMethodId" value={2} checked={form.shippingMethodId === 2} onChange={handleChange} />
                     <span>Giao hàng tiêu chuẩn (20,000₫)</span>
                   </label>
                 </div>
-
                 <div className="payment-method-box">
                   <label>Phương thức thanh toán</label>
                   <label className="radio-label">
@@ -161,10 +166,8 @@ export default function Checkout() {
               </div>
             </div>
           </div>
-
           <div className="checkout-summary">
             <h2>Đơn hàng ({totalItems} sản phẩm)</h2>
-
             {cartItems.length > 0 ? (
                 <>
                   {cartItems.map(item => (
@@ -181,25 +184,14 @@ export default function Checkout() {
             ) : (
                 <p>Giỏ hàng của bạn đang trống.</p>
             )}
-
-            {/* --- 4. ADD VOUCHER CODE INPUT --- */}
             <div className="voucher-section">
-              <input
-                  type="text"
-                  name="voucherCode"
-                  placeholder="Mã giảm giá"
-                  value={form.voucherCode}
-                  onChange={handleChange}
-                  className="voucher-input"
-              />
+              <input type="text" name="voucherCode" placeholder="Mã giảm giá" value={form.voucherCode} onChange={handleChange} className="voucher-input"/>
               <button type="button" className="apply-voucher-btn">Áp dụng</button>
             </div>
-
             <button type="submit" className="checkout-btn" disabled={isSubmitting || cartItems.length === 0}>
               {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
             </button>
             {submitError && <p className="error-message">{submitError}</p>}
-
             <div className="checkout-note">
               <p><strong>Chính sách thanh toán</strong></p>
               <p>Khách hàng thanh toán trực tiếp tại cửa hàng hoặc chuyển khoản trước khi nhận hàng.</p>

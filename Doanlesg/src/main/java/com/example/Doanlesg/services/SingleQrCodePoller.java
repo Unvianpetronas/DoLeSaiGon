@@ -53,7 +53,7 @@ public class SingleQrCodePoller {
 
                             //TODO: Thuc hien gui direct den /send-invoice.
 
-                            qrCodeManager.markAsPaid(uniqueCode);
+                            orderService.processPaidOrder(uniqueCode);
                             paymentFound = true;
                             break;
                         }

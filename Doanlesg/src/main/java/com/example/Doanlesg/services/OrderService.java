@@ -5,7 +5,6 @@ import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -201,9 +200,10 @@ public class OrderService {
                 .toList();
     }
 
+    // Helper method to perform the conversion
     private OrderSummaryDTO convertToSummaryDTO(Order order) {
         OrderSummaryDTO dto = new OrderSummaryDTO();
-        dto.setId(Long.valueOf(order.getId()));
+        dto.setId(order.getId());
         dto.setOrderCode(order.getCode());
         dto.setOrderDate(order.getOrderDate());
         dto.setTotalAmount(order.getTotalAmount());

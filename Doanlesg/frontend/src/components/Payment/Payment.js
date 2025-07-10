@@ -10,44 +10,65 @@ const Payment = () => {
     const { clearCart } = useCart();
     const { addNotification } = useNotification();
 
-    // --- STATE MANAGEMENT ---
     const [paymentInfo, setPaymentInfo] = useState(location.state?.paymentInfo);
     const [orderData, setOrderData] = useState(location.state?.orderData);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isRegenerating, setIsRegenerating] = useState(false);
 
-    // Use a ref to hold the interval IDs so they don't trigger re-renders
+    // Use refs to hold interval IDs. This prevents re-renders from interfering with them.
     const pollerRef = useRef(null);
+    const countdownRef = useRef(null);
 
-    // --- DERIVED STATE ---
-    // isExpired is now calculated directly from timeLeft, not managed separately.
+    // This is now a derived state. It's simpler and less prone to bugs.
     const isExpired = timeLeft <= 0;
 
-    // --- MAIN EFFECT FOR TIMER AND POLLING ---
+    // This single, robust useEffect handles all timers and polling.
+    // It runs only when the paymentInfo changes (i.e., on load and on regeneration).
     useEffect(() => {
-        // This effect runs only when paymentInfo changes (e.g., after regeneration)
         if (!paymentInfo) {
             navigate('/');
-            return;
+            return; // Exit if there's no data
         }
 
-        // 1. Calculate initial time
+        // 1. Calculate and set the initial time
         const expiryDate = new Date(paymentInfo.expiryTime).getTime();
         const now = new Date().getTime();
         const initialTime = Math.floor((expiryDate - now) / 1000);
         setTimeLeft(initialTime > 0 ? initialTime : 0);
 
-        // 2. Setup the polling interval
+        // 2. Set up the countdown timer for the UI
+        countdownRef.current = setInterval(() => {
+            setTimeLeft(prevTime => {
+                if (prevTime <= 1) {
+                    clearInterval(countdownRef.current); // Stop countdown when it hits 0
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+
+        // 3. Set up the payment status poller
         const checkPaymentStatus = async () => {
+            // Stop polling if the component has already determined the QR is expired
+            if (new Date().getTime() > expiryDate) {
+                console.log("QR Code has expired. Stopping poller.");
+                clearInterval(pollerRef.current);
+                return;
+            }
+
             try {
                 const response = await fetch(`http://localhost:8080/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Polling Response:", data); // You will see this every 5 seconds
+
                     if (data.status === 'Paid') {
                         console.log("Payment confirmed!");
-                        clearCart();
-                        navigate('/success');
+                        const isBuyNow = location.state?.isBuyNow;
+                        if (!isBuyNow) {
+                            clearCart();
+                        }
+                        navigate('/success'); // Redirect on successful payment
                     }
                 }
             } catch (error) {
@@ -56,36 +77,17 @@ const Payment = () => {
         };
 
         // Start polling immediately and then every 5 seconds
-        checkPaymentStatus(); // Initial check
+        checkPaymentStatus().then();
         pollerRef.current = setInterval(checkPaymentStatus, 5000);
 
-        // 3. Cleanup function to stop polling when the component unmounts or paymentInfo changes
+        // 4. Cleanup function: this runs when the component unmounts or paymentInfo changes
         return () => {
-            if (pollerRef.current) {
-                clearInterval(pollerRef.current);
-            }
+            clearInterval(countdownRef.current);
+            clearInterval(pollerRef.current);
         };
-    }, [paymentInfo, clearCart, navigate]);
+    }, [paymentInfo, navigate, clearCart, location.state]);
 
 
-    // --- EFFECT FOR COUNTDOWN DISPLAY ---
-    useEffect(() => {
-        // If time runs out, stop the timers
-        if (timeLeft <= 0) {
-            if (pollerRef.current) clearInterval(pollerRef.current);
-            return;
-        }
-
-        // This timer just updates the UI every second
-        const countdownTimer = setInterval(() => {
-            setTimeLeft(prevTime => prevTime - 1);
-        }, 1000);
-
-        return () => clearInterval(countdownTimer);
-    }, [timeLeft]);
-
-
-    // --- HANDLER FUNCTIONS ---
     const handleRegenerateCode = async () => {
         setIsRegenerating(true);
         try {
@@ -93,11 +95,12 @@ const Payment = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData),
+                credentials: 'include'
             });
             if (!response.ok) throw new Error('Không thể tạo lại mã QR.');
 
             const newPaymentInfo = await response.json();
-            setPaymentInfo(newPaymentInfo); // This will trigger the main useEffect to restart the timer and polling
+            setPaymentInfo(newPaymentInfo); // This will trigger the main useEffect to restart everything
 
         } catch (err) {
             addNotification(err.message, 'error');
@@ -125,7 +128,7 @@ const Payment = () => {
                 </div>
                 <div className="info-section">
                     <div className={`timer ${isExpired ? 'expired-text' : ''}`}>
-                        {isExpired ? "Hết hạn" : formatTime(timeLeft)}
+                        {formatTime(timeLeft)}
                     </div>
                     {isExpired ? (
                         <div className="expired-actions">
@@ -142,7 +145,6 @@ const Payment = () => {
                                 <li>Vui lòng <strong>không thay đổi</strong> nội dung chuyển khoản.</li>
                                 <li>Bất kỳ giao dịch nào diễn ra sau thời gian quy định đều sẽ phải liên lạc với bộ phận chăm sóc khách hàng.</li>
                                 <li>Sau khi thanh toán vui lòng đợi, để hệ thống xác nhận đã thực hiện giao dịch.</li>
-                                <li>Đối với khách hàng không có tài khoản vui lòng minh chứng hóa đơn được gửi qua mail hoặc biên lai giao dịch của ngân hàng.</li>
                             </ol>
                         </>
                     )}

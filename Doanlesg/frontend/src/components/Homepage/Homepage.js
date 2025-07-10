@@ -68,7 +68,7 @@ export default function Homepage() {
           fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
           fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
           fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=4&page=0&size=50&sort=productName'),
-          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=50&sort=productName')
+          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=4&sort=productName')
         ]);
 
         const allData = await allRes.json();

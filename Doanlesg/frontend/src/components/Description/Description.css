@@ -132,13 +132,6 @@ body {
   padding: 0 30px;
 }
 
-/* Nút hành động */
-.action-buttons {
-  display: flex;
-  gap: 15px;
-  margin: 15px 0;
-}
-
 .buy-now,
 .add-to-cart {
   padding: 12px 24px;
@@ -303,4 +296,86 @@ body {
 
 .nav-button.next {
   right: 10px;
+}
+
+/* --- ACTION BUTTONS --- */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* ✅ NEW: A shared style for both buttons */
+.action-buttons .buy-now,
+.action-buttons .dole-add-to-cart-btn {
+  padding: 15px;
+  font-size: 1.1em;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid #1f3f32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Specific style for the "Buy Now" button */
+.action-buttons .buy-now {
+  background-color: #d87d4a;
+  color: white;
+  border-color: #d87d4a;
+}
+.action-buttons .buy-now:hover {
+  background-color: #c56b3a;
+}
+
+/* ✅ NEW: Specific style for the "Add to Cart" button */
+.action-buttons .dole-add-to-cart-btn {
+  background-color: #fff;
+  color: #1f3f32;
+}
+.action-buttons .dole-add-to-cart-btn:hover:not(:disabled) {
+  background-color: #1f3f32;
+  color: white;
+}
+
+/* This handles the success state of the AddToCartButton */
+.action-buttons .dole-add-to-cart-btn.success {
+  background-color: #28a745; /* Green for success */
+  border-color: #28a745;
+  color: white;
+}
+
+/* The wrapper div for the add to cart button */
+.add-to-cart-wrapper .dole-btn-wrapper {
+  width: 100%;
+  height: 100%;
+}
+.add-to-cart-wrapper .dole-add-to-cart-btn {
+  width: 100%;
+  height: 100%;
+}
+
+/* Spinner for loading state inside the button */
+.action-buttons .spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #1f3f32;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Icon inside the button */
+.action-buttons .cart-icon {
+  margin-left: 8px;
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
