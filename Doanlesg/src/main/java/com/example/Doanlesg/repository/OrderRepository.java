@@ -26,4 +26,13 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     void deleteOrderByCode(@NonNull String code);
 
     List<Order> findAllByAccountIdOrderByOrderDateDesc(Long accountId);
+
+    @Query("SELECT p.category.categoryName, SUM(oi.total) " +
+            "FROM Order o " +
+            "JOIN o.orderItems oi " +
+            "JOIN oi.product p " +
+            "JOIN p.category c " +
+//            "WHERE o.orderStatus = '' " + // Optional: Only count completed orders for revenue
+            "GROUP BY c.categoryName")
+    List<Object[]> getRevenueReportByCategory();
 }

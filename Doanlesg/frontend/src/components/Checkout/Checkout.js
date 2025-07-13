@@ -1,19 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // 1. Import useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Checkout.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartProvider";
 
+// Define a constant for the session storage key
+const IS_BUY_NOW_KEY = 'isBuyNowSession';
+
 export default function Checkout() {
   const navigate = useNavigate();
-  const location = useLocation(); // 2. Get the location object to access state
+  const location = useLocation();
 
   const { user, isLoading: isAuthLoading } = useAuth();
   const { cartItems: mainCartItems, loading: isCartLoading, clearCart } = useCart();
 
-  // --- 3. THIS IS THE KEY LOGIC FOR "BUY NOW" ---
-  // Decide which cart to use: the single "buy now" item or the main cart from the context.
+  // Determine if it's a "buy now" flow at the very beginning
   const buyNowCart = location.state?.buyNowCart;
+  const isBuyNowFlow = !!buyNowCart; // Convert to boolean for clarity
+
+  // IMPORTANT: This useEffect runs once when Checkout mounts.
+  // It ensures the 'isBuyNow' flag is saved to sessionStorage
+  // so the Payment component can retrieve it even after a refresh.
+  useEffect(() => {
+    sessionStorage.setItem(IS_BUY_NOW_KEY, JSON.stringify(isBuyNowFlow));
+
+    // Cleanup: When the Checkout component unmounts, remove the flag.
+    // This prevents stale 'isBuyNow' flags if the user navigates away from checkout.
+    return () => {
+      sessionStorage.removeItem(IS_BUY_NOW_KEY);
+    };
+  }, [isBuyNowFlow]); // Re-run if isBuyNowFlow somehow changes (unlikely here but good practice)
+
+
   const cartItems = buyNowCart || mainCartItems; // Prioritize the "buy now" item
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,19 +110,17 @@ export default function Checkout() {
         throw new Error(errorData.message);
       }
 
-      const isBuyNow = !!buyNowCart;
-
-      // --- 4. HANDLE DIFFERENT PAYMENT FLOWS ---
+      // Check the actual payment method from the form
       if (form.paymentMethod === 'transfer') {
-        // For Bank Transfer, go to the QR code payment page
         const paymentInfo = await response.json();
 
-        // Don't clear the cart yet, wait for payment confirmation
-        navigate("/payment", { state: { paymentInfo, orderData: checkoutRequest, isBuyNow } });
+        // Pass the isBuyNowFlow flag directly in state
+        // The Payment component will handle storing paymentInfo, orderData, AND isBuyNow from here.
+        navigate("/payment", { state: { paymentInfo, orderData: checkoutRequest, isBuyNow: isBuyNowFlow } });
       } else {
         // For Cash, go directly to the success page
         // Only clear the main cart if we weren't in a "buy now" flow
-        if (!buyNowCart) {
+        if (!isBuyNowFlow) { // Use the determined flag
           clearCart();
         }
         navigate("/success");

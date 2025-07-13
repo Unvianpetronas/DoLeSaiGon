@@ -1,5 +1,6 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.dto.AccountDisplayDTO;
 import com.example.Doanlesg.interal.PasswordEncoder;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
@@ -110,7 +111,7 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
     }
 
     public boolean validateNewAccount(String email){
-        return !accountRepository.existsByEmail(email);
+        return accountRepository.existsByEmail(email);
     }
 
 
@@ -118,7 +119,7 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
         // This returns false if the email is unchanged OR if it's taken by another user.
-        return !existingAccount.getEmail().equals(email) && !accountRepository.existsByEmail(email);
+        return !existingAccount.getEmail().equals(email) && accountRepository.existsByEmail(email);
     }
 
     /**
@@ -146,7 +147,11 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return accountRepository.findById(id).orElse(null);
     }
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    @Transactional // Use readOnly for performance
+    public List<AccountDisplayDTO> getAllAccountsAsDTO() {
+        return accountRepository.findAll()
+                .stream()
+                .map(AccountDisplayDTO::fromEntity) // Convert each Account to a DTO
+                .toList();
     }
 }

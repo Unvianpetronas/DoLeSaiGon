@@ -1,14 +1,17 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.dto.OrderSummaryDTO;
 import com.example.Doanlesg.model.Product;
 import com.example.Doanlesg.model.Order;
 import com.example.Doanlesg.repository.ProductRepository;
 import com.example.Doanlesg.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StaffServices {
@@ -50,8 +53,25 @@ public class StaffServices {
     }
 
     // Retrieve all orders
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    @Transactional(readOnly = true) // Good practice for read operations
+    public List<OrderSummaryDTO> getAllOrdersAsSummary() {
+        List<Order> orders = orderRepository.findAll(); // Fetch all orders
+
+        // Convert the list of Order entities into a list of OrderSummaryDTOs
+        return orders.stream()
+                .map(this::convertToSummaryDTO)
+                .toList();
+    }
+
+    // Helper method to perform the conversion
+    private OrderSummaryDTO convertToSummaryDTO(Order order) {
+        return new OrderSummaryDTO(
+                order.getId(),
+                order.getCode(),
+                order.getOrderDate(),
+                order.getTotalAmount(),
+                order.getOrderStatus()
+        );
     }
 
     // Search orders by order status or customer name

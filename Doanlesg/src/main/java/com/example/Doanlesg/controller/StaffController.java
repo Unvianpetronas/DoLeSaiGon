@@ -1,9 +1,9 @@
 package com.example.Doanlesg.controller;
 
-import com.example.Doanlesg.dto.AccountCustomerDTO;
-import com.example.Doanlesg.dto.AccountStaffDTO;
+import com.example.Doanlesg.dto.*;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.services.AccountServices;
+import com.example.Doanlesg.services.AdminService;
 import com.example.Doanlesg.services.StaffServices;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -33,10 +33,18 @@ public class StaffController {
     @Value("${product.images.path}")
     private String uploadDir;
 
-    @Autowired
-    private StaffServices staffServices;
-    @Autowired
-    private AccountServices accountServices; // Inject AccountServices
+    private final StaffServices staffServices;
+
+    private final AccountServices accountServices; // Inject AccountServices
+
+    private AdminService adminService;
+
+    public StaffController(StaffServices staffServices, AccountServices accountServices, AdminService adminService) {
+        this.staffServices = staffServices;
+        this.accountServices = accountServices;
+        this.adminService = adminService;
+    }
+
 
     // Helper to check authorization
     private Account getAuthorizedAccount(HttpSession session, String requiredRole) {
@@ -192,7 +200,9 @@ public class StaffController {
         if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(staffServices.getAllOrders());
+
+        List<OrderSummaryDTO> orders = staffServices.getAllOrdersAsSummary();
+        return ResponseEntity.ok(orders);
     }
 
     // ... (Apply the same pattern for searchOrders and getOrderDetails)
@@ -218,6 +228,12 @@ public class StaffController {
         }
     }
 
+    @GetMapping("/dashboard/stats")
+    public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
+        DashboardStatsDTO stats = adminService.getDashboardStatistics();
+        return ResponseEntity.ok(stats);
+    }
+
     // Copied from AuthController for role checking
     private List<String> getRolesForAccount(Account account) {
         List<String> roles = new ArrayList<>();
@@ -233,7 +249,8 @@ public class StaffController {
         if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        List<Account> accounts = accountServices.getAllAccounts();
+
+        List<AccountDisplayDTO> accounts = accountServices.getAllAccountsAsDTO();
         return ResponseEntity.ok(accounts);
     }
 

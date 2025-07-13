@@ -288,3 +288,45 @@ background-repeat: repeat;
 .account-dropdown .dropdown-content a:hover {
   background-color: #f0f0f0;
 }
+
+.warning-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff3cd; /* A standard warning yellow */
+  color: #856404; /* Dark text for contrast */
+  padding: 12px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid #ffeeba;
+  width: 100%;
+  box-sizing: border-box;
+  position: sticky; /* Make it stick to the top */
+  top: 0;
+  z-index: 9999; /* Ensure it's on top of everything */
+}
+
+.warning-banner p {
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.warning-banner strong {
+  font-weight: bold;
+}
+
+.close-banner-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #856404;
+  cursor: pointer;
+  padding: 0 0 0 15px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.close-banner-btn:hover {
+  opacity: 1;
+}

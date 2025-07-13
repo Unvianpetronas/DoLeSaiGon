@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Component
@@ -29,11 +31,16 @@ public class SingleQrCodePoller {
     }
 
     @Async
-    public void pollForPayment(String uniqueCode, LocalDateTime startTime) {
+    public void pollForPayment(String uniqueCode, OffsetDateTime startTimeUtc) {
         logger.info("[POLLER for {}] Starting polling task. Will check for 5 minutes.", uniqueCode);
-        LocalDateTime expiryTime = startTime.plusMinutes(5);
 
-        while (LocalDateTime.now().isBefore(expiryTime)) {
+        // Calculate expiry based on the received UTC start time
+        // The expiry time will also be in UTC
+        OffsetDateTime expiryTimeUtc = startTimeUtc.plusMinutes(5);
+
+        // Convert the current time to UTC for consistent comparison
+        // This is crucial to avoid timezone mismatches in the loop condition
+        while (OffsetDateTime.now(ZoneOffset.UTC).isBefore(expiryTimeUtc)) {
             boolean paymentFound = false;
 
             try {
@@ -43,15 +50,18 @@ public class SingleQrCodePoller {
                 }
 
                 logger.info("[POLLER for {}] Checking for payment...", uniqueCode);
-                TransactionResponseWrapper response = cassoService.getTransactionFiltered(1, 100, startTime).block();
+
+                LocalDateTime startTimeForCasso = startTimeUtc.toLocalDateTime(); // This is the LocalDateTime part of UTC OffsetDateTime
+
+                TransactionResponseWrapper response = cassoService.getTransactionFiltered(1, 100, startTimeForCasso).block();
 
                 if ((response != null) && (response.getError() == 0) && (response.getData() != null)) {
                     for (TransactionRecordDTO record : response.getData().getRecords()) {
+                        // Ensure record.getCreatedAt() is also handled consistently (e.g., convert to UTC)
+                        // If record.getDescription() contains uniqueCode, that's fine for matching
                         if (record.getDescription() != null && record.getDescription().contains(uniqueCode)) {
                             logger.info("✅✅✅ [POLLER for {}] PAYMENT FOUND! ID: {}, Amount: {}",
                                     uniqueCode, record.getId(), record.getAmount());
-
-                            //TODO: Thuc hien gui direct den /send-invoice.
 
                             orderService.processPaidOrder(uniqueCode);
                             paymentFound = true;
@@ -75,10 +85,12 @@ public class SingleQrCodePoller {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.error("[POLLER for {}] Polling task was interrupted.", uniqueCode, e);
+                // Propagate the interrupt if needed, or re-throw as a custom runtime exception
             }
         }
 
-        logger.warn("[POLLER for {}] 5 minutes have passed. Code expired.", uniqueCode);
+        // If the loop finishes without finding payment, log that it timed out
+        logger.info("[POLLER for {}] Polling task completed without finding payment (timed out).", uniqueCode);
         qrCodeManager.markAsExpired(uniqueCode);
     }
 }

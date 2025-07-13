@@ -1,5 +1,6 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.model.Order;
 import com.example.Doanlesg.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,22 +41,31 @@ public class QRCodeManagermentService {
 
 
     public PaymentInfo getPaymentInfo() {
-        return new PaymentInfo(generateCode(), "", LocalDateTime.now());
+        return new PaymentInfo(generateCode(), "", OffsetDateTime.now());
     }
 
     public PaymentInfo trackCode(BigDecimal amount) {
         String uniqueCode = generateCode();
 
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime expiryTime = startTime.plusMinutes(5);
+        // 1. Get current time in UTC
+        Instant now = Instant.now();
 
-        activeCodes.put(uniqueCode, expiryTime);
-        logger.info("Generated new QR Code: {}. It will expire at {}.", uniqueCode, expiryTime);
+        // 2. Calculate expiry in UTC
+        Instant expiryInstant = now.plus(5, ChronoUnit.MINUTES);
 
-        poller.pollForPayment(uniqueCode, startTime);
+        // 3. Create OffsetDateTime objects in UTC for external communication/storage
+        OffsetDateTime expiryOffsetDateTimeUtc = expiryInstant.atOffset(ZoneOffset.UTC);
+        OffsetDateTime startOffsetDateTimeUtc = now.atOffset(ZoneOffset.UTC);
+
+        activeCodes.put(uniqueCode, LocalDateTime.ofInstant(expiryInstant, ZoneOffset.UTC));
+
+        logger.info("Generated new QR Code: {}. It will expire at {} (UTC).", uniqueCode, expiryOffsetDateTimeUtc);
+
+        poller.pollForPayment(uniqueCode, startOffsetDateTimeUtc);
 
         String qrUrl = vietQRService.generateQrCodeUrl(amount, uniqueCode);
-        return new PaymentInfo(uniqueCode, qrUrl, expiryTime);
+
+        return new PaymentInfo(uniqueCode, qrUrl, expiryOffsetDateTimeUtc);
     }
 
     public boolean isCodeActive(String code) {
@@ -66,22 +80,18 @@ public class QRCodeManagermentService {
         }
     }
 
-    @Transactional
+    @Transactional // This annotation is still crucial
     public void markAsExpired(String code) {
-        // First, remove the code from the active tracking map to stop polling.
-        if (activeCodes.remove(code) != null) {
-            logger.warn("Code {} has been marked as EXPIRED and removed from tracking.", code);
+        // 1. Find the Order by its unique code.
+        // You will need to add this 'findByCode' method to your OrderRepository interface.
+        Order orderToExpire = orderRepository.findByCode(code)
+                .orElse(null); // Use orElse(null) to handle cases where the order might already be deleted.
 
-            orderRepository.findByCode(code).ifPresent(order -> {
-                if ("Pending".equalsIgnoreCase(order.getOrderStatus())) {
-                    orderRepository.delete(order);
-                    logger.info("Expired order with code {} has been deleted.", code);
-                } else {
-                    logger.info("Order with code {} expired but was already paid or processed. No action taken.", code);
-                }
-            });
+        // 2. If the order exists, delete it.
+        if (orderToExpire != null) {
+            orderRepository.delete(orderToExpire);
         }
     }
 
-    public record PaymentInfo(String uniqueCode, String qrUrl, LocalDateTime expiryTime) {}
+    public record PaymentInfo(String uniqueCode, String qrUrl, OffsetDateTime expiryTime) {}
 }

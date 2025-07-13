@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 
 // --- IMPORTS FROM BOTH FILES ---
+import { useState } from "react";
 import { useParams } from 'react-router-dom';
 import { BrowserRouter as Router, Route, Routes, Link, Outlet} from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
@@ -48,6 +49,28 @@ import CustomersManagement from './managements/CustomersManagement/CustomersMana
 
 // --- LAYOUT COMPONENTS ---
 
+function WarningBanner() {
+  // Use state to manage whether the banner is visible or not
+  const [isVisible, setIsVisible] = useState(true);
+
+  // If the banner is not visible, render nothing
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <div className="warning-banner">
+      <p>
+        <strong>Lưu ý:</strong> Đây là dự án sinh viên, không phải là một trang web thương mại. Vui lòng không thực hiện giao dịch mua bán trên trang này.
+      </p>
+      {/* Add a button to allow users to close the banner */}
+      <button className="close-banner-btn" onClick={() => setIsVisible(false)}>
+        &times;
+      </button>
+    </div>
+  );
+}
+
 function MainLayout({ label, children }) {
     return (
         <>
@@ -85,44 +108,47 @@ function App() {
         <NotificationProvider>
             <AuthProvider>
                 <Router>
-                    <Routes>
-                        {/* --- Customer Routes with Breadcrumb --- */}
-                        <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
-                        <Route path="/contact" element={<MainLayout label="Liên hệ"><Contact /></MainLayout>} />
-                        <Route path="/products" element={<MainLayout label="Sản phẩm"><Products /></MainLayout>} />
-                        <Route path="/introduction" element={<MainLayout label="Giới thiệu"><Introduction /></MainLayout>} />
-                        <Route path="/checkout" element={<MainLayout label="Thanh toán"><Checkout /></MainLayout>} />
-                        <Route path="/payment" element={<MainLayout label="Thanh toán đơn hàng"><Payment /></MainLayout>} />
-                        <Route path="/success" element={<MainLayout label="Đặt hàng thành công"><Success /></MainLayout>} />
-                        <Route path="/details/:orderId" element={<MainLayout label="Chi tiết đơn hàng"><Details /></MainLayout>} />
-                        <Route path="/shop" element={<MainLayout label="Hệ thống cửa hàng"><Shop /></MainLayout>} />
-                        <Route path="/like" element={<MainLayout label="Yêu thích"><Like /></MainLayout>} />
-                        <Route path="/orderpage" element={<MainLayout label="Đơn hàng"><OrderPage /></MainLayout>} />
-                        <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
-                        <Route path="/policy/:policyType" element={<PolicyWrapper />} />
+                    <div className="app">
+                        <WarningBanner/>
+                        <Routes>
+                            {/* --- Customer Routes with Breadcrumb --- */}
+                            <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
+                            <Route path="/contact" element={<MainLayout label="Liên hệ"><Contact /></MainLayout>} />
+                            <Route path="/products" element={<MainLayout label="Sản phẩm"><Products /></MainLayout>} />
+                            <Route path="/introduction" element={<MainLayout label="Giới thiệu"><Introduction /></MainLayout>} />
+                            <Route path="/checkout" element={<MainLayout label="Thanh toán"><Checkout /></MainLayout>} />
+                            <Route path="/payment" element={<MainLayout label="Thanh toán đơn hàng"><Payment /></MainLayout>} />
+                            <Route path="/success" element={<MainLayout label="Đặt hàng thành công"><Success /></MainLayout>} />
+                            <Route path="/details/:orderId" element={<MainLayout label="Chi tiết đơn hàng"><Details /></MainLayout>} />
+                            <Route path="/shop" element={<MainLayout label="Hệ thống cửa hàng"><Shop /></MainLayout>} />
+                            <Route path="/like" element={<MainLayout label="Yêu thích"><Like /></MainLayout>} />
+                            <Route path="/orderpage" element={<MainLayout label="Đơn hàng"><OrderPage /></MainLayout>} />
+                            <Route path="/category/:categorySlug" element={<CategoryWrapper />} />
+                            <Route path="/policy/:policyType" element={<PolicyWrapper />} />
 
-                        {/* --- Customer Routes without Breadcrumb --- */}
-                        <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
-                        <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
-                        <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
-                        <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
-                        <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
+                            {/* --- Customer Routes without Breadcrumb --- */}
+                            <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
+                            <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
+                            <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
+                            <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
+                            <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
 
-                        {/* --- Admin Routes with Admin Layout --- */}
-                        <Route path="/admin" element={<AdminLayout />}>
-                            {/* Redirect /admin to /admin/dashboard might be needed */}
-                            {/* <Route index element={<Navigate to="dashboard" />} /> */}
-                            <Route path="dashboard" element={<AdminDashboard />} />
-                            <Route path="products" element={<ProductsManagement />} />
-                            <Route path="create" element={<CreateProducts />} />
-                            <Route path="orders" element={<OrdersManagement />} />
-                            <Route path="edit/:id" element={<EditProducts />} />
-                            <Route path="warehouse" element={<WarehouseManagement />} />
-                            <Route path="delivery" element={<DeliveryManagement />} />
-                            <Route path="staff" element={<StaffsManagement />} />
-                            <Route path="customer" element={<CustomersManagement />} />
-                        </Route>
-                    </Routes>
+                            {/* --- Admin Routes with Admin Layout --- */}
+                            <Route path="/admin" element={<AdminLayout />}>
+                                {/* Redirect /admin to /admin/dashboard might be needed */}
+                                {/* <Route index element={<Navigate to="dashboard" />} /> */}
+                                <Route path="dashboard" element={<AdminDashboard />} />
+                                <Route path="products" element={<ProductsManagement />} />
+                                <Route path="create" element={<CreateProducts />} />
+                                <Route path="orders" element={<OrdersManagement />} />
+                                <Route path="edit/:id" element={<EditProducts />} />
+                                <Route path="warehouse" element={<WarehouseManagement />} />
+                                <Route path="delivery" element={<DeliveryManagement />} />
+                                <Route path="staff" element={<StaffsManagement />} />
+                                <Route path="customer" element={<CustomersManagement />} />
+                            </Route>
+                        </Routes>
+                    </div>
                 </Router>
             </AuthProvider>
         </NotificationProvider>
