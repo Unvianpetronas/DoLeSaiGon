@@ -1,5 +1,6 @@
 package com.example.Doanlesg.services;
 
+import com.example.Doanlesg.dto.OrderManagementDTO;
 import com.example.Doanlesg.dto.OrderSummaryDTO;
 import com.example.Doanlesg.model.Product;
 import com.example.Doanlesg.model.Order;
@@ -90,5 +91,26 @@ public class StaffServices {
     // Find product by ID
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderManagementDTO> getAllOrdersForManagement() {
+        return orderRepository.findAllByOrderByOrderDateDesc().stream()
+                .map((Object order) -> OrderManagementDTO.fromEntity((Order) order))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * ✅ This new method handles updating the order status.
+     */
+    @Transactional
+    public boolean updateOrderStatus(Integer orderId, String newStatus) {
+        return orderRepository.findById(orderId)
+                .map(order -> {
+                    order.setOrderStatus(newStatus);
+                    // No need to call .save() due to @Transactional
+                    return true;
+                })
+                .orElse(false);
     }
 }

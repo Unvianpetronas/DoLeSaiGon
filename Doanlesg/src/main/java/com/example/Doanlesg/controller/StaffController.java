@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -200,8 +201,7 @@ public class StaffController {
         if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-
-        List<OrderSummaryDTO> orders = staffServices.getAllOrdersAsSummary();
+        List<OrderManagementDTO> orders = staffServices.getAllOrdersForManagement();
         return ResponseEntity.ok(orders);
     }
 
@@ -223,6 +223,29 @@ public class StaffController {
         Order order = staffServices.getOrderDetails(id);
         if (order != null) {
             return ResponseEntity.ok(order);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/orders/{id}/status")
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> payload,
+            HttpSession session) {
+
+        if (getStaffOrAdmin(session) == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+
+        String newStatus = payload.get("status");
+        if (newStatus == null || newStatus.isBlank()) {
+            return ResponseEntity.badRequest().body("Trạng thái mới không được để trống.");
+        }
+
+        boolean success = staffServices.updateOrderStatus(id, newStatus);
+        if (success) {
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }

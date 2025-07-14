@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +36,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 //            "WHERE o.orderStatus = '' " + // Optional: Only count completed orders for revenue
             "GROUP BY c.categoryName")
     List<Object[]> getRevenueReportByCategory();
+
+    Collection<Object> findAllByOrderByOrderDateDesc();
 }

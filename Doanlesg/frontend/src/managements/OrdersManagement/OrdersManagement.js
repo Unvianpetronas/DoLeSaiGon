@@ -1,160 +1,172 @@
 import React, { useState, useEffect } from 'react';
 import './OrdersManagement.css';
 import { CiSearch } from 'react-icons/ci';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+
+const statusDisplayMap = {
+  'Pending': 'Đang chuẩn bị',
+  'Paid': 'Đang chuẩn bị',
+  'Cash': 'Đang chuẩn bị',
+  'Shipping': 'Đang giao',
+  'Complete': 'Đã nhận',
+  'Cancel': 'Đã hủy'
+};
+
+// Define the options for the dropdown menu
+const statusOptions = [
+  { value: 'Pending', label: 'Pending' },
+  { value: 'Paid', label: 'Paid' },
+  { value: 'Cash', label: 'Cash' },
+  { value: 'Shipping', label: 'Shipping' },
+  { value: 'Complete', label: 'Complete' },
+  { value: 'Cancel', label: 'Cancel' }
+];
 
 const OrdersManagement = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { addNotification } = useNotification();
 
-  // ✅ Gọi API lấy toàn bộ đơn hàng
-  const fetchAllOrders = async () => {
-    setLoading(true);
-    setErrorMessage('');
-    try {
-      const res = await fetch('http://localhost:8080/api/ver0.0.1/staff/orders', {
-        method: 'GET',
-        credentials: 'include',
-      });
+  // ✅ NEW: State to track which order is being edited
+  const [editingOrderId, setEditingOrderId] = useState(null);
 
-      if (res.status === 403) {
-        throw new Error('Bạn không có quyền truy cập.');
-      }
-
-      const data = await res.json();
-      setOrders(data);
-    } catch (err) {
-      setErrorMessage(err.message || 'Lỗi khi tải đơn hàng.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ Gọi API tìm kiếm đơn hàng
-  const handleSearch = async () => {
-    if (!searchKeyword.trim()) {
-      fetchAllOrders();
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (!user) {
+      addNotification('Vui lòng đăng nhập để truy cập.', 'error');
       return;
     }
 
-    setLoading(true);
-    setErrorMessage('');
-    try {
-      const res = await fetch(
-        `http://localhost:8080/staff/orders/search?keyword=${encodeURIComponent(searchKeyword)}`,
-        {
-          method: 'GET',
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('http://localhost:8080/api/ver0.0.1/staff/orders', {
           credentials: 'include',
-        }
-      );
-
-      if (res.status === 403) {
-        throw new Error('Bạn không có quyền tìm kiếm.');
+        });
+        if (!res.ok) throw new Error('Không thể tải đơn hàng.');
+        const data = await res.json();
+        setOrders(data);
+      } catch (err) {
+        addNotification(err.message, 'error');
+      } finally {
+        setLoading(false);
       }
+    };
+    fetchOrders();
+  }, [user, isAuthLoading, addNotification]);
 
-      const data = await res.json();
-      setOrders(data);
-    } catch (err) {
-      setErrorMessage(err.message || 'Lỗi khi tìm kiếm đơn hàng.');
-    } finally {
-      setLoading(false);
+  const handleStatusChange = async (id, newStatus) => {
+    const originalOrders = [...orders];
+    setOrders(prevOrders =>
+        prevOrders.map(order =>
+            order.id === id ? { ...order, orderStatus: newStatus } : order
+        )
+    );
+    // Exit edit mode immediately after selection
+    setEditingOrderId(null);
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/orders/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Cập nhật trạng thái thất bại.');
+      }
+      addNotification('Cập nhật trạng thái thành công!', 'success');
+    } catch (error) {
+      addNotification(error.message, 'error');
+      setOrders(originalOrders); // Revert on error
     }
   };
 
-  // ✅ Load ngay khi mở trang
-  useEffect(() => {
-    fetchAllOrders();
-  }, []);
+  const filteredOrders = orders.filter(order =>
+      order.orderCode?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+      order.receiverFullName?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+      order.receiverPhoneNumber?.includes(searchKeyword)
+  );
 
-  // ✅ Cập nhật trạng thái local
-  const handleStatusChange = (id, newStatus) => {
-    const updated = orders.map((order) =>
-      order.id === id ? { ...order, status: newStatus } : order
-    );
-    setOrders(updated);
-  };
+  if (loading) return <p>⏳ Đang tải dữ liệu...</p>;
 
   return (
-    <div className="orders-page">
-      <h2>Danh Sách Đơn Hàng</h2>
-
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Tìm kiếm theo mã, tên, SĐT..."
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <button onClick={handleSearch}>
-          <CiSearch size={20} />
-        </button>
-      </div>
-
-      {loading ? (
-        <p>⏳ Đang tải dữ liệu...</p>
-      ) : errorMessage ? (
-        <p style={{ color: 'red', marginTop: '12px' }}>❌ {errorMessage}</p>
-      ) : (
+      <div className="orders-page">
+        <h2>Danh Sách Đơn Hàng</h2>
+        <div className="search-bar">
+          <input
+              type="text"
+              placeholder="Tìm kiếm theo mã, tên, SĐT..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+          <button><CiSearch size={20} /></button>
+        </div>
         <div className="orders-table-wrapper">
           <table className="orders-table">
             <thead>
-              <tr>
-                <th>Mã đơn hàng</th>
-                <th>Mã khách hàng</th>
-                <th>Tên khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Ngày đặt</th>
-                <th>Tổng thanh toán</th>
-                <th>Phương thức nhận</th>
-                <th>Trạng thái đơn</th>
-              </tr>
+            <tr>
+              <th>Mã đơn hàng</th>
+              <th>Tên khách hàng</th>
+              <th>Số điện thoại</th>
+              <th>Địa chỉ</th>
+              <th>Ngày đặt</th>
+              <th>Tổng thanh toán</th>
+              <th>Vận chuyển</th>
+              <th>Trạng thái</th>
+            </tr>
             </thead>
             <tbody>
-              {orders.length > 0 ? (
-                orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{order.id}</td>
-                    <td>{order.customer?.id || 'N/A'}</td>
-                    <td>{order.customer?.fullName || 'Chưa rõ'}</td>
-                    <td>{order.customer?.phoneNumber || 'N/A'}</td>
-                    <td>{order.address || 'N/A'}</td>
-                    <td>{order.date || 'N/A'}</td>
-                    <td>{order.total || 'N/A'}</td>
-                    <td>{order.receiveMethod || 'N/A'}</td>
-                    <td>
-                      <select
-                        className={`status-select ${
-                          order.status === 'Đang chuẩn bị'
-                            ? 'prepare'
-                            : order.status === 'Đang giao'
-                            ? 'shipping'
-                            : 'delivered'
-                        }`}
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      >
-                        <option value="Đang chuẩn bị">Đang chuẩn bị</option>
-                        <option value="Đang giao">Đang giao</option>
-                        <option value="Đã giao">Đã giao</option>
-                      </select>
-                    </td>
-                  </tr>
+            {filteredOrders.length > 0 ? (
+                filteredOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td>{order.orderCode}</td>
+                      <td>{order.receiverFullName}</td>
+                      <td>{order.receiverPhoneNumber}</td>
+                      <td>{order.fullShippingAddress}</td>
+                      <td>{new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
+                      <td>{order.totalAmount.toLocaleString()}₫</td>
+                      <td>{order.shippingMethodName}</td>
+                      <td>
+                        {/* ✅ FIX: Conditionally render a dropdown or a chip */}
+                        {editingOrderId === order.id ? (
+                            <select
+                                className="status-select-inline"
+                                value={order.orderStatus}
+                                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                onBlur={() => setEditingOrderId(null)} // Exit edit mode when clicking away
+                                autoFocus // Automatically focus the dropdown
+                            >
+                              {statusOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                        ) : (
+                            <div
+                                className={`order-status-chip status-${order.orderStatus?.toLowerCase()}`}
+                                onClick={() => setEditingOrderId(order.id)} // Enter edit mode on click
+                                title="Click để thay đổi"
+                            >
+                              {statusDisplayMap[order.orderStatus] || order.orderStatus}
+                            </div>
+                        )}
+                      </td>
+                    </tr>
                 ))
-              ) : (
+            ) : (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center', padding: '16px' }}>
+                  <td colSpan="8" style={{ textAlign: 'center', padding: '16px' }}>
                     Không có đơn hàng nào.
                   </td>
                 </tr>
-              )}
+            )}
             </tbody>
           </table>
         </div>
-      )}
-    </div>
+      </div>
   );
 };
 

@@ -59,3 +59,37 @@
 .status-select.delivered {
   color: #389e0d;             /* xanh lá */
 }
+
+.order-status-chip {
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-weight: bold;
+  color: white;
+  font-size: 0.85em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer; /* Make it look clickable */
+  transition: transform 0.2s ease;
+}
+
+.order-status-chip:hover {
+  transform: scale(1.05);
+}
+
+/* Color mapping for statuses */
+.status-complete { background-color: #28a745; }
+.status-paid { background-color: #28a745; }
+.status-pending, .status-cash { background-color: #ffc107; color: #333; }
+.status-shipping { background-color: #17a2b8; }
+.status-cancel { background-color: #dc3545; }
+
+/* Style for the inline dropdown */
+.status-select-inline {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #1f3f32;
+  font-weight: bold;
+  font-family: inherit;
+  font-size: 0.9em;
+}
