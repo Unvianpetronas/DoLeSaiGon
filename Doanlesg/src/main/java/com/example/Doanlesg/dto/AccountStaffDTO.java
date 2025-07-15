@@ -2,7 +2,13 @@ package com.example.Doanlesg.dto;
 
 import com.example.Doanlesg.model.Account;
 import com.example.Doanlesg.model.Staff;
+import lombok.*;
 
+@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountStaffDTO {
     private Account account;
     private Staff staff;
@@ -30,6 +36,30 @@ public class AccountStaffDTO {
     public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
+
+    public static AccountStaffDTO fromEntity(Account account) {
+        AccountStaffDTO dto = new AccountStaffDTO();
+        dto.setAccount(account);
+
+        dto.setEmail(account.getEmail());
+        dto.setFullName(account.getFullName());
+        dto.setPhoneNumber(account.getPhoneNumber());
+        if (account.getStaff() != null) {
+            dto.setEmployeeId(account.getStaff().getEmployeeId());
+            dto.setDepartment(account.getStaff().getDepartment());
+        } else {
+            return new AccountStaffDTO();
+        }
+        dto.setPassword("*************************");
+        account.setPasswordHash("****************");
+
+        if (account.getStaff() != null) {
+            dto.setStaff(account.getStaff());
+            dto.setFullName(account.getStaff().getFullName());
+            dto.setPhoneNumber(account.getStaff().getPhoneNumber());
+        }
+        return dto;
+    }
 
 }
 

@@ -2,9 +2,7 @@ package com.example.Doanlesg.controller;
 
 import com.example.Doanlesg.dto.*;
 import com.example.Doanlesg.model.*;
-import com.example.Doanlesg.services.AccountServices;
-import com.example.Doanlesg.services.AdminService;
-import com.example.Doanlesg.services.StaffServices;
+import com.example.Doanlesg.services.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,28 +20,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/staff")
 public class StaffController {
 
-    @Value("${product.images.path}")
-    private String uploadDir;
+    private static final String ADMIN_ROLE = "ROLE_ADMIN";
+    private static final String STAFF_ROLE = "ROLE_STAFF";
+
+    private final ProductService productService;
 
     private final StaffServices staffServices;
 
     private final AccountServices accountServices; // Inject AccountServices
 
-    private AdminService adminService;
+    private final AdminService adminService;
 
-    public StaffController(StaffServices staffServices, AccountServices accountServices, AdminService adminService) {
+    private final CategoryService categoryService;
+
+    public StaffController(StaffServices staffServices, AccountServices accountServices, AdminService adminService, CategoryService categoryService, ProductService productService) {
         this.staffServices = staffServices;
         this.accountServices = accountServices;
         this.adminService = adminService;
+        this.categoryService = categoryService;
+        this.productService = productService;
     }
 
 
@@ -66,10 +67,10 @@ public class StaffController {
 
     // Helper to check if user is either staff or admin
     private Account getStaffOrAdmin(HttpSession session) {
-        Account account = getAuthorizedAccount(session, "ROLE_STAFF");
+        Account account = getAuthorizedAccount(session, STAFF_ROLE);
         if (account == null) {
             // If not staff, check if admin
-            account = getAuthorizedAccount(session, "ROLE_ADMIN");
+            account = getAuthorizedAccount(session, ADMIN_ROLE);
         }
         return account;
     }
@@ -114,65 +115,50 @@ public class StaffController {
     //Create product
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(
-            @RequestPart("product") Product product,
-            @RequestPart("image") MultipartFile imageFile,
+            @RequestPart("product") ProductDTO productDTO,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
             HttpSession session) {
 
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
-            return new ResponseEntity<>("Truy cập bị từ chối. Chỉ quản trị viên mới có thể tạo sản phẩm.", HttpStatus.FORBIDDEN);
+        // Authorization check
+        if (getStaffOrAdmin(session) == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
         try {
-            // Sanitize product name to use as filename
-            String fileName = getImageName(product, imageFile);
-            Path filePath = Paths.get(this.uploadDir, fileName);
+            // Single, clean call to the service layer, passing both data and file
+            Product createdProduct = staffServices.createProductWithImage(productDTO, imageFile);
+            return ResponseEntity.ok(createdProduct);
 
-            // Save the image file
-            Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            return ResponseEntity.ok(staffServices.createProduct(product));
-
-        } catch (IOException e) {
-            return new ResponseEntity<>("Lỗi khi lưu ảnh sản phẩm.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            // Catch any errors thrown by the service (e.g., upload failure, database error)
+            return new ResponseEntity<>("Lỗi khi tạo sản phẩm: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    //Helper function to generate image name
-    private static String getImageName(Product product, MultipartFile imageFile) {
-        String rawName = Optional.ofNullable(product.getProductName()).orElse("image");
-        String safeName = rawName
-                .toLowerCase()
-                .replaceAll("[^a-z0-9]", "") // remove special chars
-                .replaceAll("\\s+", "");     // remove whitespace
-
-        // Extract file extension
-        String originalName = imageFile.getOriginalFilename();
-        String extension = "";
-        if (originalName != null && originalName.contains(".")) {
-            extension = originalName.substring(originalName.lastIndexOf('.'));
-        }
-
-        // Combine into final filename
-        String fileName = safeName + extension;
-        return fileName;
     }
 
     //Update product
-    @PutMapping("/products/{id}")
-    @Transactional
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product, HttpSession session) {
+    @PutMapping(value = "/products/{id}", consumes = { "multipart/form-data" })
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Long id,
+            @RequestPart("product") ProductDTO productDTO, // Maps the 'product' JSON part to the DTO
+            @RequestPart(value = "image", required = false) MultipartFile image, // Maps the optional 'image' file part
+            HttpSession session
+    ) {
         Account account = getStaffOrAdmin(session);
         if (account == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.of(staffServices.updateProduct(id, product));
+
+        // You will now need to pass the image file to your service layer
+        return staffServices.updateProduct(id, productDTO, image)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     //Delete product
     @DeleteMapping("/products/{id}")
     @Transactional
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) { // Only ADMIN can delete
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) { // Only ADMIN can delete
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         staffServices.deleteProduct(id);
@@ -187,7 +173,7 @@ public class StaffController {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        Optional<Product> product = staffServices.getProductById(id);
+        Optional<ProductDTO> product = Optional.ofNullable(productService.findById(id));
         if (product.isPresent()) {
             return ResponseEntity.ok(product.get());
         } else {
@@ -260,8 +246,8 @@ public class StaffController {
     // Copied from AuthController for role checking
     private List<String> getRolesForAccount(Account account) {
         List<String> roles = new ArrayList<>();
-        if (account.getAdmin() != null) roles.add("ROLE_ADMIN");
-        if (account.getStaff() != null) roles.add("ROLE_STAFF");
+        if (account.getAdmin() != null) roles.add(ADMIN_ROLE);
+        if (account.getStaff() != null) roles.add(STAFF_ROLE);
         if (account.getCustomer() != null) roles.add("ROLE_CUSTOMER");
         return roles;
     }
@@ -269,7 +255,7 @@ public class StaffController {
     // Get all accounts - for admin view
     @GetMapping("/accounts")
     public ResponseEntity<?> getAllAccounts(HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
@@ -280,7 +266,7 @@ public class StaffController {
     // Get account by ID
     @GetMapping("/accounts/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable Long id, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         Account account = accountServices.findById(id);
@@ -290,10 +276,19 @@ public class StaffController {
         return ResponseEntity.ok(account);
     }
 
+    @GetMapping("/accounts/staff")
+    public ResponseEntity<?> getStaffAccounts(HttpSession session) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
+        List<AccountStaffDTO> accounts = accountServices.getAllStaff();
+        return ResponseEntity.ok(accounts);
+    }
+
     // Create new customer account
     @PostMapping("/accounts/new-customer")
     public ResponseEntity<?> createCustomerAccount(@RequestBody AccountCustomerDTO request, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
@@ -318,7 +313,7 @@ public class StaffController {
     // Create new staff account
     @PostMapping("/accounts/new-staff")
     public ResponseEntity<?> createStaffAccount(@RequestBody AccountStaffDTO request, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
@@ -345,7 +340,7 @@ public class StaffController {
     // Update existing customer account
     @PutMapping("/accounts/customer-{id}")
     public ResponseEntity<?> updateCustomerAccount(@PathVariable Long id, @RequestBody AccountCustomerDTO request, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
@@ -360,7 +355,7 @@ public class StaffController {
     // Update existing staff account
     @PutMapping("/accounts/staff-{id}")
     public ResponseEntity<?> updateStaffAccount(@PathVariable Long id, @RequestBody AccountStaffDTO request, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
@@ -375,7 +370,7 @@ public class StaffController {
     // Delete account
     @DeleteMapping("/accounts/{id}")
     public ResponseEntity<?> deleteAccount(@PathVariable Long id, HttpSession session) {
-        if (getAuthorizedAccount(session, "ROLE_ADMIN") == null) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
         Account account = accountServices.findById(id);
@@ -390,4 +385,8 @@ public class StaffController {
         }
     }
     
+    @GetMapping("/categories")
+    public ResponseEntity<?> getCategories(HttpSession session) {
+        return ResponseEntity.ok(categoryService.getAll());
+    }
 }

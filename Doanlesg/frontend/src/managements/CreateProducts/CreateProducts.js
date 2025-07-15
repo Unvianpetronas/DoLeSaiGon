@@ -40,7 +40,7 @@ export default function CreateProduct() {
     const fetchCategories = async () => {
       try {
         // It's better to have a dedicated API for categories, but this works for now.
-        const res = await fetch('http://localhost:8080/api/ver0.0.1/categories'); // Assuming you have a categories endpoint
+        const res = await fetch('http://localhost:8080/api/ver0.0.1/staff/categories'); // Assuming you have a categories endpoint
         if (!res.ok) throw new Error('Could not fetch categories');
         const data = await res.json();
         setCategories(data || []);
@@ -74,7 +74,7 @@ export default function CreateProduct() {
     // 3. Build the Product object to match the backend entity
     const productData = {
       productName: product.productName,
-      quantity: parseInt(product.stockQuantity, 10) || 0,
+      stockQuantity: parseInt(product.stockQuantity, 10) || 0,
       status: product.status === 'true', // Convert string "true"/"false" to boolean
       price: parseFloat(product.price) || 0,
       shortDescription: product.shortDescription,
@@ -168,7 +168,7 @@ export default function CreateProduct() {
             </div>
             <div className="form-group">
               <label>Ảnh sản phẩm</label>
-              <input type="file" name="image" onChange={handleChange} required />
+              <input type="file" name="image" onChange={handleChange} />
               <div className="image-preview">
                 {imagePreview ? (
                     <img src={imagePreview} alt="Xem trước" />

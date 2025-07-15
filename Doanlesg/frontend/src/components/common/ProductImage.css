@@ -1,0 +1,24 @@
+.product-image-container {
+    width: 60px;          /* Set a fixed width */
+    height: 60px;         /* Set a fixed height to match the width */
+    border-radius: 8px;   /* Give it slightly rounded corners */
+    background-color: #f0f2f5; /* A light grey background for the placeholder */
+    display: flex;        /* Use flexbox to easily center the content */
+    align-items: center;  /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    overflow: hidden;     /* Hide any parts of the image that overflow the container */
+    margin: auto;         /* Center the container itself within the table cell */
+}
+
+/* 2. Style for the actual <img> tag */
+.product-image-container .product-image {
+    width: 100%;          /* Make the image fill the container's width */
+    height: 100%;         /* Make the image fill the container's height */
+    object-fit: cover;    /* Important: Scales the image to cover the container without distortion */
+}
+
+/* 3. Style for the "no-image" 🚫 placeholder */
+.product-image-container .no-image {
+    font-size: 24px;      /* Make the emoji icon larger */
+    color: #a0a0a0;       /* A muted color for the icon */
+}

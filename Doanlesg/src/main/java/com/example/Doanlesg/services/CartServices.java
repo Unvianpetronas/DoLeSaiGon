@@ -75,7 +75,7 @@ public class CartServices {
     }
 
     @Transactional
-    public void RemoveItemFromCart(Long cartId, Long productid){
+    public void removeItemFromCart(Long cartId, Long productid){
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new EntityNotFoundException("không tìm thấy giỏ hàng"));
             CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productid);
             if(cartItem != null){

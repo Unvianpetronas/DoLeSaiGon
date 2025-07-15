@@ -4,6 +4,7 @@ import { FaHeart } from 'react-icons/fa';
 import './Products.css';
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
+import ProductImage from '../common/ProductImage'; // Import the ProductImage component
 
 const ProductsPage = () => {
   const { categorySlug } = useParams();
@@ -12,8 +13,6 @@ const ProductsPage = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-
-
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,7 +26,6 @@ const ProductsPage = () => {
     };
     fetchProducts();
   }, []);
-
 
   const addToCart = (item) => {
     alert(`Đã thêm "${item.productName}" vào giỏ hàng!`);
@@ -47,8 +45,8 @@ const ProductsPage = () => {
   const subCategories = [...new Set(products.map(getSubCategoryName))];
 
   const filtered = selectedSubCategory
-    ? products.filter((p) => getSubCategoryName(p) === selectedSubCategory)
-    : products;
+      ? products.filter((p) => getSubCategoryName(p) === selectedSubCategory)
+      : products;
 
   const sorted = [...filtered].sort((a, b) => {
     switch (sortOption) {
@@ -64,131 +62,128 @@ const ProductsPage = () => {
         return 0;
     }
   });
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = sorted
+  const currentItems = sorted
       .slice(indexOfFirstItem, indexOfLastItem)
       .map(item => ({
         ...item,
         isFavorite: isItemFavorite(item.id),
       }));
 
-
   const toggleFavorite = (item) => {
     toggleFavoriteItem(item);
     setProducts(prev =>
-      prev.map(p =>
-        p.id === item.id ? { ...p, isFavorite: !p.isFavorite } : p
-      )
+        prev.map(p =>
+            p.id === item.id ? { ...p, isFavorite: !p.isFavorite } : p
+        )
     );
   };
 
-
   return (
-    <div className="products-wrapper">
-      {/* Banner khi không có danh mục */}
-      {!categorySlug && (
-        <>
-          <div className="products-banner">
-            <h2 className="brand-name">DoleSaigon</h2>
-            <p className="products-description">
-              <strong>🌸 Gửi trọn tình thân, trao chọn nghĩa lễ 🌸</strong><br />
-              Tại DoleSaigon, mỗi món quà không chỉ là sản phẩm, mà là lời chúc lành – sự gắn kết thiêng liêng giữa các thế hệ.<br />
-              Chúng tôi mang đến những <em>mâm lễ tươm tất</em>, <em>quà biếu tinh tế</em> – kết hợp hài hòa giữa giá trị truyền thống và chuẩn mực hiện đại.<br />
-              Hơn cả một thương hiệu, DoleSaigon sẽ là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
-            </p>
-          </div>
-          <h2 className="products-title">Tất cả sản phẩm</h2>
-        </>
-      )}
+      <div className="products-wrapper">
+        {/* Banner khi không có danh mục */}
+        {!categorySlug && (
+            <>
+              <div className="products-banner">
+                <h2 className="brand-name">DoleSaigon</h2>
+                <p className="products-description">
+                  <strong>🌸 Gửi trọn tình thân, trao chọn nghĩa lễ 🌸</strong><br />
+                  Tại DoleSaigon, mỗi món quà không chỉ là sản phẩm, mà là lời chúc lành – sự gắn kết thiêng liêng giữa các thế hệ.<br />
+                  Chúng tôi mang đến những <em>mâm lễ tươm tất</em>, <em>quà biếu tinh tế</em> – kết hợp hài hòa giữa giá trị truyền thống và chuẩn mực hiện đại.<br />
+                  Hơn cả một thương hiệu, DoleSaigon sẽ là người bạn đồng hành trong mọi khoảnh khắc sum vầy.
+                </p>
+              </div>
+              <h2 className="products-title">Tất cả sản phẩm</h2>
+            </>
+        )}
 
-      {/* Tabs danh mục con */}
-      <div className="tabs">
-        {subCategories.map(cat => (
-          <button
-            key={cat}
-            className={cat === selectedSubCategory ? 'active' : ''}
-            onClick={() => setSelectedSubCategory(cat)}
-          >
-            <span className="inner-border">{cat}</span>
-          </button>
-        ))}
+        {/* Tabs danh mục con */}
+        <div className="tabs">
+          {subCategories.map(cat => (
+              <button
+                  key={cat}
+                  className={cat === selectedSubCategory ? 'active' : ''}
+                  onClick={() => setSelectedSubCategory(cat)}
+              >
+                <span className="inner-border">{cat}</span>
+              </button>
+          ))}
+        </div>
+
+        {/* Sắp xếp */}
+        <div className="sort-options">
+          <span className="sort-label">Xếp theo</span>
+          {[
+            { value: "default", label: "Mặc định" },
+            { value: "name-asc", label: "Tên A-Z" },
+            { value: "name-desc", label: "Tên Z-A" },
+            { value: "newest", label: "Hàng mới" },
+            { value: "price-asc", label: "Giá thấp đến cao" },
+            { value: "price-desc", label: "Giá cao xuống thấp" },
+          ].map((option) => (
+              <button
+                  key={option.value}
+                  onClick={() => setSortOption(option.value)}
+                  className={`sort-button ${sortOption === option.value ? 'active' : ''}`}
+              >
+                <span className="diamond">◆</span>
+                {option.label}
+              </button>
+          ))}
+        </div>
+
+        {/* Danh sách sản phẩm */}
+        {sorted.length === 0 ? (
+            <p className="no-products">Không có sản phẩm nào.</p>
+        ) : (
+            <div className="product-grid">
+              {currentItems.map(item => (
+                  <div key={item.id} className="promo-item-products">
+                    <Link to={`/product/${item.id}`}>
+                      <ProductImage
+                          productId={item.id}
+                          alt={item.productName}
+                      />
+                      <span className="discount-tag">-{Math.round(10)}%</span>
+                    </Link>
+
+                    {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
+                    <div className="price-box-products">
+                      <Link to={`/product/${item.id}`}>
+                        <h4>{item.productName}</h4>
+                        <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
+                        <span className="new-price-products">{item.price.toLocaleString()}đ</span>
+                      </Link>
+                      <div className="action-buttons">
+                        <AddToCartButton product={item} quantity={1} />
+                        <button
+                            className="heart-btn"
+                            onClick={() => toggleFavorite(item)}
+                            title={item.isFavorite ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
+                        >
+                          <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+              ))}
+            </div>
+        )}
+
+        <div className="pagination">
+          {Array.from({ length: Math.ceil(sorted.length / itemsPerPage) }, (_, i) => (
+              <button
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={currentPage === i + 1 ? 'active' : ''}
+              >
+                {i + 1}
+              </button>
+          ))}
+        </div>
       </div>
-
-      {/* Sắp xếp */}
-<div className="sort-options">
-  <span className="sort-label">Xếp theo</span>
-  {[
-    { value: "default", label: "Mặc định" },
-    { value: "name-asc", label: "Tên A-Z" },
-    { value: "name-desc", label: "Tên Z-A" },
-    { value: "newest", label: "Hàng mới" },
-    { value: "price-asc", label: "Giá thấp đến cao" },
-    { value: "price-desc", label: "Giá cao xuống thấp" },
-  ].map((option) => (
-    <button
-      key={option.value}
-      onClick={() => setSortOption(option.value)}
-      className={`sort-button ${sortOption === option.value ? 'active' : ''}`}
-    >
-      <span className="diamond">◆</span>
-      {option.label}
-    </button>
-  ))}
-</div>
-
-               {/* Danh sách sản phẩm */}
-             {sorted.length === 0 ? (
-               <p className="no-products">Không có sản phẩm nào.</p>
-             ) : (
-               <div className="product-grid">
-                 {currentItems.map(item => (
-                   <div key={item.id} className="promo-item-products">
-                     <Link to={`/product/${item.id}`}>
-                       <img src={`/products/${item.id}.png`} alt={item.productName} />
-                       <span className="discount-tag">-{Math.round(10)}%</span>
-
-                     </Link>
-
-                     {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
-                     <div className="price-box-products">
-                     <Link to={`/product/${item.id}`}>
-                          <h4>{item.productName}</h4>
-                          <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
-                          <span className="new-price-products">{item.price.toLocaleString()}đ</span>
-                          </Link>
-                          <div className="action-buttons">
-                               <AddToCartButton product={item} quantity={1} />
-                               <button
-                                 className="heart-btn"
-                                 onClick={() => toggleFavorite(item)}
-                                 title={item.isFavorite ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
-                               >
-                                 <FaHeart className={`heart-icon ${item.isFavorite ? 'red' : ''}`} />
-                               </button>
-
-                             </div>
-                        </div>
-
-
-                   </div>
-
-                 ))}
-               </div>
-             )}
-             <div className="pagination">
-               {Array.from({ length: Math.ceil(sorted.length / itemsPerPage) }, (_, i) => (
-                 <button
-                   key={i + 1}
-                   onClick={() => setCurrentPage(i + 1)}
-                   className={currentPage === i + 1 ? 'active' : ''}
-                 >
-                   {i + 1}
-                 </button>
-               ))}
-             </div>
-
-    </div>
   );
 };
 

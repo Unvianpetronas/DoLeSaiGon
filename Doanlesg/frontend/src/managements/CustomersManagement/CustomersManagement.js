@@ -28,7 +28,6 @@ const CustomersManagement = () => {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // ✅ FIX: Use the robust hasRole helper for the check
     if (!user || !hasRole(user, 'ROLE_ADMIN')) {
       addNotification('Bạn không có quyền truy cập trang này.', 'error');
       navigate('/login');
@@ -47,7 +46,8 @@ const CustomersManagement = () => {
           throw new Error('Không thể tải danh sách khách hàng.');
         }
         const data = await response.json();
-        const customerAccounts = data.filter(acc => acc.customer !== null);
+        // ✅ FIX: Filter by role instead of checking for a nested object.
+        const customerAccounts = data.filter(acc => hasRole(acc, 'ROLE_CUSTOMER'));
         setCustomers(customerAccounts);
       } catch (err) {
         setError(err.message);
@@ -60,16 +60,17 @@ const CustomersManagement = () => {
     fetchCustomers();
   }, [user, isAuthLoading, navigate, addNotification]);
 
+  // This filter correctly works with the flat JSON structure.
   const filteredCustomers = customers.filter((c) =>
-      c.customer?.phoneNumber?.includes(searchPhone)
+      c?.phoneNumber?.includes(searchPhone)
   );
 
   const handleExportCSV = () => {
     const headers = ['Mã KH', 'Họ và tên', 'Số điện thoại', 'Email'];
     const rows = filteredCustomers.map(c => [
       `KH${c.id}`,
-      c.customer.fullName,
-      c.customer.phoneNumber,
+      c.fullName,
+      c.phoneNumber,
       c.email,
     ]);
 
@@ -124,8 +125,9 @@ const CustomersManagement = () => {
             {filteredCustomers.map((c) => (
                 <tr key={c.id}>
                   <td>{`KH${c.id}`}</td>
-                  <td>{c.customer.fullName}</td>
-                  <td>{c.customer.phoneNumber}</td>
+                  {/* ✅ FIX: Access properties directly from 'c' */}
+                  <td>{c.fullName}</td>
+                  <td>{c.phoneNumber}</td>
                   <td>{c.email}</td>
                 </tr>
             ))}

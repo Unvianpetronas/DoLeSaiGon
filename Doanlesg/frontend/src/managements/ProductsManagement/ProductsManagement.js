@@ -3,11 +3,26 @@ import './ProductsManagement.css';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
-import {useAuth} from "../../contexts/AuthContext";
-import {useNotification} from "../../contexts/NotificationContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNotification } from "../../contexts/NotificationContext";
+import ProductImage from "../../components/common/ProductImage";
+
+// ✅ ADD: A custom hook to debounce user input
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+};
 
 const hasRole = (user, role) => {
-  if (!user.roles || !user) return false;
+  if (!user || !user.roles) return false;
   if (Array.isArray(user.roles)) {
     return user.roles.includes(role);
   }
@@ -17,6 +32,7 @@ const hasRole = (user, role) => {
 export default function ProductsManagement() {
   const { user, isLoading } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -25,73 +41,74 @@ export default function ProductsManagement() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
 
-  const navigate = useNavigate();
   const filterRef = useRef(null);
+
+  // ✅ IMPROVE: Use the debounced search keyword for API calls
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500); // 500ms delay
 
   useEffect(() => {
     if (!isLoading) {
-      if (!user || (!hasRole(user, 'ROLE_ADMIN') && !hasRole(user, 'ROLE_STAFF')) ) {
+      if (!user || (!hasRole(user, 'ROLE_ADMIN') && !hasRole(user, 'ROLE_STAFF'))) {
         addNotification('Bạn không có quyền truy cập trang này.', 'error');
         navigate('/login');
       }
     }
   }, [user, isLoading, navigate, addNotification]);
 
-  // Gọi API lấy toàn bộ sản phẩm
-  const fetchAllProducts = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id');
-      const data = await res.json();
-      console.log('Tất cả sản phẩm:', data.content);
-      setProducts(data.content || []);
-    } catch (err) {
-      console.error('Lỗi khi gọi API allProducts:', err);
-    }
-  };
-
-  // Gọi API tìm kiếm sản phẩm theo tên
-  const fetchByKeyword = async (keyword) => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/ver0.0.1/product/productname?keyword=${searchKeyword}&page=0&size=100&sort=productName`)
-      const data = await res.json();
-      console.log('Kết quả tìm kiếm:', data.content);
-      setProducts(data.content || []);
-    } catch (err) {
-      console.error('Lỗi khi gọi API tìm kiếm:', err);
-    }
-  };
-
-  // Thay đổi từ khóa → gọi API hoặc load toàn bộ
+  // ✅ IMPROVE: Centralized data fetching with race condition prevention
   useEffect(() => {
-    if (searchKeyword.trim()) {
-      fetchByKeyword(searchKeyword);
-    } else {
-      fetchAllProducts();
-    }
-  }, [searchKeyword]);
+    let isCancelled = false; // Flag to ignore stale responses
 
-  // Lấy danh mục sản phẩm từ dữ liệu
+    const fetchData = async () => {
+      try {
+        let url;
+        if (debouncedSearchKeyword.trim()) {
+          // Use search endpoint
+          url = `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${debouncedSearchKeyword}&page=0&size=100&sort=productName`;
+        } else {
+          // Use get all products endpoint
+          url = 'http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id';
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+
+        // Only update state if the request hasn't been cancelled
+        if (!isCancelled) {
+          setProducts(data.content || []);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.error('Lỗi khi tải sản phẩm:', err);
+          addNotification('Không thể tải danh sách sản phẩm.', 'error');
+        }
+      }
+    };
+
+    fetchData().then();
+
+    // Cleanup function to prevent race conditions
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedSearchKeyword, addNotification]);
+
+  // This effect now only derives categories when the base product list changes
   useEffect(() => {
-    const uniqueCategories = [...new Set(products.map(p => p.category?.categoryName || ''))];
-    console.log('Danh sách danh mục:', uniqueCategories);
+    const uniqueCategories = [...new Set(products.map(p => p.category?.categoryName).filter(Boolean))];
     setAllCategories(uniqueCategories);
-    setSelectedCategories(prev =>
-      prev.length === 0 ? uniqueCategories : prev.filter(c => uniqueCategories.includes(c))
-    );
+    if (selectedCategories.length === 0) {
+      setSelectedCategories(uniqueCategories);
+    }
   }, [products]);
 
-  // Lọc sản phẩm theo danh mục & từ khóa
+  // ✅ SIMPLIFY: This effect now only filters by category, as the keyword search is done by the API
   useEffect(() => {
-    const keyword = searchKeyword.toLowerCase();
     const result = products.filter(p =>
-      selectedCategories.includes(p.category?.categoryName) &&
-      p.productName?.toLowerCase().includes(keyword)
+        selectedCategories.includes(p.category?.categoryName)
     );
-    console.log('Sản phẩm hiển thị sau khi lọc:', result);
     setFilteredProducts(result);
-  }, [products, selectedCategories, searchKeyword]);
+  }, [products, selectedCategories]);
 
-  // Tự đóng popup filter khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -102,58 +119,45 @@ export default function ProductsManagement() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Hành động
-    const handleDelete = async (id) => {
-      if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
-        try {
-        const response = await fetch(`http://localhost:8080/staff/products/${id}`, {
-          method: "DELETE",
-          credentials: "include", // cần thiết để gửi session cookie
-        });
-        if (response.ok) {
-          alert("Sản phẩm đã được xóa");
-          // Cập nhật danh sách sản phẩm sau khi xóa
-          setProducts(prev => prev.filter(p => p.id !== id));
-        } else if (response.status === 403) {
-          alert("Bạn không có quyền xóa sản phẩm.");
-        } else if (response.status === 404) {
-          alert("Sản phẩm không tồn tại.");
-        } else {
-          const text = await response.text();
-          console.error("Lỗi khi xóa sản phẩm:", text);
-          alert(`Lỗi khi xóa sản phẩm: ${text}`);
-        }
-      } catch (error) {
-        console.error("Lỗi kết nối:", error);
-        alert("Không thể kết nối đến máy chủ.");
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
+    try {
+      // ✅ FIX: Use the full, correct URL for the delete request
+      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (response.ok) {
+        addNotification("Sản phẩm đã được xóa.", "success");
+        setProducts(prev => prev.filter(p => p.id !== id));
+      } else {
+        const errorText = await response.text();
+        addNotification(`Lỗi khi xóa: ${errorText}`, "error");
       }
-    };
+    } catch (error) {
+      addNotification("Không thể kết nối đến máy chủ.", "error");
+    }
+  };
 
   const handleCreate = () => navigate('/admin/create');
   const handleEdit = (id) => navigate(`/admin/edit/${id}`);
 
   const handleCategoryChange = (cat) =>
-    setSelectedCategories(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-    );
+      setSelectedCategories(prev =>
+          prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+      );
 
   const handleSelectAll = () => setSelectedCategories(allCategories);
 
   const handleExportCSV = () => {
     const headers = ['Mã', 'Tên sản phẩm', 'Danh mục', 'Đơn giá', 'Số lượng', 'Trạng thái'];
     const rows = filteredProducts.map(p => [
-      p.id,
-      p.productName,
-      p.category?.categoryName,
-      p.price,
-      p.stockQuantity,
-      p.stockQuantity === 0 ? 'Hết hàng' : 'Còn hàng'
+      p.id, p.productName, p.category?.categoryName, p.price, p.stockQuantity,
+      p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'
     ]);
-
     const csvContent = [headers, ...rows]
-      .map(row => row.map(value => `"${value}"`).join(','))
-      .join('\n');
-
+        .map(row => row.map(value => `"${value || ''}"`).join(','))
+        .join('\n');
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -164,53 +168,54 @@ export default function ProductsManagement() {
     document.body.removeChild(link);
   };
 
+  // (The rest of the return/JSX is the same as it was already well-structured)
   return (
-    <div className="products-management">
-      <h2>Danh Sách Sản Phẩm</h2>
+      <div className="products-management">
+        <h2>Danh Sách Sản Phẩm</h2>
 
-      <div className="admin-controls">
-        <button className="btn green" onClick={handleCreate}>CREATE</button>
+        <div className="admin-controls">
+          <button className="btn green" onClick={handleCreate}>CREATE</button>
 
-        <div className="filter-container" ref={filterRef}>
-          <button className="btn pink" onClick={() => setShowFilter(prev => !prev)}>FILTER</button>
-          <div className={`filter-popup ${showFilter ? 'show' : ''}`}>
-            <div className="filter-commands">
-              <span className="link" onClick={handleSelectAll}>Select All</span>
+          <div className="filter-container" ref={filterRef}>
+            <button className="btn pink" onClick={() => setShowFilter(prev => !prev)}>FILTER</button>
+            <div className={`filter-popup ${showFilter ? 'show' : ''}`}>
+              <div className="filter-commands">
+                <span className="link" onClick={handleSelectAll}>Select All</span>
+              </div>
+              <div className="filter-options">
+                {allCategories.map((cat, idx) => (
+                    <label key={idx} className="filter-option-item">
+                      <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={() => handleCategoryChange(cat)}
+                      />
+                      <span className="filter-label">{cat}</span>
+                    </label>
+                ))}
+                {allCategories.length === 0 && (
+                    <div className="no-category">Không có danh mục nào.</div>
+                )}
+              </div>
             </div>
-            <div className="filter-options">
-              {allCategories.map((cat, idx) => (
-                <label key={idx} className="filter-option-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(cat)}
-                    onChange={() => handleCategoryChange(cat)}
-                  />
-                  <span className="filter-label">{cat}</span>
-                </label>
-              ))}
-              {allCategories.length === 0 && (
-                <div className="no-category">Không có danh mục nào.</div>
-              )}
-            </div>
+          </div>
+
+          <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
+
+          <div className="search-bar">
+            <input
+                type="text"
+                placeholder="Tìm sản phẩm..."
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+            />
+            <button><CiSearch size={20} /></button>
           </div>
         </div>
 
-        <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
-
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm sản phẩm..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-          />
-          <button><CiSearch size={20} /></button>
-        </div>
-      </div>
-
-      <div className="table-wrapper">
-        <table className="admin-product-table">
-          <thead>
+        <div className="table-wrapper">
+          <table className="admin-product-table">
+            <thead>
             <tr>
               <th>Mã</th>
               <th>Tên sản phẩm</th>
@@ -221,37 +226,41 @@ export default function ProductsManagement() {
               <th>Trạng thái</th>
               <th>Hành động</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {filteredProducts.map(p => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>{p.productName}</td>
-                <td>{p.category?.categoryName}</td>
-                <td>{p.price}</td>
-                <td>{p.stockQuantity}</td>
-                <td>
-                  {p.image
-                    ? <img src={p.image} alt={p.productName} className="product-image" />
-                    : <span className="no-image">🚫</span>}
-                </td>
-                <td className={p.stockQuantity === 0 ? 'status out' : 'status in'}>
-                  {p.stockQuantity === 0 ? 'Hết hàng' : 'Còn hàng'}
-                </td>
-                <td>
-                  <FaEdit className="icon edit" onClick={() => handleEdit(p.id)} />
-                  <FaTrashAlt className="icon delete" onClick={() => handleDelete(p.id)} />
-                </td>
-              </tr>
+                <tr key={p.id}>
+                  <td>{p.id}</td>
+                  <td>{p.productName}</td>
+                  <td>{p.category?.categoryName}</td>
+                  <td>{p.price.toLocaleString('vi-VN')} đ</td>
+                  <td>{p.stockQuantity}</td>
+                  <td>
+                    <div className="product-image-container">
+                      <ProductImage
+                          productId={p.id}
+                          alt={p.productName}
+                          className="product-image"
+                      />
+                    </div>
+                  </td>
+                  <td className={p.stockQuantity > 0 ? 'status in' : 'status out'}>
+                    {p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}
+                  </td>
+                  <td>
+                    <FaEdit className="icon edit" onClick={() => handleEdit(p.id)} />
+                    <FaTrashAlt className="icon delete" onClick={() => handleDelete(p.id)} />
+                  </td>
+                </tr>
             ))}
             {filteredProducts.length === 0 && (
-              <tr>
-                <td colSpan="8" style={{ textAlign: 'center' }}>Không có sản phẩm nào phù hợp.</td>
-              </tr>
+                <tr>
+                  <td colSpan="8" style={{ textAlign: 'center' }}>Không có sản phẩm nào phù hợp.</td>
+                </tr>
             )}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
   );
 }

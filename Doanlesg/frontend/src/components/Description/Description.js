@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "./Description.css";
-import { useCart } from "../../contexts/CartProvider"; // Corrected import path
+import { useCart } from "../../contexts/CartProvider";
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
+// 1. Import the ProductImage component
+import ProductImage from '../common/ProductImage'; // Adjust path if necessary
 
 const parseDescription = (rawDescription) => {
   if (!rawDescription) return [];
@@ -23,7 +25,7 @@ const parseDescription = (rawDescription) => {
 const Description = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart(); // Get addToCart from context
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -39,14 +41,13 @@ const Description = () => {
       try {
         setLoading(true);
         setError(null);
-        // Using relative path for API call
         const res = await fetch(`http://localhost:8080/api/ver0.0.1/product/productID?id=${productId}`);
         if (!res.ok) {
           throw new Error('Không tìm thấy sản phẩm.');
         }
         const data = await res.json();
         setProduct(data);
-        setIsFavorite(isItemFavorite(data.id)); // Check favorite status on load
+        setIsFavorite(isItemFavorite(data.id));
 
         if (data?.category?.id) {
           const relRes = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=10`);
@@ -71,17 +72,19 @@ const Description = () => {
     else if (type === "increase") setQuantity(quantity + 1);
   };
 
+  // ✅ UPDATED: Logic now works with an array of image IDs
+  const allImageIds = product ? [product.id, ...(product.extraImages || [])] : [];
+
   const handleImageChange = (direction) => {
-    if (!product.extraImages || product.extraImages.length <= 1) return;
+    if (allImageIds.length <= 1) return;
     let newIndex = imageIndex + direction;
-    if (newIndex < 0) newIndex = product.extraImages.length - 1;
-    if (newIndex >= product.extraImages.length) newIndex = 0;
+    if (newIndex < 0) newIndex = allImageIds.length - 1;
+    if (newIndex >= allImageIds.length) newIndex = 0;
     setImageIndex(newIndex);
   };
 
   const handleBuyNow = () => {
     if (!product) return;
-    // Create a temporary cart item object
     const buyNowItem = {
       productId: product.id,
       productName: product.productName,
@@ -90,7 +93,6 @@ const Description = () => {
       priceAtAddition: product.price,
       category: product.category
     };
-    // Navigate to checkout, passing the single item in the state
     navigate('/checkout', { state: { buyNowCart: [buyNowItem] } });
   };
 
@@ -108,38 +110,44 @@ const Description = () => {
   if (error) return <div className="error-state">Lỗi: {error}</div>;
   if (!product) return <div className="not-found">Không tìm thấy sản phẩm.</div>;
 
-  const selectedImage = product.extraImages?.[imageIndex] || `/products/${product.id}.png`;
   const sections = parseDescription(product?.detailDescription);
+  const selectedImageId = allImageIds[imageIndex];
 
   return (
       <div className="product-detail-container">
         <div className="product-main-wrapper">
           <div className="product-main">
+            {/* ✅ REFACTORED: Entire image section now uses ProductImage */}
             <div className="product-images">
               <div className="image-wrapper">
-                {product.extraImages && product.extraImages.length > 1 && (
-                    <>
-                      <button className="nav-button prev" onClick={() => handleImageChange(-1)}>❮</button>
-                      <img src={selectedImage} alt={product.productName} className="main-image" onError={(e) => { e.target.src = '/products/default.png'; }}/>
-                      <button className="nav-button next" onClick={() => handleImageChange(1)}>❯</button>
-                    </>
+                {allImageIds.length > 1 && (
+                    <button className="nav-button prev" onClick={() => handleImageChange(-1)}>❮</button>
                 )}
-                {(!product.extraImages || product.extraImages.length <= 1) && (
-                    <img src={selectedImage} alt={product.productName} className="main-image" onError={(e) => { e.target.src = '/products/default.png'; }}/>
+
+                <ProductImage
+                    productId={selectedImageId}
+                    alt={product.productName}
+                    className="main-image"
+                />
+
+                {allImageIds.length > 1 && (
+                    <button className="nav-button next" onClick={() => handleImageChange(1)}>❯</button>
                 )}
               </div>
-              <div className="thumbnails">
-                {product.extraImages?.map((img, index) => (
-                    <img
-                        key={index}
-                        src={img}
-                        alt={`thumb-${index}`}
-                        className={imageIndex === index ? "active" : ""}
-                        onClick={() => setImageIndex(index)}
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                ))}
-              </div>
+
+              {allImageIds.length > 1 && (
+                  <div className="thumbnails">
+                    {allImageIds.map((id, index) => (
+                        <div
+                            key={index}
+                            className={`thumbnail-item ${imageIndex === index ? "active" : ""}`}
+                            onClick={() => setImageIndex(index)}
+                        >
+                          <ProductImage productId={id} alt={`Thumbnail ${index + 1}`} />
+                        </div>
+                    ))}
+                  </div>
+              )}
             </div>
 
             <div className="product-info">
@@ -197,7 +205,8 @@ const Description = () => {
                 <div className="related-products" ref={scrollRef}>
                   {relatedProducts.map((rel) => (
                       <Link to={`/product/${rel.id}`} className="related-item" key={rel.id}>
-                        <img src={`/products/${rel.id}.png`} alt={rel.productName} onError={(e) => { e.target.src = '/products/default.png'; }} />
+                        {/* ✅ REFACTORED: Use ProductImage for related products */}
+                        <ProductImage productId={rel.id} alt={rel.productName} />
                         <p>{rel.productName}</p>
                         <span className="related-price">{rel.price.toLocaleString()}₫</span>
                       </Link>

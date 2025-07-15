@@ -6,13 +6,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 
-// Helper function to safely check for a user's role
-const hasRole = (user, role) => {
+// Helper function to check for multiple roles
+const hasRole = (user, ...roles) => {
   if (!user || !user.roles) return false;
-  if (Array.isArray(user.roles)) {
-    return user.roles.includes(role);
-  }
-  return user.roles === role;
+  return roles.some(role => {
+    if (Array.isArray(user.roles)) {
+      return user.roles.includes(role);
+    }
+    return user.roles === role;
+  });
 };
 
 const DeliveryManagement = () => {
@@ -26,16 +28,14 @@ const DeliveryManagement = () => {
   const [error, setError] = useState(null);
 
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedStaff, setSelectedStaff] = useState([]);
+  const [selectedStaffNames, setSelectedStaffNames] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const filterRef = useRef(null);
 
-  // Effect for authorization and data fetching
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // Only Admins can access this page
-    if (!user || !hasRole(user, 'ROLE_ADMIN')) {
+    if (!user || !hasRole(user, 'ROLE_ADMIN', 'ROLE_STAFF')) {
       addNotification('Bạn không có quyền truy cập trang này.', 'error');
       navigate('/login');
       return;
@@ -46,7 +46,6 @@ const DeliveryManagement = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch both orders and staff members at the same time
         const [ordersRes, staffRes] = await Promise.all([
           fetch('http://localhost:8080/api/ver0.0.1/staff/orders', { credentials: 'include' }),
           fetch('http://localhost:8080/api/ver0.0.1/staff/accounts', { credentials: 'include' })
@@ -59,16 +58,18 @@ const DeliveryManagement = () => {
         const allOrders = await ordersRes.json();
         const allAccounts = await staffRes.json();
 
-        // Filter for orders that are currently shipping
-        const shippingOrders = allOrders.filter(o => o.orderStatus === 'Shipping');
+        // ✅ FIX: Filter for orders that need delivery assignment
+        const shippingOrders = allOrders
+            .filter(o => o.orderStatus === 'Shipping' || o.orderStatus === 'Pending') // Or whatever statuses you want to manage
+            .map(o => ({...o, assignedStaffId: o.assignedStaffId || null})); // Assume backend provides assignedStaffId
         setDeliveries(shippingOrders);
 
-        // Filter for accounts that are staff members
-        const staffAccounts = allAccounts.filter(acc => acc.staff !== null);
-        setAllStaff(staffAccounts);
+        // ✅ FIX: Filter for accounts that are staff or admins
+        const staffAndAdmins = allAccounts.filter(acc => hasRole(acc, 'ROLE_STAFF'));
+        setAllStaff(staffAndAdmins);
 
-        // Initially, select all staff for the filter
-        setSelectedStaff(staffAccounts.map(s => s.staff.fullName));
+        // ✅ FIX: Initially, select all staff for the filter using the flat structure
+        setSelectedStaffNames(staffAndAdmins.map(s => s.fullName));
 
       } catch (err) {
         setError(err.message);
@@ -78,17 +79,21 @@ const DeliveryManagement = () => {
       }
     };
 
-    fetchData().then();
+    fetchData();
   }, [user, isAuthLoading, navigate, addNotification]);
 
-  // Derived state for filtering deliveries based on search and selected staff
-  const filteredDeliveries = deliveries.filter(d =>
-      (selectedStaff.length === 0 || selectedStaff.includes(d.assignedStaff?.fullName)) && // Assuming order has assignedStaff
-      (d.receiverFullName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-          d.orderCode.toLowerCase().includes(searchKeyword.toLowerCase()))
-  );
+  // ✅ FIX: Updated filtering logic
+  const filteredDeliveries = deliveries.filter(d => {
+    const assignedStaffMember = allStaff.find(s => s.id === d.assignedStaffId);
+    const staffName = assignedStaffMember?.fullName;
 
-  // Close filter popup when clicking outside
+    const matchesStaff = selectedStaffNames.length === 0 || (staffName && selectedStaffNames.includes(staffName));
+    const matchesKeyword = d.receiverFullName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        d.orderCode.toLowerCase().includes(searchKeyword.toLowerCase());
+
+    return matchesStaff && matchesKeyword;
+  });
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -99,53 +104,36 @@ const DeliveryManagement = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // --- API-driven Actions ---
-
-  const handleConfirmToggle = async (orderId, currentStatus) => {
-    // TODO: Implement backend logic to confirm delivery
-    // This would likely change the order status from 'Shipping' to 'Complete'
-    console.log(`Toggling confirmation for order ID: ${orderId}`);
-    addNotification('Chức năng này cần được kết nối với API backend.', 'error');
-    // Example API call:
-    // await fetch(`/api/ver0.0.1/staff/orders/${orderId}/confirm`, { method: 'PUT', credentials: 'include' });
+  const handleStaffSelectChange = (orderId, newStaffId) => {
+    // Update the state locally to make the UI responsive
+    setDeliveries(prevDeliveries =>
+        prevDeliveries.map(d =>
+            d.id === orderId ? { ...d, assignedStaffId: newStaffId ? parseInt(newStaffId, 10) : null } : d
+        )
+    );
+    // TODO: Call the backend API to save this change
+    addNotification('Cần kết nối API để lưu thay đổi nhân viên.', 'info');
+    // Example: fetch(`/api/orders/${orderId}/assign?staffId=${newStaffId}`, { method: 'PUT' });
   };
 
-  const handleStaffSelectChange = async (orderId, newStaffId) => {
-    // TODO: Implement backend logic to assign a staff member to an order
-    console.log(`Assigning staff ID: ${newStaffId} to order ID: ${orderId}`);
-    addNotification('Chức năng này cần được kết nối với API backend.', 'error');
-    // Example API call:
-    // await fetch(`/api/ver0.0.1/staff/orders/${orderId}/assign?staffId=${newStaffId}`, { method: 'PUT', credentials: 'include' });
-  };
+  const handleDelete = (orderId) => {
+    if (!window.confirm("Bạn có chắc muốn xóa đơn hàng này không?")) return;
+    setDeliveries(prev => prev.filter(d => d.id !== orderId));
+    // TODO: Call backend to delete
+    addNotification('Cần kết nối API để xóa vĩnh viễn.', 'info');
+  }
 
-  const handleDelete = async (orderId) => {
-    if (!window.confirm("Bạn có chắc muốn xóa đơn giao hàng này không?")) return;
-    // TODO: Implement backend logic to delete an order
-    console.log(`Deleting order ID: ${orderId}`);
-    addNotification('Chức năng này cần được kết nối với API backend.', 'error');
-    // Example API call:
-    // await fetch(`/api/ver0.0.1/staff/orders/${orderId}`, { method: 'DELETE', credentials: 'include' });
-  };
-
-
-  // --- UI Handlers ---
-  const handleExportCSV = () => { /* ... your existing CSV logic ... */ };
-  const handleStaffChange = (staffName) => {
-    setSelectedStaff(prev =>
+  const handleStaffFilterChange = (staffName) => {
+    setSelectedStaffNames(prev =>
         prev.includes(staffName) ? prev.filter(s => s !== staffName) : [...prev, staffName]
     );
   };
-  const handleSelectAll = () => setSelectedStaff(allStaff.map(s => s.staff.fullName));
-  const handleClearAll = () => setSelectedStaff([]);
+  const handleSelectAll = () => setSelectedStaffNames(allStaff.map(s => s.fullName));
+  const handleClearAll = () => setSelectedStaffNames([]);
 
 
-  if (isAuthLoading || loading) {
-    return <div>Đang tải dữ liệu...</div>;
-  }
-
-  if (error) {
-    return <div className="delivery-management-error">Lỗi: {error}</div>;
-  }
+  if (isAuthLoading || loading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div className="delivery-management-error">Lỗi: {error}</div>;
 
   return (
       <div className="delivery-management">
@@ -159,21 +147,21 @@ const DeliveryManagement = () => {
                 <span className="link" onClick={handleClearAll}>Bỏ chọn</span>
               </div>
               <div className="filter-options">
+                {/* ✅ FIX: Use flat staffAccount object */}
                 {allStaff.map((staffAccount) => (
                     <label key={staffAccount.id} className="filter-option-item">
                       <input
                           type="checkbox"
                           className="filter-checkbox"
-                          checked={selectedStaff.includes(staffAccount.staff.fullName)}
-                          onChange={() => handleStaffChange(staffAccount.staff.fullName)}
+                          checked={selectedStaffNames.includes(staffAccount.fullName)}
+                          onChange={() => handleStaffFilterChange(staffAccount.fullName)}
                       />
-                      <span className="filter-label">{staffAccount.staff.fullName}</span>
+                      <span className="filter-label">{staffAccount.fullName}</span>
                     </label>
                 ))}
               </div>
             </div>
           </div>
-          <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
           <div className="search-bar">
             <input
                 type="text"
@@ -192,8 +180,7 @@ const DeliveryManagement = () => {
               <th>Tên KH</th>
               <th>SĐT</th>
               <th>Địa chỉ</th>
-              <th>Nhân viên</th>
-              <th>Confirm</th>
+              <th>Nhân viên Giao Hàng</th>
               <th>Tính năng</th>
             </tr>
             </thead>
@@ -205,25 +192,19 @@ const DeliveryManagement = () => {
                   <td>{d.receiverPhoneNumber}</td>
                   <td>{d.fullShippingAddress}</td>
                   <td>
+                    {/* ✅ FIX: Use assignedStaffId for value and flat staffAccount for options */}
                     <select
-                        value={d.assignedStaff?.id || ''} // Assuming order has assignedStaff.id
+                        value={d.assignedStaffId || ''}
                         onChange={(e) => handleStaffSelectChange(d.id, e.target.value)}
                         className="staff-dropdown"
                     >
                       <option value="">-- Chọn NV --</option>
                       {allStaff.map((staffAccount) => (
                           <option key={staffAccount.id} value={staffAccount.id}>
-                            {staffAccount.staff.fullName}
+                            {staffAccount.fullName}
                           </option>
                       ))}
                     </select>
-                  </td>
-                  <td>
-                    <input
-                        type="checkbox"
-                        checked={d.deliveryConfirmed || false} // Assuming a field like this
-                        onChange={() => handleConfirmToggle(d.id, d.deliveryConfirmed)}
-                    />
                   </td>
                   <td>
                     <FaTrashAlt className="icon delete" title="Xóa" onClick={() => handleDelete(d.id)} />
@@ -232,7 +213,7 @@ const DeliveryManagement = () => {
             ))}
             {filteredDeliveries.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
                     Không có đơn hàng phù hợp.
                   </td>
                 </tr>

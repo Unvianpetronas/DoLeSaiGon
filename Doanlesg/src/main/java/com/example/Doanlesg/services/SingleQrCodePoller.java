@@ -21,7 +21,7 @@ public class SingleQrCodePoller {
     private final QRCodeManagermentService qrCodeManager;
     private final OrderService orderService;
 
-    @Value("${casso.polling.delay-ms}")
+    @Value("${CASSO_POLLING_DELAY_MS}")
     private long pollIntervalMillis;
 
     public SingleQrCodePoller(CassoService cassoService, QRCodeManagermentService qrCodeManager, OrderService orderService) {

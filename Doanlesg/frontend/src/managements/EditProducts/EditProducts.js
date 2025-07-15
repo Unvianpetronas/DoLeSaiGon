@@ -48,7 +48,7 @@ export default function EditProduct() {
         // Fetch both the product details and the list of all categories
         const [productRes, categoriesRes] = await Promise.all([
           fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, { credentials: 'include' }),
-          fetch('http://localhost:8080/api/ver0.0.1/categories', { credentials: 'include' })
+          fetch('http://localhost:8080/api/ver0.0.1/staff/categories', { credentials: 'include' })
         ]);
 
         if (!productRes.ok) throw new Error('Không tìm thấy sản phẩm.');
@@ -74,15 +74,27 @@ export default function EditProduct() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Handle nested category object
-    if (name === 'categoryId') {
-      setProduct(prev => ({
-        ...prev,
-        category: { ...prev.category, id: parseInt(value, 10) }
-      }));
-    } else {
-      setProduct(prev => ({ ...prev, [name]: value }));
-    }
+
+    setProduct(prevProduct => {
+      // This function receives the most up-to-date state (prevProduct)
+
+      // Handle the special case for the nested category ID
+      if (name === 'categoryId') {
+        return {
+          ...prevProduct, // 1. Copy all existing top-level product properties
+          category: {
+            ...prevProduct.category, // 2. Copy existing nested category data
+            id: parseInt(value, 10) || '', // 3. Only update the category's ID
+          },
+        };
+      }
+
+      // For all other standard inputs (e.g., productName, price)
+      return {
+        ...prevProduct, // 1. This is the key: copy all existing data
+        [name]: value,  // 2. Then, overwrite only the field that changed
+      };
+    });
   };
 
   const handleImageChange = (e) => {
@@ -102,11 +114,13 @@ export default function EditProduct() {
     const productData = {
       id: product.id,
       productName: product.productName,
-      quantity: parseInt(product.quantity, 10),
+      // CORRECTED LINE: Use stockQuantity to match the input field name
+      stockQuantity: parseInt(product.stockQuantity, 10),
       price: parseFloat(product.price),
       shortDescription: product.shortDescription,
       detailDescription: product.detailDescription,
-      status: product.status,
+      // Make sure the status is a boolean
+      status: String(product.status) === 'true',
       category: { id: product.category.id },
     };
 
@@ -155,7 +169,7 @@ export default function EditProduct() {
             </div>
             <div className="form-group">
               <label>Số lượng</label>
-              <input name="quantity" type="number" value={product.quantity || ''} onChange={handleChange} required />
+              <input name="stockQuantity" type="number" value={product.stockQuantity || ''} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label>Danh mục</label>

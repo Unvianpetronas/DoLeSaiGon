@@ -1,27 +1,44 @@
 package com.example.Doanlesg.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.Doanlesg.dto.OrderManagementDTO;
 import com.example.Doanlesg.dto.OrderSummaryDTO;
+import com.example.Doanlesg.dto.ProductDTO;
+import com.example.Doanlesg.model.Category;
 import com.example.Doanlesg.model.Product;
 import com.example.Doanlesg.model.Order;
+import com.example.Doanlesg.repository.CategoryRepository;
 import com.example.Doanlesg.repository.ProductRepository;
 import com.example.Doanlesg.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class StaffServices {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final Cloudinary  cloudinary;
+
+    public StaffServices(OrderRepository orderRepository, ProductRepository productRepository, CategoryRepository categoryRepository, Cloudinary cloudinary) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.cloudinary = cloudinary;
+    }
 
     // Create a new product
     public Product createProduct(Product product) {
@@ -34,18 +51,82 @@ public class StaffServices {
     }
 
     // Update existing product - same for both staff and admin
-    public Optional<Product> updateProduct(Long productId, Product updatedProduct) {
+    @Transactional
+    public Optional<Product> updateProduct(Long productId, ProductDTO updatedProductDTO, MultipartFile image) {
+        // Find the existing product by its ID
         return productRepository.findById(productId).map(product -> {
-            product.setProductName(updatedProduct.getProductName());
-            product.setPrice(updatedProduct.getPrice());
-            product.setCategory(updatedProduct.getCategory());
-            product.setShortDescription(updatedProduct.getShortDescription());
-            product.setDetailDescription(updatedProduct.getDetailDescription());
-            product.setStockQuantity(updatedProduct.getStockQuantity());
-            product.setStatus(updatedProduct.isStatus());
+            // Update fields from the DTO
+            product.setProductName(updatedProductDTO.getProductName());
+            product.setPrice(updatedProductDTO.getPrice());
+            product.setShortDescription(updatedProductDTO.getShortDescription());
+            product.setDetailDescription(updatedProductDTO.getDetailDescription());
+            product.setStockQuantity(updatedProductDTO.getStockQuantity());
+            product.setStatus(updatedProductDTO.getStockQuantity() > 0);
 
-            return productRepository.save(product);
+            if (image != null && !image.isEmpty()) {
+                try {
+                    var options = ObjectUtils.asMap(
+                            "public_id", String.valueOf(productId),
+                            "overwrite", true,
+                            "resource_type", "image"
+                    );
+
+                    cloudinary.uploader().upload(image.getBytes(), options);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not upload image for product " + productId, e);
+                }
+            }
+
+            // Handle the category relationship
+            if (updatedProductDTO.getCategory() != null && updatedProductDTO.getCategory().getId() != null) {
+                Category category = categoryRepository.findById(updatedProductDTO.getCategory().getId())
+                        .orElseThrow(() -> new RuntimeException("Category not found with id: " + updatedProductDTO.getCategory().getId()));
+                product.setCategory(category);
+            }
+
+            // The product with updated fields (including the new image URL) is returned.
+            // @Transactional will handle saving the changes.
+            return product;
         });
+    }
+
+    @Transactional // Makes the method a single transaction
+    public Product createProductWithImage(ProductDTO productDTO, MultipartFile imageFile) throws IOException {
+        // Step 1: Convert DTO to an entity
+        Product product = new Product();
+        // Map all fields from the DTO to the entity
+        product.setProductName(productDTO.getProductName());
+        product.setPrice(productDTO.getPrice());
+        product.setShortDescription(productDTO.getShortDescription());
+        product.setDetailDescription(productDTO.getDetailDescription());
+        product.setStockQuantity(productDTO.getStockQuantity());
+        product.setStatus(productDTO.getStockQuantity() > 0);
+
+        if (productDTO.getCategory() != null && productDTO.getCategory().getId() != null) {
+            Category category = categoryRepository.findById(productDTO.getCategory().getId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + productDTO.getCategory().getId()));
+            product.setCategory(category);
+        }
+
+        product.setCreatedAt(LocalDateTime.now());
+        // ... map other fields ...
+
+        // Step 2: Save the entity to the database FIRST to generate its ID
+        Product savedProduct = productRepository.save(product);
+
+        // Step 3: Use the ID from the saved product to upload the image
+        if (imageFile != null && !imageFile.isEmpty()) {
+            var options = ObjectUtils.asMap(
+                    "public_id", String.valueOf(savedProduct.getId()),
+                    "overwrite", true,
+                    "resource_type", "image"
+            );
+            // This will throw an IOException if it fails, which the controller will catch
+            cloudinary.uploader().upload(imageFile.getBytes(), options);
+        }
+
+        // Return the final, saved product
+        return savedProduct;
     }
 
     // Delete product (restricted to admins)
@@ -97,7 +178,7 @@ public class StaffServices {
     public List<OrderManagementDTO> getAllOrdersForManagement() {
         return orderRepository.findAllByOrderByOrderDateDesc().stream()
                 .map((Object order) -> OrderManagementDTO.fromEntity((Order) order))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

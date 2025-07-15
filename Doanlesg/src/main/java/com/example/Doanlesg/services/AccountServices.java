@@ -1,6 +1,7 @@
 package com.example.Doanlesg.services;
 
 import com.example.Doanlesg.dto.AccountDisplayDTO;
+import com.example.Doanlesg.dto.AccountStaffDTO;
 import com.example.Doanlesg.interal.PasswordEncoder;
 import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
@@ -47,7 +48,7 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
     // ... (other methods like createStaffAccount, updateCustomerAccount, etc. remain the same)
     @Transactional
     public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
-        if(validateNewAccount(accountDetail.getEmail())){
+        if(!validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
             accountDetail.setPasswordHash(encodedPassword);
             accountDetail.setStatus(true);
@@ -152,6 +153,14 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return accountRepository.findAll()
                 .stream()
                 .map(AccountDisplayDTO::fromEntity) // Convert each Account to a DTO
+                .toList();
+    }
+
+    public List<AccountStaffDTO> getAllStaff() {
+        return accountRepository.findAll()
+                .stream()
+                .map(AccountStaffDTO::fromEntity)
+                .filter(p -> p.getAccount() != null)
                 .toList();
     }
 }

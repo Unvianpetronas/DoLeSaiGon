@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/ver0.0.1/product")// React dev server
 public class GetProductController {
-    private ProductService productService;
+    private final ProductService productService;
     public GetProductController(ProductService productService) {
         this.productService = productService;
     }

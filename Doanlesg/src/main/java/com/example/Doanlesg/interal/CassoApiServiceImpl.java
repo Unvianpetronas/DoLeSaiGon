@@ -17,7 +17,7 @@ import java.util.List;
 public class CassoApiServiceImpl implements CassoService {
 
     private final WebClient webClient;
-    @Value("${casso.api.key}")
+    @Value("${CASSO_API_KEY}")
     private String cassoApiKey;
     private static final String CASSO_API_BASE_URL = "https://oauth.casso.vn";
 

@@ -87,7 +87,7 @@ public class CartItemController {
 
         Account account = accountServices.findById(accountId);
         if (account != null && account.getCart() != null) {
-            cartServices.RemoveItemFromCart(account.getCart().getId(), productId);
+            cartServices.removeItemFromCart(account.getCart().getId(), productId);
             return ResponseEntity.ok("Đã xóa sản phẩm khỏi giỏ hàng.");
         } else {
             return new ResponseEntity<>("Không tìm thấy tài khoản hoặc giỏ hàng.", HttpStatus.NOT_FOUND);
