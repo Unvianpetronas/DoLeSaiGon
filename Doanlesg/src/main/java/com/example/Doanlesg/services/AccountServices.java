@@ -1,5 +1,7 @@
 package com.example.Doanlesg.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.Doanlesg.dto.AccountDisplayDTO;
 import com.example.Doanlesg.dto.AccountStaffDTO;
 import com.example.Doanlesg.interal.PasswordEncoder;
@@ -9,18 +11,25 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountServices /* REMOVE: implements UserDetailsService */ {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public AccountServices(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+    private final Cloudinary cloudinary;
+
+    public AccountServices(AccountRepository accountRepository, PasswordEncoder passwordEncoder, Cloudinary cloudinary) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cloudinary = cloudinary;
     }
 
     @Transactional
@@ -47,20 +56,46 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     // ... (other methods like createStaffAccount, updateCustomerAccount, etc. remain the same)
     @Transactional
-    public Account createStaffAccount(Account accountDetail, Staff staffDetail) {
-        if(!validateNewAccount(accountDetail.getEmail())){
-            String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
-            accountDetail.setPasswordHash(encodedPassword);
-            accountDetail.setStatus(true);
-            accountDetail.setCreatedAt(LocalDateTime.now());
-            if(staffDetail == null){
-                throw new IllegalArgumentException("staffDetail cannot be null");
-            }
-            accountDetail.setStaff(staffDetail);
-            staffDetail.setAccount(accountDetail);
-            return accountRepository.save(accountDetail);
+    public Account createStaffAccount(AccountStaffDTO dto, MultipartFile imageFile) throws IOException {
+        // 1. Validate if the email already exists
+        if (accountRepository.findByEmail(dto.getEmail()).isPresent()) {
+            // It's better to throw an exception that the controller can catch
+            throw new IllegalArgumentException("Email đã tồn tại.");
         }
-        return null;
+
+        // 2. Build the Account entity from the DTO
+        Account account = new Account();
+        account.setEmail(dto.getEmail());
+        account.setPasswordHash(passwordEncoder.encode(dto.getPassword())); // Always encode the password
+        account.setStatus(true);
+        account.setCreatedAt(LocalDateTime.now());
+
+        // 3. Build the Staff entity from the DTO
+        Staff staff = new Staff();
+        staff.setFullName(dto.getFullName());
+        staff.setPhoneNumber(dto.getPhoneNumber());
+        staff.setEmployeeId(dto.getEmployeeId()); // This will be used as the image name
+        staff.setDepartment(dto.getDepartment());
+
+        // 4. Link the entities together
+        account.setStaff(staff);
+        staff.setAccount(account);
+
+        // 5. Save the account (which will also save the staff due to CascadeType.ALL)
+        Account createdAccount = accountRepository.save(account);
+
+        // 6. Upload the image to Cloudinary using the employeeId
+        if (imageFile != null && !imageFile.isEmpty()) {
+            var options = ObjectUtils.asMap(
+                    "public_id", dto.getEmployeeId(), // Use the employeeId as the unique filename
+                    "overwrite", true,
+                    "resource_type", "image"
+            );
+            // This will throw an IOException on failure, which the controller will catch
+            cloudinary.uploader().upload(imageFile.getBytes(), options);
+        }
+
+        return createdAccount;
     }
 
     @Transactional
@@ -83,23 +118,45 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         }
     }
     @Transactional
-    public boolean updateStaffAccount(Long id , Account accountUpdateDetail, Staff staffUpdateDetail) {
-        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
-        assert existAccount != null;
-        Customer customerOld = existAccount.getCustomer();
-        try{
-            if(customerOld == null){
-                return false;
-            } else if (checkEmail(accountUpdateDetail.getId(),accountUpdateDetail.getEmail())) {
-                existAccount.setEmail(accountUpdateDetail.getEmail());
-                existAccount.setStaff(staffUpdateDetail);
-                accountRepository.save(existAccount);
+    public Optional<Account> updateStaffAccount(Long id, AccountStaffDTO dto, MultipartFile imageFile) throws IOException {
+        // 1. Find the existing account by its ID
+        Optional<Account> existingAccountOpt = accountRepository.findById(id);
 
-            }
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (existingAccountOpt.isEmpty()) {
+            return Optional.empty(); // Return empty if account not found
         }
+
+        Account accountToUpdate = existingAccountOpt.get();
+        Staff staffToUpdate = accountToUpdate.getStaff();
+
+        // Ensure the staff entity exists
+        if (staffToUpdate == null) {
+            throw new IllegalStateException("Account with ID " + id + " does not have a linked staff profile.");
+        }
+
+        // 2. Update the Account and Staff entities from the DTO
+        accountToUpdate.setEmail(dto.getEmail());
+        // Note: Password updates should typically be handled in a separate, dedicated method for security.
+        // We are omitting password changes here.
+
+        staffToUpdate.setFullName(dto.getFullName());
+        staffToUpdate.setPhoneNumber(dto.getPhoneNumber());
+        staffToUpdate.setEmployeeId(dto.getEmployeeId());
+        staffToUpdate.setDepartment(dto.getDepartment());
+
+        // 3. If a new image is provided, upload it to Cloudinary, overwriting the old one
+        if (imageFile != null && !imageFile.isEmpty()) {
+            Map<String, Object> options = ObjectUtils.asMap(
+                    "public_id", staffToUpdate.getEmployeeId(), // Use existing employeeId to overwrite
+                    "overwrite", true,
+                    "resource_type", "image"
+            );
+            cloudinary.uploader().upload(imageFile.getBytes(), options);
+        }
+
+        // 4. Save the updated account. Cascade will handle the staff update.
+        Account updatedAccount = accountRepository.save(accountToUpdate);
+        return Optional.of(updatedAccount);
     }
     @Transactional
     public boolean deleteAccount(Account accountDetail) {

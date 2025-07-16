@@ -5,9 +5,9 @@ import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import ProductImage from "../../components/common/ProductImage";
+import ProductImage from "../../components/common/ProductImage"; // Make sure the path is correct
 
-// ✅ ADD: A custom hook to debounce user input
+// A custom hook to debounce user input, making API calls more efficient
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -42,9 +42,7 @@ export default function ProductsManagement() {
   const [showFilter, setShowFilter] = useState(false);
 
   const filterRef = useRef(null);
-
-  // ✅ IMPROVE: Use the debounced search keyword for API calls
-  const debouncedSearchKeyword = useDebounce(searchKeyword, 500); // 500ms delay
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
 
   useEffect(() => {
     if (!isLoading) {
@@ -55,26 +53,27 @@ export default function ProductsManagement() {
     }
   }, [user, isLoading, navigate, addNotification]);
 
-  // ✅ IMPROVE: Centralized data fetching with race condition prevention
+  // Centralized data fetching with race condition prevention
   useEffect(() => {
-    let isCancelled = false; // Flag to ignore stale responses
+    let isCancelled = false;
 
     const fetchData = async () => {
       try {
-        let url;
-        if (debouncedSearchKeyword.trim()) {
-          // Use search endpoint
-          url = `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${debouncedSearchKeyword}&page=0&size=100&sort=productName`;
-        } else {
-          // Use get all products endpoint
-          url = 'http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id';
-        }
+        const url = debouncedSearchKeyword.trim()
+            ? `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${debouncedSearchKeyword}&page=0&size=100&sort=productName`
+            : 'http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id';
+
         const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch data');
         const data = await res.json();
 
-        // Only update state if the request hasn't been cancelled
         if (!isCancelled) {
-          setProducts(data.content || []);
+          // ✅ ADD: Add a 'lastUpdated' timestamp to each product for cache-busting.
+          const productsWithCacheKey = (data.content || []).map(p => ({
+            ...p,
+            lastUpdated: Date.now()
+          }));
+          setProducts(productsWithCacheKey);
         }
       } catch (err) {
         if (!isCancelled) {
@@ -84,9 +83,8 @@ export default function ProductsManagement() {
       }
     };
 
-    fetchData().then();
+    fetchData();
 
-    // Cleanup function to prevent race conditions
     return () => {
       isCancelled = true;
     };
@@ -96,12 +94,11 @@ export default function ProductsManagement() {
   useEffect(() => {
     const uniqueCategories = [...new Set(products.map(p => p.category?.categoryName).filter(Boolean))];
     setAllCategories(uniqueCategories);
-    if (selectedCategories.length === 0) {
-      setSelectedCategories(uniqueCategories);
-    }
+    // Automatically select all categories when the product list changes
+    setSelectedCategories(uniqueCategories);
   }, [products]);
 
-  // ✅ SIMPLIFY: This effect now only filters by category, as the keyword search is done by the API
+  // This effect filters the displayed products based on the selected categories
   useEffect(() => {
     const result = products.filter(p =>
         selectedCategories.includes(p.category?.categoryName)
@@ -109,6 +106,7 @@ export default function ProductsManagement() {
     setFilteredProducts(result);
   }, [products, selectedCategories]);
 
+  // Handles closing the filter popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -122,7 +120,6 @@ export default function ProductsManagement() {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
     try {
-      // ✅ FIX: Use the full, correct URL for the delete request
       const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, {
         method: "DELETE",
         credentials: "include",
@@ -140,7 +137,9 @@ export default function ProductsManagement() {
   };
 
   const handleCreate = () => navigate('/admin/create');
-  const handleEdit = (id) => navigate(`/admin/edit/${id}`);
+  // ✅ FIX: When editing, pass the current product state to the edit page.
+  // This allows the EditProduct component to receive the `lastUpdated` key.
+  const handleEdit = (product) => navigate(`/admin/edit/${product.id}`, { state: { product } });
 
   const handleCategoryChange = (cat) =>
       setSelectedCategories(prev =>
@@ -168,7 +167,6 @@ export default function ProductsManagement() {
     document.body.removeChild(link);
   };
 
-  // (The rest of the return/JSX is the same as it was already well-structured)
   return (
       <div className="products-management">
         <h2>Danh Sách Sản Phẩm</h2>
@@ -237,10 +235,12 @@ export default function ProductsManagement() {
                   <td>{p.stockQuantity}</td>
                   <td>
                     <div className="product-image-container">
+                      {/* ✅ PASS: Pass the product-specific timestamp as the cacheKey. */}
                       <ProductImage
                           productId={p.id}
                           alt={p.productName}
                           className="product-image"
+                          cacheKey={p.lastUpdated}
                       />
                     </div>
                   </td>
@@ -248,7 +248,7 @@ export default function ProductsManagement() {
                     {p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}
                   </td>
                   <td>
-                    <FaEdit className="icon edit" onClick={() => handleEdit(p.id)} />
+                    <FaEdit className="icon edit" onClick={() => handleEdit(p)} />
                     <FaTrashAlt className="icon delete" onClick={() => handleDelete(p.id)} />
                   </td>
                 </tr>

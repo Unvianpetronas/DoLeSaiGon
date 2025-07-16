@@ -70,6 +70,12 @@ h2 {
   cursor: pointer;
 }
 
+.admin-product-table th.col-status {
+  /* Mẹo CSS: Ép cột chiếm chiều rộng nhỏ nhất có thể */
+  width: 6%;
+  white-space: nowrap;
+}
+
 .icon {
   cursor: pointer;
   font-size: 18px;
@@ -147,3 +153,41 @@ h2 {
   -moz-appearance: none;
   background-image: none;
 }
+
+/* Thêm vào file DeliveryManagement.css của bạn */
+
+.action-cell {
+  display: flex;
+  justify-content: space-between; /* Đẩy 2 nhóm con về 2 phía */
+  align-items: center;
+  gap: 10px;
+}
+
+.action-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Khoảng cách giữa các icon nếu có nhiều hơn 1 */
+}
+
+/* Giữ nguyên các class cũ */
+.icon.start-delivery {
+  color: #007bff;
+  cursor: pointer;
+}
+.icon.complete {
+  color: #28a745;
+  cursor: pointer;
+}
+.icon:hover {
+  transform: scale(1.2);
+}
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+  white-space: nowrap;
+}
+.status-pending { background-color: #ffc107; }
+.status-shipping { background-color: #17a2b8; }

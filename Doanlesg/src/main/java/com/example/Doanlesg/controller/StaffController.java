@@ -312,24 +312,18 @@ public class StaffController {
 
     // Create new staff account
     @PostMapping("/accounts/new-staff")
-    public ResponseEntity<?> createStaffAccount(@RequestBody AccountStaffDTO request, HttpSession session) {
+    public ResponseEntity<?> createStaffAccount(
+            @RequestPart("staff") AccountStaffDTO request, // For the JSON part
+            @RequestPart(value = "image", required = false) MultipartFile imageFile, // For the image file
+            HttpSession session
+    ) throws IOException {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        // Build Account
-        Account account = new Account();
-        account.setEmail(request.getEmail());
-        account.setPasswordHash(request.getPassword());
+        // Your service layer will now need to handle the imageFile
+        Account createdAccount = accountServices.createStaffAccount(request, imageFile);
 
-        // Build Staff
-        Staff staff = new Staff();
-        staff.setFullName(request.getFullName());
-        staff.setPhoneNumber(request.getPhoneNumber());
-        staff.setEmployeeId(request.getEmployeeId());
-        staff.setDepartment(request.getDepartment());
-
-        Account createdAccount = accountServices.createStaffAccount(account, staff);
         if (createdAccount != null) {
             return ResponseEntity.ok(createdAccount);
         } else {
@@ -353,17 +347,33 @@ public class StaffController {
     }
 
     // Update existing staff account
-    @PutMapping("/accounts/staff-{id}")
-    public ResponseEntity<?> updateStaffAccount(@PathVariable Long id, @RequestBody AccountStaffDTO request, HttpSession session) {
+    @PutMapping(value = "/accounts/staff/{id}", consumes = { "multipart/form-data" })
+    public ResponseEntity<?> updateStaffAccount(
+            @PathVariable Long id,
+            @RequestPart("staff") AccountStaffDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+            HttpSession session) {
+
+        // 1. Authorization Check
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        boolean success = accountServices.updateStaffAccount(id, request.getAccount(), request.getStaff());
-        if (success) {
-            return new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Cập nhật thất bại - Tài khoản không tồn tại hoặc email đã được sử dụng", HttpStatus.BAD_REQUEST);
+        try {
+            // 2. Call the service method, passing the DTO and the optional image file
+            Optional<Account> updatedAccountOpt = accountServices.updateStaffAccount(id, dto, imageFile);
+
+            // 3. Handle the response from the service
+            return updatedAccountOpt
+                    .map(account -> new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK)) // If update was successful
+                    .orElseGet(() -> new ResponseEntity<>("Tài khoản không tồn tại.", HttpStatus.NOT_FOUND)); // If account was not found
+
+        } catch (IOException e) {
+            // Catch errors specifically from the image upload process
+            return new ResponseEntity<>("Lỗi khi tải ảnh lên: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // Catch validation errors from the service (e.g., email already exists)
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

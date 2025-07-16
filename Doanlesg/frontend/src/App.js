@@ -195,10 +195,9 @@ function Header() {
                             <>
                                 <div className="icon-text">{user.email} ▾</div>
                                 <div className="dropdown-content">
-                                    <Link to="/profile">Thông tin tài khoản</Link>
                                     {/* Link to admin dashboard if user is an admin */}
-                                    {user.roles?.includes("ROLE_ADMIN") && (
-                                        <Link to="/admin/dashboard">Admin</Link>
+                                    {(user.roles?.includes("ROLE_ADMIN") || user.roles?.includes("ROLE_STAFF")) && (
+                                        <Link to="/admin/">Admin</Link>
                                     )}
                                     <button onClick={handleLogout} className="logout-button">Đăng xuất</button>
                                 </div>

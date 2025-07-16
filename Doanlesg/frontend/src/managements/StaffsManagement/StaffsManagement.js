@@ -4,6 +4,7 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import StaffAvatar from '../../components/common/StaffAvatar'; // Make sure this path is correct
 
 const hasRole = (user, role) => {
   if (!user || !user.roles) return false;
@@ -29,7 +30,7 @@ const StaffsManagement = () => {
 
   const [newStaff, setNewStaff] = useState({
     name: '', code: '', phone: '', department: '', accountId: '',
-    avatar: '', adminLevel: ''
+    avatar: '', newImageFile: null
   });
 
   const filterRef = useRef(null);
@@ -38,22 +39,17 @@ const StaffsManagement = () => {
     fetch('http://localhost:8080/api/ver0.0.1/staff/accounts/staff', { method: 'GET', credentials: 'include' })
         .then(res => res.json())
         .then(data => {
-          // ✅ FIX: Process the nested JSON structure from the backend
-          console.log('API Response Data:', data);
           const staffAccounts = data.map(dto => ({
-            // Data from the nested 'account' object
             id: dto.account.id,
             accountId: dto.account.email,
             status: dto.account.status ? 'Hoạt động' : 'Nghỉ phép',
-
-            // Data from the nested 'staff' object
             name: dto.staff.fullName,
             code: dto.staff.employeeId,
             phone: dto.staff.phoneNumber,
             department: dto.staff.department,
-            avatar: dto.staff.avatar || '',
+            // ✅ ADD: Give each employee an initial timestamp for cache-busting.
+            lastUpdated: Date.now()
           }));
-
           setEmployees(staffAccounts);
         })
         .catch(err => {
@@ -133,7 +129,7 @@ const StaffsManagement = () => {
 
   const handleOpenCreate = () => {
     setEditingId(null);
-    setNewStaff({ name: '', code: '', phone: '', department: '', accountId: '', avatar: '', adminLevel: '' });
+    setNewStaff({ name: '', code: '', phone: '', department: '', accountId: '', avatar: '', newImageFile: null });
     setShowModal(true);
   };
 
@@ -145,7 +141,7 @@ const StaffsManagement = () => {
 
   const handleSave = async () => {
     setIsSubmitting(true);
-    const payload = {
+    const staffData = {
       email: newStaff.accountId,
       password: 'defaultPassword123',
       fullName: newStaff.name,
@@ -153,39 +149,49 @@ const StaffsManagement = () => {
       employeeId: newStaff.code,
       department: newStaff.department,
     };
+    const formData = new FormData();
+    formData.append('staff', new Blob([JSON.stringify(staffData)], { type: 'application/json' }));
+    if (newStaff.newImageFile) {
+      formData.append('image', newStaff.newImageFile, newStaff.newImageFile.name);
+    }
     const isEditing = editingId !== null;
     const url = isEditing
         ? `http://localhost:8080/api/ver0.0.1/staff/accounts/staff/${editingId}`
-        : `http://localhost:8080/api/ver0.0.1/staff/accounts/new-staff`;
+        : `http://localhost:8080/api/ver0.0.1/accounts/new-staff`;
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload)
+        body: formData
       });
       if (response.ok) {
-        // The backend response is the full Account object, which is nested
-        const savedAccount = await response.json();
-
-        // We map the nested response to our flat frontend state structure
-        const employeeEntry = {
-          id: savedAccount.id,
-          accountId: savedAccount.email,
-          name: savedAccount.staff.fullName,
-          code: savedAccount.staff.employeeId,
-          phone: savedAccount.staff.phoneNumber,
-          department: savedAccount.staff.department,
-          status: savedAccount.status ? 'Hoạt động' : 'Nghỉ phép',
-          avatar: savedAccount.staff.avatar || '',
-        };
-
         if (isEditing) {
-          setEmployees(prev => prev.map(e => e.id === editingId ? employeeEntry : e));
+          // ✅ FIX: Update the specific employee's `lastUpdated` timestamp to force a re-render.
+          setEmployees(prev => prev.map(e => {
+            if (e.id === editingId) {
+              return {
+                ...newStaff,
+                id: editingId,
+                lastUpdated: newStaff.newImageFile ? Date.now() : e.lastUpdated
+              };
+            }
+            return e;
+          }));
           addNotification('Cập nhật nhân viên thành công!', 'success');
         } else {
+          const savedAccount = await response.json();
+          const employeeEntry = {
+            id: savedAccount.id,
+            accountId: savedAccount.email,
+            name: savedAccount.staff.fullName,
+            code: savedAccount.staff.employeeId,
+            phone: savedAccount.staff.phoneNumber,
+            department: savedAccount.staff.department,
+            status: savedAccount.status ? 'Hoạt động' : 'Nghỉ phép',
+            lastUpdated: Date.now()
+          };
           setEmployees(prev => [employeeEntry, ...prev]);
           addNotification('Tạo nhân viên thành công!', 'success');
         }
@@ -201,13 +207,18 @@ const StaffsManagement = () => {
     }
   };
 
-
-  // ... (rest of the component and JSX is the same)
-  // The JSX already uses the flattened 'employees' state, so it doesn't need changes.
+  const handleExportCSV = () => {
+    const headers = ['Mã NV', 'Họ và tên', 'Số điện thoại', 'Email', 'Phòng ban'];
+    const rows = filteredEmployees.map(e => [e.code, e.name, e.phone, e.accountId, e.department]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c || ''}"`).join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'danh_sach_nhan_vien.csv'; a.click();
+  };
 
   return (
       <div className="staffs-management">
-        {/* ... JSX for controls ... */}
         <h2>Danh Sách Nhân Viên</h2>
         <div className="admin-controls">
           <button className="btn green" onClick={handleOpenCreate}>CREATE</button>
@@ -272,7 +283,15 @@ const StaffsManagement = () => {
                   <td>{e.phone}</td>
                   <td>{e.department}</td>
                   <td>
-                    {e.avatar ? ( <img src={e.avatar} alt="avatar" className="avatar-preview" /> ) : ( <span className="no-image">🚫</span> )}
+                    <div className="avatar-container">
+                      {/* ✅ PASS: Pass the employee-specific timestamp as the cacheKey. */}
+                      <StaffAvatar
+                          employeeId={e.code}
+                          alt={e.name}
+                          className="avatar-preview"
+                          cacheKey={e.lastUpdated}
+                      />
+                    </div>
                   </td>
                   <td>{e.accountId}</td>
                   <td>

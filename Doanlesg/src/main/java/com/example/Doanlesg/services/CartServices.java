@@ -37,7 +37,7 @@ public class CartServices {
         // Chuyển đổi từ List<CartItem> (Entity) sang List<CartItemDTO>
         return items.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
     private CartItemDTO convertToDto(CartItem cartItem) {
         CartItemDTO dto = new CartItemDTO();

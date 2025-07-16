@@ -36,7 +36,8 @@ public class CartItemController {
     @GetMapping("/allCartItem")
     public List<CartItemDTO> getAllCartItems(HttpSession session) {
         Long accountId = (Long) session.getAttribute(ACCOUNT);
-        if (accountId == null) {
+        Account account = accountServices.findById(accountId);
+        if (accountId == null || account.getStaff() != null || account.getAdmin() != null) {
             return Collections.emptyList();
         }
         Long cartId = accountServices.findById(accountId).getCart().getId();

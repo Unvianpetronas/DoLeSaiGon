@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
             setLoading(false);
         };
 
-        loadCart();
+        loadCart().then();
     }, [user, isAuthLoading]);
 
     // --- IMPLEMENTED FUNCTIONS ---
