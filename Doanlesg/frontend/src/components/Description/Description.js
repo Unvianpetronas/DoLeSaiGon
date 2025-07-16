@@ -5,8 +5,11 @@ import { useCart } from "../../contexts/CartProvider";
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
-// 1. Import the ProductImage component
 import ProductImage from '../common/ProductImage'; // Adjust path if necessary
+
+// ✅ ADD: Helper function to add cache keys
+const addCacheKey = (products) =>
+    (products || []).map(p => ({ ...p, lastUpdated: Date.now() }));
 
 const parseDescription = (rawDescription) => {
   if (!rawDescription) return [];
@@ -37,6 +40,9 @@ const Description = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    // Reset image index when product changes
+    setImageIndex(0);
+
     const fetchProduct = async () => {
       try {
         setLoading(true);
@@ -46,7 +52,8 @@ const Description = () => {
           throw new Error('Không tìm thấy sản phẩm.');
         }
         const data = await res.json();
-        setProduct(data);
+        // ✅ ADD: Add a cache key to the main product object
+        setProduct({ ...data, lastUpdated: Date.now() });
         setIsFavorite(isItemFavorite(data.id));
 
         if (data?.category?.id) {
@@ -54,7 +61,8 @@ const Description = () => {
           if (relRes.ok) {
             const relData = await relRes.json();
             const related = (relData.content || []).filter(p => p.id !== data.id);
-            setRelatedProducts(related);
+            // ✅ ADD: Add cache keys to related products
+            setRelatedProducts(addCacheKey(related));
           }
         }
       } catch (err) {
@@ -64,7 +72,7 @@ const Description = () => {
       }
     };
 
-    fetchProduct().then();
+    fetchProduct();
   }, [productId]);
 
   const handleQuantity = (type) => {
@@ -72,7 +80,6 @@ const Description = () => {
     else if (type === "increase") setQuantity(quantity + 1);
   };
 
-  // ✅ UPDATED: Logic now works with an array of image IDs
   const allImageIds = product ? [product.id, ...(product.extraImages || [])] : [];
 
   const handleImageChange = (direction) => {
@@ -117,17 +124,18 @@ const Description = () => {
       <div className="product-detail-container">
         <div className="product-main-wrapper">
           <div className="product-main">
-            {/* ✅ REFACTORED: Entire image section now uses ProductImage */}
             <div className="product-images">
               <div className="image-wrapper">
                 {allImageIds.length > 1 && (
                     <button className="nav-button prev" onClick={() => handleImageChange(-1)}>❮</button>
                 )}
 
+                {/* ✅ PASS: Pass the cacheKey prop */}
                 <ProductImage
                     productId={selectedImageId}
                     alt={product.productName}
                     className="main-image"
+                    cacheKey={product.lastUpdated}
                 />
 
                 {allImageIds.length > 1 && (
@@ -143,7 +151,12 @@ const Description = () => {
                             className={`thumbnail-item ${imageIndex === index ? "active" : ""}`}
                             onClick={() => setImageIndex(index)}
                         >
-                          <ProductImage productId={id} alt={`Thumbnail ${index + 1}`} />
+                          {/* ✅ PASS: Pass the cacheKey prop */}
+                          <ProductImage
+                              productId={id}
+                              alt={`Thumbnail ${index + 1}`}
+                              cacheKey={product.lastUpdated}
+                          />
                         </div>
                     ))}
                   </div>
@@ -151,8 +164,9 @@ const Description = () => {
             </div>
 
             <div className="product-info">
+              {/* ... product info content ... */}
               <h1 className="product-title">{product.productName}</h1>
-              <p className="product-sub">Thương hiệu: DoleSaigon | Tình trạng: {product.status ? 'Còn hàng' : 'Hết hàng'}</p>
+              <p className="product-sub">Thương hiệu: DoleSaigon | Tình trạng: {product.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}</p>
               <p className="product-price">
                 {product.price.toLocaleString()}đ
                 {product.originalPrice && (
@@ -205,8 +219,12 @@ const Description = () => {
                 <div className="related-products" ref={scrollRef}>
                   {relatedProducts.map((rel) => (
                       <Link to={`/product/${rel.id}`} className="related-item" key={rel.id}>
-                        {/* ✅ REFACTORED: Use ProductImage for related products */}
-                        <ProductImage productId={rel.id} alt={rel.productName} />
+                        {/* ✅ PASS: Pass the cacheKey prop */}
+                        <ProductImage
+                            productId={rel.id}
+                            alt={rel.productName}
+                            cacheKey={rel.lastUpdated}
+                        />
                         <p>{rel.productName}</p>
                         <span className="related-price">{rel.price.toLocaleString()}₫</span>
                       </Link>

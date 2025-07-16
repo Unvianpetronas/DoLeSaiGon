@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './Homepage.css';
-import { useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaTruck, FaHeadset, FaCreditCard, FaGift } from 'react-icons/fa';
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 import ProductImage from '../common/ProductImage'; // Import the ProductImage component
+
+// ✅ ADD: A helper function to add a cache key to each product
+const addCacheKey = (products) =>
+    (products || []).map(p => ({ ...p, lastUpdated: Date.now() }));
 
 export default function Homepage() {
   const bannerImages = [
@@ -20,8 +24,6 @@ export default function Homepage() {
   const [mamProducts, setMamProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Xôi gấc');
-  const [selectedCategory2, setSelectedCategory2] = useState('Mâm cúng đầy tháng');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [selectedMamSubCategory, setSelectedMamSubCategory] = useState('');
   const [giftSets, setGiftSets] = useState([]);
@@ -32,7 +34,7 @@ export default function Homepage() {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [bannerImages.length]);
 
   useEffect(() => {
     const countdownDate = new Date().getTime() + 5 * 24 * 60 * 60 * 1000;
@@ -78,13 +80,13 @@ export default function Homepage() {
         const mamData = await mamRes.json();
         const giftData = await giftRes.json();
 
-        setPromoProducts(allData.content.slice(0, 4));
-        setXoiProducts(xoiData.content || []);
-        setCheProducts(cheData.content || []);
-        setMamProducts(mamData.content || []);
-        setGiftSets(giftData.content || []);
-        console.log(giftData);
-        setProducts(allData.content || []);
+        // ✅ UPDATE: Use the helper to add cache keys to all product lists
+        setPromoProducts(addCacheKey(allData.content.slice(0, 4)));
+        setXoiProducts(addCacheKey(xoiData.content));
+        setCheProducts(addCacheKey(cheData.content));
+        setMamProducts(addCacheKey(mamData.content));
+        setGiftSets(addCacheKey(giftData.content));
+        setProducts(addCacheKey(allData.content));
       } catch (err) {
         console.error('Lỗi khi gọi API:', err);
         setError('Không thể tải dữ liệu sản phẩm.');
@@ -113,14 +115,6 @@ export default function Homepage() {
     }
   }, [subCategories, selectedSubCategory]);
 
-  const xoiCheCategories = [...new Set(
-      xoiProducts.concat(cheProducts).map(p =>
-          typeof p.category === 'object' ? p.category.name : p.category
-      )
-  )];
-
-  const mamCungCategories = [...new Set(mamProducts.map(p => typeof p.category === 'object' ? p.category.name : p.category))];
-
   const getMamSubCategoryName = (product) => {
     const name = product.productName?.toLowerCase() || '';
     if (name.includes('truyền thống')) return 'Mâm cúng truyền thống';
@@ -137,16 +131,6 @@ export default function Homepage() {
       setSelectedMamSubCategory(mamSubCategories[0]);
     }
   }, [mamSubCategories, selectedMamSubCategory]);
-
-  const displayedXoiChe = xoiProducts.concat(cheProducts).filter(p => {
-    const cat = typeof p.category === 'object' ? p.category.name : p.category;
-    return cat === selectedCategory;
-  });
-
-  const displayedMamCung = mamProducts.filter(p => {
-    const cat = typeof p.category === 'object' ? p.category.name : p.category;
-    return cat === selectedCategory2;
-  });
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -179,9 +163,11 @@ export default function Homepage() {
                 <div key={gift.id} className="gift-item">
                   <div className="gift-image">
                     <Link to={`/product/${gift.id}`}>
+                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={gift.id}
                           alt={gift.productName}
+                          cacheKey={gift.lastUpdated}
                       />
                       <div className="gift-info">
                         <p>{gift.productName}</p>
@@ -204,14 +190,16 @@ export default function Homepage() {
             <div><span id="seconds">0</span><br />Giây</div>
           </div>
           <div className="promo-grid-homepage">
-            {promoProducts.map((item, idx) => {
+            {promoProducts.map((item) => {
               const isFavorite = isItemFavorite(item.id);
               return (
-                  <div className="promo-item-homepage" key={idx}>
+                  <div className="promo-item-homepage" key={item.id}>
                     <Link to={`/product/${item.id}`} className="related-item">
+                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={item.id}
                           alt={item.productName}
+                          cacheKey={item.lastUpdated}
                       />
                       <span className="discount-tag">-10%</span>
                     </Link>
@@ -273,14 +261,16 @@ export default function Homepage() {
             <div className="product-grid">
               {allXoiChe
                   .filter(p => getSubCategoryName(p) === selectedSubCategory)
-                  .map((item, idx) => {
+                  .map((item) => {
                     const isFavorite = isItemFavorite(item.id);
                     return (
-                        <div className="promo-item-homepage" key={idx}>
+                        <div className="promo-item-homepage" key={item.id}>
                           <Link to={`/product/${item.id}`}>
+                            {/* ✅ PASS: Pass the cacheKey prop */}
                             <ProductImage
                                 productId={item.id}
                                 alt={item.productName}
+                                cacheKey={item.lastUpdated}
                             />
                             <span className="discount-tag">-10%</span>
                           </Link>
@@ -328,14 +318,16 @@ export default function Homepage() {
             <div className="product-grid">
               {mamProducts
                   .filter(p => getMamSubCategoryName(p) === selectedMamSubCategory)
-                  .map((item, idx) => {
+                  .map((item) => {
                     const isFavorite = isItemFavorite(item.id);
                     return(
-                        <div className="promo-item-homepage" key={idx}>
+                        <div className="promo-item-homepage" key={item.id}>
                           <Link to={`/product/${item.id}`}>
+                            {/* ✅ PASS: Pass the cacheKey prop */}
                             <ProductImage
                                 productId={item.id}
                                 alt={item.productName}
+                                cacheKey={item.lastUpdated}
                             />
                             <span className="discount-tag">-10%</span>
                           </Link>
@@ -364,8 +356,6 @@ export default function Homepage() {
         </div>
 
         <section className="why-choose-us">
-          <p>DOLESAIGON</p>
-          <h2>--VÌ SAO CHỌN CHÚNG TÔI--</h2>
           <div className="flip-card">
             <div className="flip-card-inner">
               <div className="flip-card-front">

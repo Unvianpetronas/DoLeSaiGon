@@ -19,17 +19,18 @@ const ProductsPage = () => {
       try {
         const res = await fetch("http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=productName");
         const data = await res.json();
-        setProducts(data.content || []);
+        // ✅ ADD: Add a 'lastUpdated' timestamp to each product for cache-busting.
+        const productsWithCacheKey = (data.content || []).map(p => ({
+          ...p,
+          lastUpdated: Date.now()
+        }));
+        setProducts(productsWithCacheKey);
       } catch (err) {
         console.error('Lỗi khi tải sản phẩm:', err);
       }
     };
     fetchProducts();
   }, []);
-
-  const addToCart = (item) => {
-    alert(`Đã thêm "${item.productName}" vào giỏ hàng!`);
-  };
 
   // Lấy tên danh mục con từ productName
   const getSubCategoryName = (product) => {
@@ -142,14 +143,15 @@ const ProductsPage = () => {
               {currentItems.map(item => (
                   <div key={item.id} className="promo-item-products">
                     <Link to={`/product/${item.id}`}>
+                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={item.id}
                           alt={item.productName}
+                          cacheKey={item.lastUpdated}
                       />
                       <span className="discount-tag">-{Math.round(10)}%</span>
                     </Link>
 
-                    {/* Nằm ngoài Link nhưng vẫn nằm trong promo-item */}
                     <div className="price-box-products">
                       <Link to={`/product/${item.id}`}>
                         <h4>{item.productName}</h4>
