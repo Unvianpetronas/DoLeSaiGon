@@ -110,7 +110,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void processPaidOrder(String uniqueCode) {
+    public void processPaidOrder(String uniqueCode, boolean flag) {
         // Find the order using the unique payment code
         Order paidOrder = orderRepository.findByCode(uniqueCode)
                 .orElseThrow(() -> new RuntimeException("Paid order not found with code: " + uniqueCode));
@@ -123,7 +123,10 @@ public class OrderService {
         }
 
         // 1. Update order status to "Paid"
-        paidOrder.setOrderStatus("Paid");
+        if (flag)
+            paidOrder.setOrderStatus("Paid");
+        else
+            paidOrder.setOrderStatus("Cash");
         orderRepository.save(paidOrder);
 
         // 2. Construct the InvoiceData object from the order

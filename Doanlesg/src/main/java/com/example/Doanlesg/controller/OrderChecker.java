@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/ver0.0.1/orders")
 public class OrderChecker {
@@ -39,6 +37,9 @@ public class OrderChecker {
                 }
                 if (paymentInfo != null) {
                     orderService.placeOrder(request, paymentInfo.uniqueCode());
+                    if (request.getPaymentMethodId() == 2) {
+                        orderService.processPaidOrder(paymentInfo.uniqueCode(), false);
+                    }
                 }
             } catch (Exception e) {
                 throw new NumberFormatException("Place Order Failed.");

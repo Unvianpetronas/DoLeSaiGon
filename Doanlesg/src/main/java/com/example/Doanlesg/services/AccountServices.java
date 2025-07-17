@@ -34,7 +34,7 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     @Transactional
     public Account createCustomerAccount(Account accountDetail, Customer customerDetail) {
-        if(validateNewAccount(accountDetail.getEmail())){
+        if(!validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
             accountDetail.setPasswordHash(encodedPassword);
             accountDetail.setStatus(true);

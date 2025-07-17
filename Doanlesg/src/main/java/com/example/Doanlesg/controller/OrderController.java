@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/orders")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class OrderController {
 
     private final OrderService orderService;
@@ -35,7 +34,7 @@ public class OrderController {
             return ResponseEntity.status(401).body(Collections.emptyList());
         }
 
-        List<OrderSummaryDTO> orders = orderService.findOrdersByAccountId(1L);
+        List<OrderSummaryDTO> orders = orderService.findOrdersByAccountId(accountId);
 //        System.out.println(orders);
         return ResponseEntity.ok(orders);
     }

@@ -157,7 +157,7 @@ const StaffsManagement = () => {
     const isEditing = editingId !== null;
     const url = isEditing
         ? `http://localhost:8080/api/ver0.0.1/staff/accounts/staff/${editingId}`
-        : `http://localhost:8080/api/ver0.0.1/accounts/new-staff`;
+        : `http://localhost:8080/api/ver0.0.1/staff/accounts/new-staff`;
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
@@ -244,7 +244,7 @@ const StaffsManagement = () => {
               </div>
             </div>
           </div>
-          <button className="btn yellow" /*onClick={handleExportCSV}*/>EXPORT</button>
+          <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>
           <div className="search-bar">
             <input
                 type="text"

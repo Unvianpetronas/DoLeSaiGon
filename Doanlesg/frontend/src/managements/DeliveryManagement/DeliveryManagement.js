@@ -50,7 +50,7 @@ const DeliveryManagement = () => {
         const allAccounts = await staffRes.json();
 
         let shippingOrders = allOrders
-            .filter(o => ['Pending', 'Shipping'].includes(o.orderStatus))
+            .filter(o => ['Pending', 'Shipping', 'Paid'].includes(o.orderStatus))
             .map(o => ({ ...o, assignedStaffId: o.assignedStaffId || null }));
 
         // SỬA: Đọc dữ liệu từ Local Storage
@@ -120,16 +120,44 @@ const DeliveryManagement = () => {
   };
 
   const handleStatusChange = async (id, newStatus) => {
+    // Keep a backup of the current state to revert to in case of an error
+    const originalDeliveries = [...deliveries];
+
+    // Optimistically update the UI for a responsive feel
     setDeliveries(prev => prev.map(order => order.id === id ? { ...order, orderStatus: newStatus } : order));
 
-    if (newStatus === 'Delivered') {
-      // SỬA: Xóa khỏi Local Storage khi đơn hàng hoàn thành
-      localStorage.removeItem(`order_${id}`);
-      addNotification(`Đã hoàn thành đơn hàng. Xóa phân công khỏi bộ nhớ trình duyệt.`, 'success');
-      // Xóa đơn hàng khỏi danh sách trên giao diện
-      setTimeout(() => setDeliveries(prev => prev.filter(d => d.id !== id)), 300);
-    } else {
-      addNotification(`Cập nhật trạng thái thành ${newStatus}`, 'success');
+    try {
+      // ✅ FIX: Send the new status in the request body as JSON
+      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/orders/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for sending session cookies
+        body: JSON.stringify({ status: newStatus }), // The payload your backend expects
+      });
+
+      if (!response.ok) {
+        // If the API call fails, throw an error to be caught below
+        const errorText = await response.text();
+        throw new Error(errorText || 'Cập nhật trạng thái thất bại.');
+      }
+
+      // On success, show a notification
+      addNotification(`Cập nhật trạng thái thành công!`, 'success');
+
+      // If the order is now complete, remove it from the UI after a short delay
+      if (newStatus === 'Complete') {
+        setTimeout(() => {
+          setDeliveries(prev => prev.filter(d => d.id !== id));
+        }, 500); // 500ms delay for a smoother transition
+      }
+
+    } catch (error) {
+      // If an error occurs, revert the UI to its original state
+      setDeliveries(originalDeliveries);
+      // And show an error notification
+      addNotification(error.message, 'error');
     }
   };
 
@@ -195,7 +223,7 @@ const DeliveryManagement = () => {
                   </td>
                   <td className="action-cell">
                     <div className="action-icons">
-                      {d.orderStatus === 'Pending' && d.assignedStaffId && (
+                      {(d.orderStatus === 'Pending' || d.orderStatus === 'Paid' || d.orderStatus === 'Cash') && d.assignedStaffId && (
                           <FaShippingFast className="icon start-delivery" title="Bắt đầu giao" onClick={() => handleStatusChange(d.id, 'Shipping')} />
                       )}
                       {d.orderStatus === 'Shipping' && (

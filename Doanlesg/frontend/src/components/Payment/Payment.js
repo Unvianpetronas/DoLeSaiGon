@@ -92,7 +92,7 @@ const Payment = () => {
             }
 
             try {
-                const response = await fetch(`/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
+                const response = await fetch(`http://localhost:8080/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Polling Response:", data);
@@ -120,7 +120,7 @@ const Payment = () => {
             }
         };
 
-        checkPaymentStatus();
+        checkPaymentStatus().then();
         pollerRef.current = setInterval(checkPaymentStatus, 5000);
 
         // Cleanup function: runs when the component unmounts or dependencies change
@@ -144,7 +144,7 @@ const Payment = () => {
                 return; // Stop here if critical data is missing
             }
 
-            const response = await fetch("/api/ver0.0.1/orders", {
+            const response = await fetch("http://localhost:8080/api/ver0.0.1/orders", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData), // Re-using the existing orderData state

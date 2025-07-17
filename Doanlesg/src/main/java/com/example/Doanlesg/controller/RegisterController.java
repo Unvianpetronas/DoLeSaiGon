@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/register")
-@CrossOrigin(origins = "http://localhost:3000")
 public class RegisterController {
 
     private final AccountServices accountServices;
@@ -66,7 +65,7 @@ public class RegisterController {
     public ResponseEntity<ApiResponse> processRegistration(@RequestBody RegisterRequest registerRequest) {
         try {
             // Kiểm tra email đã tồn tại chưa
-            if (!accountServices.validateNewAccount(registerRequest.getEmail())) {
+            if (accountServices.validateNewAccount(registerRequest.getEmail())) {
                 return ResponseEntity
                         .status(HttpStatus.CONFLICT) // 409 Conflict
                         .body(new ApiResponse(false, "Đăng ký thất bại. Email này đã được sử dụng."));

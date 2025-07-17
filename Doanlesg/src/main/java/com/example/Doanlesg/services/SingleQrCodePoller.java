@@ -63,7 +63,7 @@ public class SingleQrCodePoller {
                             logger.info("✅✅✅ [POLLER for {}] PAYMENT FOUND! ID: {}, Amount: {}",
                                     uniqueCode, record.getId(), record.getAmount());
 
-                            orderService.processPaidOrder(uniqueCode);
+                            orderService.processPaidOrder(uniqueCode, true);
                             paymentFound = true;
                             break;
                         }
