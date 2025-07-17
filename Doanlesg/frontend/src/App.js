@@ -33,6 +33,7 @@ import Checkout from './components/Checkout/Checkout';
 import Success from './components/Success/Success';
 import Details from './components/Details/Details';
 import Payment from './components/Payment/Payment';
+import TawkChat from "./components/common/TawkChat";
 
 // --- ADMIN COMPONENTS ---
 import AdminDashboard from './managements/AdminDashboard/AdminDashboard';
@@ -108,6 +109,7 @@ function App() {
         <NotificationProvider>
             <AuthProvider>
                 <Router>
+                    <TawkChat />
                     <div className="app">
                         <WarningBanner/>
                         <Routes>
