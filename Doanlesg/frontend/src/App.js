@@ -162,7 +162,14 @@ function App() {
 
 function Header() {
     const { user, logout, isLoading } = useAuth();
-
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const handleSearchChange = (e) => {
+        setSearchKeyword(e.target.value);
+    };
+    const handleSearchSubmit = () => {
+        // điều hướng đến trang /products với từ khóa tìm kiếm
+        window.location.href = `/products?keyword=${encodeURIComponent(searchKeyword)}`;
+    };
     const handleLogout = () => {
         logout();
     };
@@ -176,8 +183,15 @@ function Header() {
                     </Link>
                 </div>
                 <div className="search-bar">
-                    <input type="text" placeholder="Tìm sản phẩm..." />
-                    <button><CiSearch size={20} /></button>
+                    <input
+                        type="text"
+                        placeholder="Tìm sản phẩm..."
+                        value={searchKeyword}
+                        onChange={handleSearchChange}
+                    />
+                    <button onClick={handleSearchSubmit}>
+                        <CiSearch size={20} />
+                    </button>
                 </div>
                 <div className="icon-group">
                     <Link to="/shop" className="icon-item">

@@ -57,7 +57,7 @@ const Description = () => {
         setIsFavorite(isItemFavorite(data.id));
 
         if (data?.category?.id) {
-          const relRes = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=10`);
+          const relRes = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=50&sort=productName`);
           if (relRes.ok) {
             const relData = await relRes.json();
             const related = (relData.content || []).filter(p => p.id !== data.id);

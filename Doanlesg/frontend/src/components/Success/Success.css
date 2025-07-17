@@ -1,22 +1,22 @@
 .success-page {
   position: relative;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  aspect-ratio: 10 / 13; /* Giữ tỉ lệ khung hình, có thể chỉnh lại nếu ảnh khác */
-  background-image: url('../../assets/Success.png');
-  background-size: contain; /* Auto scale hình đúng tỉ lệ */
-  background-repeat: no-repeat;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    background-image: url('../../assets/Success.png');
+    background-size: 900px; /* phủ hết khung */
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0px;
+    height: 700px;
 }
 
 /* Nút nằm giữa hình */
 .success-btn {
   position: absolute;
-  top: 55%; /* chính giữa theo chiều cao */
+  top: 60%; /* chính giữa theo chiều cao */
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #800000;
@@ -28,6 +28,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.3s ease;
+  width: 200px;
 }
 
 .success-btn:hover {
@@ -45,4 +46,10 @@
     font-size: 0.9rem;
     padding: 10px 20px;
   }
+}
+
+.success-notification {
+margin-top: 440px;
+font-weight: bold;
+font-size: 16px;
 }

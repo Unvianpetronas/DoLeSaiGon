@@ -1,25 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import './Products.css';
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
-import ProductImage from '../common/ProductImage'; // Import the ProductImage component
+import ProductImage from '../common/ProductImage';
+import {
+  CategoryData,
+  subCategoryMap,
+  getSubCategoryName,
+} from "../../data/CategoryData";
 
 const ProductsPage = () => {
-  const { categorySlug } = useParams();
+
+  const { categorySlug } = useParams();         // null if at /products
+  const location = useLocation();               // used to get query ?sub=...
+  const navigate = useNavigate();
+
+  // Get subcategory from URL query
+  // Lấy subcategory từ URL query
+  const searchParams = new URLSearchParams(location.search);
+  const keyword = searchParams.get("keyword") || "";
+  const selectedSub = searchParams.get("sub") || "";
+
   const [products, setProducts] = useState([]);
   const [sortOption, setSortOption] = useState('default');
-  const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(''); // only used for /products
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
 
+  const itemsPerPage = 20;
+  const isAllPage = !categorySlug;
+  const currentSlug = isAllPage
+      ? CategoryData?.find((c) => c.name === selectedCategory)?.slug
+      : categorySlug;
+
+  /* ----------------- FETCH ----------------- */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=productName");
+        let url = "";
+        if (keyword.trim()) {
+          url = `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${encodeURIComponent(keyword)}&page=0&size=100&sort=productName`;
+        } else {
+          url = `http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=productName`;
+        }
+        const res = await fetch(url);
         const data = await res.json();
-        // ✅ ADD: Add a 'lastUpdated' timestamp to each product for cache-busting.
+        // Add a 'lastUpdated' timestamp to each product for cache-busting
         const productsWithCacheKey = (data.content || []).map(p => ({
           ...p,
           lastUpdated: Date.now()
@@ -29,11 +56,16 @@ const ProductsPage = () => {
         console.error('Lỗi khi tải sản phẩm:', err);
       }
     };
-    fetchProducts();
-  }, []);
+    fetchProducts().then();
+  }, [keyword]);
 
-  // Lấy tên danh mục con từ productName
-  const getSubCategoryName = (product) => {
+  // Reset page when slug changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categorySlug, selectedSub]);
+
+  // Fallback subcategory function if CategoryData is not available
+  const getSubCategoryNameFallback = (product) => {
     const name = product.productName?.toLowerCase() || '';
     if (name.includes('quả') || name.includes('trái cây')) return 'Mâm Hoa Quả';
     if (name.includes('cúng') || name.includes('tổ tiên') || name.includes('thần tài')) return 'Mâm Cúng Lễ';
@@ -43,12 +75,36 @@ const ProductsPage = () => {
     return 'Khác';
   };
 
-  const subCategories = [...new Set(products.map(getSubCategoryName))];
+  const mainCategories = CategoryData ? CategoryData.map((c) => c.name) : [];
 
-  const filtered = selectedSubCategory
-      ? products.filter((p) => getSubCategoryName(p) === selectedSubCategory)
-      : products;
+  /* ----------------- FILTER ----------------- */
+  let filtered = products;
 
+  if (currentSlug && CategoryData) {
+    // Use CategoryData filtering when available
+    filtered = products.filter((p) => {
+      const sub = getSubCategoryName(p, currentSlug);
+      if (!subCategoryMap[currentSlug]?.includes(sub)) return false;
+
+      // If there's a selected sub in query ?sub=
+      if (selectedSub) return sub === selectedSub;
+
+      return true;
+    });
+  } else if (selectedCategory && !CategoryData) {
+    // Fallback filtering for when CategoryData is not available
+    filtered = products.filter((p) => {
+      const sub = getSubCategoryNameFallback(p);
+      return sub !== 'Khác'; // Filter out 'Khác' category
+    });
+  }
+
+  // Get subcategories for tabs
+  const subCategories = CategoryData && currentSlug && subCategoryMap[currentSlug]
+      ? subCategoryMap[currentSlug]
+      : [...new Set(products.map(getSubCategoryNameFallback))];
+
+  /* ----------------- SORT ----------------- */
   const sorted = [...filtered].sort((a, b) => {
     switch (sortOption) {
       case 'price-asc':
@@ -64,6 +120,7 @@ const ProductsPage = () => {
     }
   });
 
+  /* ----------------- PAGINATION ----------------- */
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sorted
@@ -82,10 +139,11 @@ const ProductsPage = () => {
     );
   };
 
+  /* ----------------- RENDER ----------------- */
   return (
       <div className="products-wrapper">
-        {/* Banner khi không có danh mục */}
-        {!categorySlug && (
+        {/* Banner when no category is selected */}
+        {isAllPage && (
             <>
               <div className="products-banner">
                 <h2 className="brand-name">DoleSaigon</h2>
@@ -100,20 +158,67 @@ const ProductsPage = () => {
             </>
         )}
 
-        {/* Tabs danh mục con */}
-        <div className="tabs">
-          {subCategories.map(cat => (
+        {/* Main category tabs (only at /products) */}
+        {isAllPage && CategoryData && (
+            <div className="tabs main-tabs">
               <button
-                  key={cat}
-                  className={cat === selectedSubCategory ? 'active' : ''}
-                  onClick={() => setSelectedSubCategory(cat)}
+                  className={!selectedCategory ? "active" : ""}
+                  onClick={() => setSelectedCategory("")}
               >
-                <span className="inner-border">{cat}</span>
+                <span className="inner-border">Tất cả</span>
               </button>
-          ))}
-        </div>
+              {mainCategories.map((cat) => (
+                  <button
+                      key={cat}
+                      className={cat === selectedCategory ? "active" : ""}
+                      onClick={() => setSelectedCategory(cat)}
+                  >
+                    <span className="inner-border">{cat}</span>
+                  </button>
+              ))}
+            </div>
+        )}
 
-        {/* Sắp xếp */}
+        {/* Sub-category tabs */}
+        {!isAllPage && CategoryData && subCategoryMap[categorySlug] ? (
+            // For category pages with CategoryData
+            <div className="tabs sub-tabs">
+              {subCategoryMap[categorySlug].map((sub) => (
+                  <button
+                      key={sub}
+                      className={`subcategory-tab ${sub === selectedSub ? "active" : ""}`}
+                      onClick={() =>
+                          navigate(`/category/${categorySlug}?sub=${encodeURIComponent(sub)}`)
+                      }
+                  >
+                    <span className="inner-border">{sub}</span>
+                  </button>
+              ))}
+            </div>
+        ) : (
+            // Fallback tabs for when CategoryData is not available
+            <div className="tabs">
+              {subCategories.map(cat => (
+                  <button
+                      key={cat}
+                      className={cat === selectedSub ? 'active' : ''}
+                      onClick={() => {
+                        if (isAllPage) {
+                          // For /products page, use state
+                          setSelectedCategory(cat);
+                        } else {
+                          // For category pages, use URL query
+                          navigate(`/category/${categorySlug}?sub=${encodeURIComponent(cat)}`);
+                        }
+                      }}
+                  >
+                    <span className="inner-border">{cat}</span>
+                  </button>
+              ))}
+            </div>
+        )}
+
+        {/* Sorting Options */}
         <div className="sort-options">
           <span className="sort-label">Xếp theo</span>
           {[
@@ -135,7 +240,7 @@ const ProductsPage = () => {
           ))}
         </div>
 
-        {/* Danh sách sản phẩm */}
+        {/* Product List */}
         {sorted.length === 0 ? (
             <p className="no-products">Không có sản phẩm nào.</p>
         ) : (
@@ -143,7 +248,6 @@ const ProductsPage = () => {
               {currentItems.map(item => (
                   <div key={item.id} className="promo-item-products">
                     <Link to={`/product/${item.id}`}>
-                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={item.id}
                           alt={item.productName}
@@ -158,7 +262,7 @@ const ProductsPage = () => {
                         <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
                         <span className="new-price-products">{item.price.toLocaleString()}đ</span>
                       </Link>
-                      <div className="action-buttons">
+                      <div className="action-buttons-homepage">
                         <AddToCartButton product={item} quantity={1} />
                         <button
                             className="heart-btn"
@@ -174,6 +278,7 @@ const ProductsPage = () => {
             </div>
         )}
 
+        {/* Pagination */}
         <div className="pagination">
           {Array.from({ length: Math.ceil(sorted.length / itemsPerPage) }, (_, i) => (
               <button

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react"; // ✅ ADDED: useMemo
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
 import { FaShoppingCart, FaCartPlus } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartProvider";
 import { useNotification } from "../../contexts/NotificationContext";
+import ProductImage from "../common/ProductImage";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -20,19 +21,24 @@ const Cart = () => {
   } = useCart();
   const { addNotification } = useNotification();
 
-  // 1. New state for dynamic recommendations
   const [recommendedProducts, setRecommendedProducts] = useState([]);
 
-  // 2. New useEffect to fetch recommended products
+  // ✅ ADDED: Create a memoized version of cart items with a cache key
+  const processedCartItems = useMemo(() => {
+    return cartItems.map(item => ({
+      ...item,
+      lastUpdated: Date.now()
+    }));
+  }, [cartItems]);
+
+
   useEffect(() => {
     const fetchRecommendations = async () => {
-      // Don't fetch if the main cart is still loading
       if (loading) return;
 
       let categoryToFetch = null;
 
       if (cartItems.length > 0) {
-        // Find the category with the most items in the cart
         const categoryCounts = cartItems.reduce((acc, item) => {
           const categoryId = item.category?.id;
           if (categoryId) {
@@ -41,7 +47,6 @@ const Cart = () => {
           return acc;
         }, {});
 
-        // Get the category ID with the highest count
         const topCategoryId = Object.keys(categoryCounts).reduce((a, b) =>
                 categoryCounts[a] > categoryCounts[b] ? a : b
             , null);
@@ -52,25 +57,23 @@ const Cart = () => {
       try {
         let response;
         if (categoryToFetch) {
-          // Fetch from the top category
           response = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${categoryToFetch}&page=0&size=10&sort=productName`);
         } else {
-          // If cart is empty, fetch any 5 products
           response = await fetch(`http://localhost:8080/api/ver0.0.1/product?page=0&size=5&sort=price`);
         }
 
         if (response.ok) {
           const data = await response.json();
-          const products = data.content || [];
+          // ✅ MODIFIED: Add 'lastUpdated' timestamp for cache-busting
+          const products = (data.content || []).map(p => ({
+            ...p,
+            lastUpdated: Date.now()
+          }));
 
-          // Get a list of product IDs currently in the cart
           const cartProductIds = new Set(cartItems.map(item => item.productId));
-
-          // Filter out products that are already in the cart and take the first 5
           const filteredRecommendations = products
               .filter(p => !cartProductIds.has(p.id))
               .slice(0, 5);
-
           setRecommendedProducts(filteredRecommendations);
         }
 
@@ -80,7 +83,7 @@ const Cart = () => {
     };
 
     fetchRecommendations();
-  }, [cartItems, loading]); // Reruns when cartItems change
+  }, [cartItems, loading]);
 
   const handleUpdateQuantity = (productId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -121,7 +124,7 @@ const Cart = () => {
         <div className="cart-main">
           <div className="cart-left">
             <h2>Giỏ hàng của bạn</h2>
-            {cartItems.length === 0 ? (
+            {processedCartItems.length === 0 ? (
                 <div className="empty-cart">
                   <FaShoppingCart size={64} color="#ccc" />
                   <p>Giỏ hàng của bạn đang trống</p>
@@ -133,10 +136,16 @@ const Cart = () => {
                     <div className="column name">Sản phẩm</div>
                     <div className="column total">Thành tiền</div>
                   </div>
-                  {cartItems.map((item) => (
+                  {/* ✅ MODIFIED: Use processedCartItems */}
+                  {processedCartItems.map((item) => (
                       <div key={item.productId} className="cart-row">
                         <div className="column image">
-                          <img src={`/products/${item.productId}.png`} alt={item.productName} className="cart-item-image" />
+                          <ProductImage
+                              productId={item.productId}
+                              alt={item.productName}
+                              className="cart-item-image"
+                              cacheKey={item.lastUpdated} // ✅ ADDED: Pass the cacheKey
+                          />
                         </div>
                         <div className="column name">
                           <div className="item-name">{item.productName}</div>
@@ -172,14 +181,17 @@ const Cart = () => {
           <div className="slider-wrapper">
             <button onClick={() => scroll(-1)} className="slider-btn left">◀</button>
             <div className="recommended-products" ref={scrollRef}>
-              {/* 3. Map over the new dynamic state */}
               {recommendedProducts.map((product) => (
                   <div key={product.id} className="recommended-item">
                     <div className="img-wrapper">
                       <button className="add-to-cart-btn icon-only" onClick={() => handleAddToCart(product)} title="Thêm vào giỏ hàng">
                         <FaCartPlus size={20} />
                       </button>
-                      <img src={`/products/${product.id}.png`} alt={product.productName} />
+                      <ProductImage
+                          productId={product.id}
+                          alt={product.productName}
+                          cacheKey={product.lastUpdated} // ✅ ADDED: Pass the cacheKey
+                      />
                     </div>
                     <span className="recommended-name">{product.productName}</span>
                     <span className="recommended-price">{product.price.toLocaleString()}₫</span>
