@@ -17,7 +17,7 @@ const TawkChat = () => {
         const script = document.createElement("script");
         script.id = 'tawk-script'; // Thêm ID để dễ dàng tìm và xóa
         script.async = true;
-        script.src = 'https://embed.tawk.to/6878cbddb3c1de190eea141f/1j0btomoe';
+        script.src = 'https://embed.tawk.to/6878cbddb3c1de190eea141f/1j0c01qem';
         script.setAttribute('crossorigin', '*');
 
         document.body.appendChild(script);
