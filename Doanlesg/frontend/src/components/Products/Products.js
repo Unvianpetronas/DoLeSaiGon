@@ -196,25 +196,25 @@ const ProductsPage = () => {
               ))}
             </div>
         ) : (
-            // Fallback tabs for when CategoryData is not available
+            // Deprecated
             <div className="tabs">
-              {subCategories.map(cat => (
-                  <button
-                      key={cat}
-                      className={cat === selectedSub ? 'active' : ''}
-                      onClick={() => {
-                        if (isAllPage) {
-                          // For /products page, use state
-                          setSelectedCategory(cat);
-                        } else {
-                          // For category pages, use URL query
-                          navigate(`/category/${categorySlug}?sub=${encodeURIComponent(cat)}`);
-                        }
-                      }}
-                  >
-                    <span className="inner-border">{cat}</span>
-                  </button>
-              ))}
+              {/*{subCategories.map(cat => (*/}
+              {/*    <button*/}
+              {/*        key={cat}*/}
+              {/*        className={cat === selectedSub ? 'active' : ''}*/}
+              {/*        onClick={() => {*/}
+              {/*          if (isAllPage) {*/}
+              {/*            // For /products page, use state*/}
+              {/*            setSelectedCategory(cat);*/}
+              {/*          } else {*/}
+              {/*            // For category pages, use URL query*/}
+              {/*            navigate(`/category/${categorySlug}?sub=${encodeURIComponent(cat)}`);*/}
+              {/*          }*/}
+              {/*        }}*/}
+              {/*    >*/}
+              {/*      <span className="inner-border">{cat}</span>*/}
+              {/*    </button>*/}
+              {/*))}*/}
             </div>
         )}
 
