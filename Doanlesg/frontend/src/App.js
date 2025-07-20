@@ -23,7 +23,6 @@ import CategoryMenu from './components/CategoryMenu/CategoryMenu';
 import Homepage from './components/Homepage/Homepage';
 import Introduction from './components/Introduction/Introduction';
 import Products from './components/Products/Products';
-import Contact from './components/Contact/Contact';
 import Policy from './components/Policy/Policy';
 import Instructions from './components/Policy/Instructions';
 import OrderPage from './components/OrderPage/OrderPage';
@@ -113,7 +112,7 @@ function App() {
                         <Routes>
                             {/* --- Customer Routes with Breadcrumb --- */}
                             <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
-                            <Route path="/contact" element={<MainLayout label="Liên hệ"><Contact /></MainLayout>} />
+
                             <Route path="/products" element={<MainLayout label="Sản phẩm"><Products /></MainLayout>} />
                             <Route path="/introduction" element={<MainLayout label="Giới thiệu"><Introduction /></MainLayout>} />
                             <Route path="/checkout" element={<MainLayout label="Thanh toán"><Checkout /></MainLayout>} />
@@ -130,7 +129,7 @@ function App() {
                             <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
                             <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
                             <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
-                            <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
+                            <Route path="/instructions/:instructionType" element={<InstructionWrapper />} />
                             <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
 
                             {/* --- Admin Routes with Admin Layout --- */}
@@ -160,11 +159,17 @@ function App() {
 
 function Header() {
     const { user, logout, isLoading } = useAuth();
-
+    const [searchKeyword, setSearchKeyword] = useState('');
     const handleLogout = () => {
         logout();
     };
-
+    const handleSearchChange = (e) => {
+        setSearchKeyword(e.target.value);
+     };
+    const handleSearchSubmit = () => {
+        // điều hướng đến trang /products với từ khóa tìm kiếm
+        window.location.href = `/products?keyword=${encodeURIComponent(searchKeyword)}`;
+      };
     return (
         <header className="header">
             <div className="top-header">
@@ -174,9 +179,16 @@ function Header() {
                     </Link>
                 </div>
                 <div className="search-bar">
-                    <input type="text" placeholder="Tìm sản phẩm..." />
-                    <button><CiSearch size={20} /></button>
-                </div>
+                        <input
+                          type="text"
+                          placeholder="Tìm sản phẩm..."
+                          value={searchKeyword}
+                          onChange={handleSearchChange}
+                        />
+                        <button onClick={handleSearchSubmit}>
+                          <CiSearch size={20} />
+                        </button>
+                      </div>
                 <div className="icon-group">
                     <Link to="/shop" className="icon-item">
                         <FaMapMarkerAlt />
@@ -224,14 +236,20 @@ function Header() {
                 </div>
                 <Link to="/" className="menu-item">Trang chủ</Link>
                 <Link to="/introduction" className="menu-item">Giới thiệu</Link>
-                <Link to="/contact" className="menu-item">Liên hệ</Link>
+                <div className="menu-item dropdown">
+                    <span>Hướng dẫn ▾</span>
+                    <div className="dropdown-content">
+                        <Link to="/instructions/huong-dan-mua-hang">Hướng dẫn mua hàng</Link>
+                        <Link to="/instructions/huong-dan-thanh-toan">Hướng dẫn thanh toán</Link>
+                        <Link to="/instructions/huong-dan-doi-tra">Hướng dẫn đổi trả</Link>
+                    </div>
+                </div>
                 <div className="menu-item dropdown">
                     <span>Chính sách ▾</span>
                     <div className="dropdown-content">
                         <Link to="/policy/mua-hang">Chính sách mua hàng</Link>
                         <Link to="/policy/thanh-toan">Chính sách thanh toán</Link>
                         <Link to="/policy/van-chuyen">Chính sách vận chuyển</Link>
-                        {/* ... other policy links */}
                     </div>
                 </div>
             </nav>
@@ -259,7 +277,7 @@ function Footer() {
                         <li><Link to="/policy/van-chuyen">Chính sách vận chuyển</Link></li>
                         <li><Link to="/policy/cam-ket">Cam kết của hàng</Link></li>
                         <li><Link to="/policy/bao-mat">Chính sách bảo mật</Link></li>
-                        <li><Link to="/policy/thanh-vien">Chính sách thành viên</Link></li>
+
                     </ul>
                 </div>
                 <div className="footer-column">
@@ -321,7 +339,14 @@ const policyTitles = {
     'van-chuyen': 'Chính sách vận chuyển',
     'cam-ket': 'Cam kết của hàng',
     'bao-mat': 'Chính sách bảo mật',
-    'thanh-vien': 'Chính sách thành viên'
+};
+
+const instructionTitles  = {
+    'mua-hang': 'Hướng dẫn mua hàng',
+    'thanh-toan': 'Hướng dẫn thanh toán',
+    'doi-tra': 'Hướng dẫn đổi trả',
+    'bao-hanh': 'Quy định bảo hành',
+    'chuyen-khoan': 'Hướng dẫn chuyển khoản',
 };
 
 function PolicyWrapper() {
@@ -330,6 +355,16 @@ function PolicyWrapper() {
     return (
         <MainLayout label={label}>
             <Policy />
+        </MainLayout>
+    );
+}
+
+function InstructionWrapper() {
+    const { instructionType } = useParams();
+    const label = instructionTitles[instructionType] || 'Hướng dẫn';
+    return (
+        <MainLayout label={label}>
+            <Instructions />
         </MainLayout>
     );
 }
