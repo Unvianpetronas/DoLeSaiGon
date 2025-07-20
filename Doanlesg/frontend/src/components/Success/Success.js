@@ -14,14 +14,13 @@ function Success() {
     return (
         <div className="success-page">
             <div className="success-card">
-                <div className="success-icon">✓</div>
-                <h2>Đặt Hàng Thành Công!</h2>
+              <div className="success-notification">
                 <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại DoleSaigon.</p>
                 {orderId && (
                     <p className="order-code">Mã đơn hàng của bạn là: <strong>{orderCode || orderId}</strong></p>
                 )}
                 <p>Chúng tôi sẽ liên hệ với bạn để xác nhận đơn hàng trong thời gian sớm nhất.</p>
-
+              </div>
                 <div className="success-actions">
                     {orderId && (
                         <button
