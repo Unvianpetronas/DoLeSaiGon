@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class OrderService {
@@ -27,8 +25,10 @@ public class OrderService {
     private final ShippingRepository shippingRepository;
     private final InvoiceService invoiceService;
     private final QRCodeManagermentService qrCodeManager;
+    private final GhnApiService ghnApiService;
+    private final ObjectMapper objectMapper;
 
-    public OrderService(OrderRepository orderRepository, AccountRepository accountRepository, ProductRepository productRepository, OderItemRepository orderItemRepository, PaymentRepository paymentRepository, ShippingRepository shippingRepository, InvoiceService invoiceService, QRCodeManagermentService qrCodeManagermentService) {
+    public OrderService(OrderRepository orderRepository, AccountRepository accountRepository, ProductRepository productRepository, OderItemRepository orderItemRepository, PaymentRepository paymentRepository, ShippingRepository shippingRepository, InvoiceService invoiceService, QRCodeManagermentService qrCodeManagermentService, GhnApiService ghnApiService, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.accountRepository = accountRepository;
         this.productRepository = productRepository;
@@ -37,6 +37,8 @@ public class OrderService {
         this.shippingRepository = shippingRepository;
         this.invoiceService = invoiceService;
         this.qrCodeManager = qrCodeManagermentService;
+        this.ghnApiService = ghnApiService;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -104,9 +106,93 @@ public class OrderService {
 
         // TODO: Thêm logic tính áp dụng voucher ở đây để ra tổng cuối cùng
 
-        // 4. Lưu đơn hàng và các mặt hàng liên quan
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
+
+//        final long GHN_SHIPPING_METHOD_ID = 2L;
+//
+//        if (request.getShippingMethodId() == GHN_SHIPPING_METHOD_ID) {
+//            try {
+//                // Gọi một phương thức private mới để xử lý logic GHN
+//                registerShipmentWithGhn(order, request);
+//            } catch (Exception e) {
+//                // Ghi log lỗi nếu việc gọi GHN thất bại
+//                logger.error("Đăng ký vận đơn GHN thất bại cho order code: {}. Lỗi: {}",
+//                        order.getCode(), e.getMessage());
+//            }
+//        }
+
+        // 4. Lưu đơn hàng và các mặt hàng liên quan
+    }
+
+    /// tam thoi chua su dung
+    private void registerShipmentWithGhn(Order order, CheckoutRequestDTO request) {
+        GhnCreateOrderRequest ghnRequest = new GhnCreateOrderRequest();
+
+        // Map thông tin từ các đối tượng của bạn sang GhnCreateOrderRequest
+        ghnRequest.setToName(order.getReceiverFullName());
+        ghnRequest.setToPhone(order.getReceiverPhoneNumber());
+        ghnRequest.setToAddress(order.getFullShippingAddress());
+
+        // Tính toán cân nặng, kích thước (đây là ví dụ, bạn cần logic thực tế hơn)
+        int totalWeight = request.getItems().stream().mapToInt(item -> item.getQuantity() * 200).sum(); // Giả sử mỗi item 200g
+        ghnRequest.setWeight(totalWeight);
+        ghnRequest.setHeight(10); // cm
+        ghnRequest.setLength(20); // cm
+        ghnRequest.setWidth(15);  // cm
+
+        // Tiền thu hộ (COD)
+        // Nếu là thanh toán khi nhận hàng (cash) thì tổng tiền là COD, ngược lại là 0
+        final long CASH_PAYMENT_METHOD_ID = 2L; // Giả sử ID của "Cash On Delivery" là 2
+        if (request.getPaymentMethodId() == CASH_PAYMENT_METHOD_ID) {
+            ghnRequest.setCodAmount(order.getTotalAmount().intValue());
+        } else {
+            ghnRequest.setCodAmount(0);
+        }
+
+        // Nội dung đơn hàng, người trả phí ship...
+        ghnRequest.setContent("Test Order " + order.getCode());
+        ghnRequest.setPaymentTypeId(2); // 2: Người bán trả phí
+        ghnRequest.setNote(order.getNotes());
+        ghnRequest.setRequiredNote("CHOXEMHANGKHONGTHU"); // Luôn cho khách xem hàng
+        ghnRequest.setServiceId(0);
+        ghnRequest.setToWardCode(request.getGuestWardCode());
+        ghnRequest.setToDistrictId(request.getGuestDistrictId().intValue());
+
+        try {
+            logger.info("Đang gửi yêu cầu đến GHN: {}", this.objectMapper.writeValueAsString(ghnRequest));
+        } catch (Exception e) {
+            logger.error("Không thể ghi log ghnRequest", e);
+        }
+
+        // Gọi GhnApiService bạn đã tạo
+        ghnApiService.createOrder(ghnRequest).subscribe(
+                ghnResponse -> {
+                    // Khi thành công, cập nhật lại đơn hàng của bạn với mã vận đơn GHN
+                    try {
+                        // BƯỚC 2: Tạo một đối tượng Map để chứa thông tin
+                        Map<String, String> shipmentInfo = Map.of(
+                                "carrier", "GHN",
+                                "tracking_code", ghnResponse.getOrderCode()
+                        );
+
+                        // BƯỚC 3: Chuyển đổi Map thành chuỗi JSON và lưu vào cột 'notes'
+                        String shipmentInfoJson = this.objectMapper.writeValueAsString(shipmentInfo);
+
+                        order.setNotes(shipmentInfoJson); // Lưu vào cột notes
+                        orderRepository.save(order); // Lưu lại
+
+                        logger.info("Đã đăng ký vận đơn GHN thành công cho order code: {}. Thông tin lưu trong 'notes'.",
+                                order.getCode());
+                    } catch (Exception e) {
+                        logger.error("Lỗi khi chuyển đổi thông tin vận đơn thành JSON cho order code {}: {}", order.getCode(), e.getMessage());
+                    }
+                },
+                error -> {
+                    // Xử lý lỗi khi gọi API GHN (ví dụ: thiếu thông tin, sai địa chỉ)
+                    logger.error("Lỗi khi gọi API GHN cho order code {}: {}", order.getCode(), error.getMessage());
+                }
+        );
     }
 
     @Transactional

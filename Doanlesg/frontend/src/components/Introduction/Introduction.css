@@ -5,7 +5,7 @@
   padding: 40px 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -32,4 +32,32 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
   display: inline-block;
   margin-left: 4px;
+}
+.introduction-image {
+width: 400px;
+
+}
+
+.introduction-image img {
+width: 1000px;
+}
+.related-articles {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+
+}
+
+.related-item {
+  min-width: 200px;
+  margin-right: 16px;
+  text-decoration: none;
+  color: #333;
+  background-color: #ffffff;
+  border-radius: 12px;
+}
+
+.related-item img {
+  width: 100%;
+  border-radius: 8px;
 }

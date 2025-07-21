@@ -42,7 +42,7 @@ import AddToCartButton from "../AddToCart/AddToCartButton";
                     <span className="old-price-products">{(item.price * 1.1).toLocaleString()}đ</span>
                     <span className="new-price-products">{item.price.toLocaleString()}đ</span>
                     </Link>
-                    <div className="action-buttons">
+                    <div className="action-buttons-homepage">
                       <AddToCartButton product={item} quantity={1} />
                       <button
                         className="heart-btn"

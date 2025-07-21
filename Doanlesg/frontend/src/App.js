@@ -132,7 +132,7 @@ function App() {
                             <Route path="/" element={<NoBreadcrumbLayout><Homepage /></NoBreadcrumbLayout>} />
                             <Route path="/login" element={<NoBreadcrumbLayout><Login /></NoBreadcrumbLayout>} />
                             <Route path="/register" element={<NoBreadcrumbLayout><Register /></NoBreadcrumbLayout>} />
-                            <Route path="/instructions/:instructionType" element={<NoBreadcrumbLayout><Instructions /></NoBreadcrumbLayout>} />
+                            <Route path="/instructions/:instructionType" element={<InstructionWrapper />} />
                             <Route path="/product/:productId" element={<NoBreadcrumbLayout><Description /></NoBreadcrumbLayout>} />
 
                             {/* --- Admin Routes with Admin Layout --- */}
@@ -163,15 +163,18 @@ function App() {
 function Header() {
     const { user, logout, isLoading } = useAuth();
     const [searchKeyword, setSearchKeyword] = useState('');
+    
+    const handleLogout = () => {
+        logout();
+    };
+    
     const handleSearchChange = (e) => {
         setSearchKeyword(e.target.value);
     };
+    
     const handleSearchSubmit = () => {
         // điều hướng đến trang /products với từ khóa tìm kiếm
         window.location.href = `/products?keyword=${encodeURIComponent(searchKeyword)}`;
-    };
-    const handleLogout = () => {
-        logout();
     };
 
     return (
@@ -211,9 +214,9 @@ function Header() {
                             <>
                                 <div className="icon-text">{user.email} ▾</div>
                                 <div className="dropdown-content">
-                                    {/* Link to admin dashboard if user is an admin */}
+                                    {/* Link to admin dashboard if user is an admin or staff */}
                                     {(user.roles?.includes("ROLE_ADMIN") || user.roles?.includes("ROLE_STAFF")) && (
-                                        <Link to="/admin/">Admin</Link>
+                                        <Link to="/admin/dashboard">Admin</Link>
                                     )}
                                     <button onClick={handleLogout} className="logout-button">Đăng xuất</button>
                                 </div>
@@ -239,14 +242,20 @@ function Header() {
                 </div>
                 <Link to="/" className="menu-item">Trang chủ</Link>
                 <Link to="/introduction" className="menu-item">Giới thiệu</Link>
-                <Link to="/contact" className="menu-item">Liên hệ</Link>
+                <div className="menu-item dropdown">
+                    <span>Hướng dẫn ▾</span>
+                    <div className="dropdown-content">
+                        <Link to="/instructions/huong-dan-mua-hang">Hướng dẫn mua hàng</Link>
+                        <Link to="/instructions/huong-dan-thanh-toan">Hướng dẫn thanh toán</Link>
+                        <Link to="/instructions/huong-dan-doi-tra">Hướng dẫn đổi trả</Link>
+                    </div>
+                </div>
                 <div className="menu-item dropdown">
                     <span>Chính sách ▾</span>
                     <div className="dropdown-content">
                         <Link to="/policy/mua-hang">Chính sách mua hàng</Link>
                         <Link to="/policy/thanh-toan">Chính sách thanh toán</Link>
                         <Link to="/policy/van-chuyen">Chính sách vận chuyển</Link>
-                        {/* ... other policy links */}
                     </div>
                 </div>
             </nav>
@@ -339,12 +348,30 @@ const policyTitles = {
     'thanh-vien': 'Chính sách thành viên'
 };
 
+const instructionTitles = {
+    'huong-dan-mua-hang': 'Hướng dẫn mua hàng',
+    'huong-dan-thanh-toan': 'Hướng dẫn thanh toán',
+    'huong-dan-doi-tra': 'Hướng dẫn đổi trả',
+    'quy-dinh-bao-hanh': 'Quy định bảo hành',
+    'huong-dan-chuyen-khoan': 'Hướng dẫn chuyển khoản',
+};
+
 function PolicyWrapper() {
     const { policyType } = useParams();
     const label = policyTitles[policyType] || 'Chính sách';
     return (
         <MainLayout label={label}>
             <Policy />
+        </MainLayout>
+    );
+}
+
+function InstructionWrapper() {
+    const { instructionType } = useParams();
+    const label = instructionTitles[instructionType] || 'Hướng dẫn';
+    return (
+        <MainLayout label={label}>
+            <Instructions />
         </MainLayout>
     );
 }

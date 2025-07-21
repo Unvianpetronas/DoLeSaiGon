@@ -1,8 +1,13 @@
 package com.example.Doanlesg.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+@Getter
+@Setter
 public class CheckoutRequestDTO {
     // ID của khách hàng nếu đã đăng nhập
     private Long customerId;
@@ -12,6 +17,9 @@ public class CheckoutRequestDTO {
     private String guestEmail;
     private String guestPhone;
     private String guestAddress;
+
+    private Long guestDistrictId;
+    private String guestWardCode;
 
     // Thông tin chung
     private Long shippingMethodId;

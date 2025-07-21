@@ -78,7 +78,7 @@ const StaffsManagement = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) return;
-    fetch(`http://localhost:8080/api/ver0.0.1/admin/accounts/${id}`, {
+    fetch(`http://localhost:8080/api/ver0.0.1/staff/accounts/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     })
