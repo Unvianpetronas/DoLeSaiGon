@@ -65,12 +65,14 @@ public class CartServices {
             Product product = productRepository.findById(productID)
                     .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productID));
             CartItem cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(quantity);
-            cartItem.setPriceAtAddition(product.getPrice().doubleValue());
-            cartItemRepository.save(cartItem);
-
+            Optional<Cart> getCart = cartRepository.findById(cart.getId());
+            if (getCart.isPresent()) {
+                cartItem.setCart(cart);
+                cartItem.setProduct(product);
+                cartItem.setQuantity(quantity);
+                cartItem.setPriceAtAddition(product.getPrice().doubleValue());
+                cartItemRepository.save(cartItem);
+            }
         }
     }
 

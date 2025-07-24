@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 // DTO này chứa các thông tin cần thiết để tạo một đơn hàng trên GHN
 // Xem tài liệu API của GHN để biết đầy đủ các trường
 @Getter
@@ -43,6 +45,9 @@ public class GhnCreateOrderRequest {
     @JsonProperty("service_id")
     private Integer serviceId;
 
+    @JsonProperty("service_type_id")
+    private Integer serviceTypeId;
+
     @JsonProperty("payment_type_id")
     private Integer paymentTypeId; // 1: Người mua trả phí, 2: Người bán trả phí
 
@@ -55,5 +60,7 @@ public class GhnCreateOrderRequest {
     @JsonProperty("content")
     private String content;
 
+    @JsonProperty("items")
+    private List<GhnItemDTO> items;
     // Thêm getters và setters cho tất cả các trường
 }

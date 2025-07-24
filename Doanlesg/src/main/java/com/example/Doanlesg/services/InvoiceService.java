@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Base64;
 
 @Service
@@ -58,10 +55,19 @@ public class InvoiceService {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
 
-            File fontFile = new ClassPathResource("fonts/NotoSans-Vietnamese.ttf").getFile();
+            // 1. Tải font từ classpath vào một mảng byte
+            // Cách này xử lý IOException một cách an toàn và chỉ đọc file một lần.
+            byte[] fontBytes;
+            try (InputStream fontStream = new ClassPathResource("fonts/NotoSans-Vietnamese.ttf").getInputStream()) {
+                fontBytes = fontStream.readAllBytes();
+            }
 
-            builder.useFont(fontFile, "Noto Sans");
+            // 2. Cung cấp font cho builder thông qua một InputStream được tạo từ mảng byte.
+            // Kỹ thuật này sử dụng một "supplier" (biểu thức lambda `() -> ...`)
+            // để builder có thể lấy stream font khi cần.
+            builder.useFont(() -> new ByteArrayInputStream(fontBytes), "Noto Sans");
 
+            // Dòng này rất có thể sẽ gây ra lỗi tương tự khi chạy trong file JAR
             String baseUri = new ClassPathResource("/static/").getURL().toString();
             builder.withHtmlContent(html, baseUri);
 

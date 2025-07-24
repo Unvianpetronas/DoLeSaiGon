@@ -109,18 +109,18 @@ public class OrderService {
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
 
-//        final long GHN_SHIPPING_METHOD_ID = 2L;
-//
-//        if (request.getShippingMethodId() == GHN_SHIPPING_METHOD_ID) {
-//            try {
-//                // Gọi một phương thức private mới để xử lý logic GHN
-//                registerShipmentWithGhn(order, request);
-//            } catch (Exception e) {
-//                // Ghi log lỗi nếu việc gọi GHN thất bại
-//                logger.error("Đăng ký vận đơn GHN thất bại cho order code: {}. Lỗi: {}",
-//                        order.getCode(), e.getMessage());
-//            }
-//        }
+        final long GHN_SHIPPING_METHOD_ID = 2L;
+
+        if (request.getShippingMethodId() == GHN_SHIPPING_METHOD_ID) {
+            try {
+                // Gọi một phương thức private mới để xử lý logic GHN
+                registerShipmentWithGhn(order, request);
+            } catch (Exception e) {
+                // Ghi log lỗi nếu việc gọi GHN thất bại
+                logger.error("Đăng ký vận đơn GHN thất bại cho order code: {}. Lỗi: {}",
+                        order.getCode(), e.getMessage());
+            }
+        }
 
         // 4. Lưu đơn hàng và các mặt hàng liên quan
     }
@@ -129,63 +129,102 @@ public class OrderService {
     private void registerShipmentWithGhn(Order order, CheckoutRequestDTO request) {
         GhnCreateOrderRequest ghnRequest = new GhnCreateOrderRequest();
 
-        // Map thông tin từ các đối tượng của bạn sang GhnCreateOrderRequest
+        // 1. Map các thông tin cơ bản
         ghnRequest.setToName(order.getReceiverFullName());
         ghnRequest.setToPhone(order.getReceiverPhoneNumber());
         ghnRequest.setToAddress(order.getFullShippingAddress());
+        ghnRequest.setToWardCode(request.getGuestWardCode());
+        ghnRequest.setToDistrictId(request.getGuestDistrictId().intValue()); // Đã sửa lỗi .intValue() không cần thiết
 
-        // Tính toán cân nặng, kích thước (đây là ví dụ, bạn cần logic thực tế hơn)
-        int totalWeight = request.getItems().stream().mapToInt(item -> item.getQuantity() * 200).sum(); // Giả sử mỗi item 200g
+        ghnRequest.setServiceId(0);
+        ghnRequest.setServiceTypeId(2);
+
+        int totalWeight = request.getItems().stream().mapToInt(item -> item.getQuantity() * 200).sum();
         ghnRequest.setWeight(totalWeight);
-        ghnRequest.setHeight(10); // cm
-        ghnRequest.setLength(20); // cm
-        ghnRequest.setWidth(15);  // cm
+        ghnRequest.setHeight(10);
+        ghnRequest.setLength(20);
+        ghnRequest.setWidth(15);
 
-        // Tiền thu hộ (COD)
-        // Nếu là thanh toán khi nhận hàng (cash) thì tổng tiền là COD, ngược lại là 0
-        final long CASH_PAYMENT_METHOD_ID = 2L; // Giả sử ID của "Cash On Delivery" là 2
+        final long CASH_PAYMENT_METHOD_ID = 1L; // Giả sử ID của "Cash On Delivery" là 1
         if (request.getPaymentMethodId() == CASH_PAYMENT_METHOD_ID) {
             ghnRequest.setCodAmount(order.getTotalAmount().intValue());
         } else {
             ghnRequest.setCodAmount(0);
         }
 
-        // Nội dung đơn hàng, người trả phí ship...
-        ghnRequest.setContent("Test Order " + order.getCode());
-        ghnRequest.setPaymentTypeId(2); // 2: Người bán trả phí
+        ghnRequest.setContent("Order " + order.getCode());
+        ghnRequest.setPaymentTypeId(2);
         ghnRequest.setNote(order.getNotes());
-        ghnRequest.setRequiredNote("CHOXEMHANGKHONGTHU"); // Luôn cho khách xem hàng
-        ghnRequest.setServiceId(0);
-        ghnRequest.setToWardCode(request.getGuestWardCode());
-        ghnRequest.setToDistrictId(request.getGuestDistrictId().intValue());
+        ghnRequest.setRequiredNote("CHOXEMHANGKHONGTHU");
 
+        // 2. TẠO DANH SÁCH SẢN PHẨM (ITEMS) MỘT CÁCH AN TOÀN
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+            logger.error("Danh sách sản phẩm (OrderItems) bị rỗng cho order code: {}", order.getCode());
+            return;
+        }
+
+        List<GhnItemDTO> ghnItems = order.getOrderItems().stream()
+                .map(orderItem -> {
+                    GhnItemDTO ghnItem = new GhnItemDTO();
+                    Product product = orderItem.getProduct();
+
+                    ghnItem.setName(product.getProductName());
+                    // Kiểm tra null cho mã sản phẩm
+                    String productCode = product.getId().toString();
+                    ghnItem.setCode(productCode);
+                    ghnItem.setQuantity(orderItem.getQuantity());
+                    ghnItem.setPrice(orderItem.getUnitPrice().intValue());
+
+                    GhnCategoryDTO category = new GhnCategoryDTO();
+                    // KIỂM TRA NULL CHO CATEGORY - ĐIỂM QUAN TRỌNG NHẤT
+                    if (product.getCategory() != null && product.getCategory().getCategoryName() != null) {
+                        category.setLevel1(product.getCategory().getCategoryName());
+                    } else {
+                        category.setLevel1("Sản phẩm khác"); // Cung cấp một giá trị mặc định an toàn
+                    }
+                    ghnItem.setCategory(category);
+
+                    return ghnItem;
+                })
+                .collect(Collectors.toList()); // Dùng .collect() để tương thích rộng hơn
+
+        ghnRequest.setItems(ghnItems);
+
+        // 3. Ghi log và gọi API
         try {
-            logger.info("Đang gửi yêu cầu đến GHN: {}", this.objectMapper.writeValueAsString(ghnRequest));
+            logger.info("Đang gửi yêu cầu đến GHN (phiên bản cuối): {}", this.objectMapper.writeValueAsString(ghnRequest));
         } catch (Exception e) {
-            logger.error("Không thể ghi log ghnRequest", e);
+            logger.error("Không thể serialize ghnRequest", e);
         }
 
         // Gọi GhnApiService bạn đã tạo
         ghnApiService.createOrder(ghnRequest).subscribe(
                 ghnResponse -> {
-                    // Khi thành công, cập nhật lại đơn hàng của bạn với mã vận đơn GHN
+                    logger.info("Response nhận được từ GHN: {}", ghnResponse);
+
+                    // SỬA Ở ĐÂY: Truy cập qua ghnResponse.getData()
+                    if (ghnResponse == null || ghnResponse.getData() == null || ghnResponse.getData().getOrderCode() == null) {
+                        logger.error("GHN đã trả về response thành công nhưng KHÔNG CÓ MÃ VẬN ĐƠN. Order Code của bạn: {}", order.getCode());
+                        return;
+                    }
+
                     try {
-                        // BƯỚC 2: Tạo một đối tượng Map để chứa thông tin
+                        // SỬA Ở ĐÂY: Lấy mã vận đơn từ đối tượng lồng nhau
+                        String trackingCode = ghnResponse.getData().getOrderCode();
+
                         Map<String, String> shipmentInfo = Map.of(
                                 "carrier", "GHN",
-                                "tracking_code", ghnResponse.getOrderCode()
+                                "tracking_code", trackingCode
                         );
 
-                        // BƯỚC 3: Chuyển đổi Map thành chuỗi JSON và lưu vào cột 'notes'
                         String shipmentInfoJson = this.objectMapper.writeValueAsString(shipmentInfo);
+                        order.setNotes(shipmentInfoJson);
+                        orderRepository.save(order);
 
-                        order.setNotes(shipmentInfoJson); // Lưu vào cột notes
-                        orderRepository.save(order); // Lưu lại
-
-                        logger.info("Đã đăng ký vận đơn GHN thành công cho order code: {}. Thông tin lưu trong 'notes'.",
-                                order.getCode());
+                        logger.info("!!! THÀNH CÔNG: Đã đăng ký và lưu mã vận đơn GHN {} cho order code {}", trackingCode, order.getCode());
                     } catch (Exception e) {
-                        logger.error("Lỗi khi chuyển đổi thông tin vận đơn thành JSON cho order code {}: {}", order.getCode(), e.getMessage());
+                        // Lỗi này chỉ xảy ra nếu có vấn đề với việc chuyển đổi JSON hoặc lưu DB
+                        logger.error("Lỗi khi xử lý response thành công từ GHN. Order Code: {}", order.getCode(), e);
                     }
                 },
                 error -> {
