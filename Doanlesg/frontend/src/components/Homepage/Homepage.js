@@ -6,6 +6,7 @@ import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 import ProductImage from '../common/ProductImage'; // Import the ProductImage component
+import { Helmet } from 'react-helmet-async';
 
 // ✅ ADD: A helper function to add a cache key to each product
 const addCacheKey = (products) =>
@@ -67,11 +68,11 @@ export default function Homepage() {
     const fetchProducts = async () => {
       try {
         const [allRes, xoiRes, cheRes, mamRes, giftRes] = await Promise.all([
-          fetch('http://localhost:8080/api/ver0.0.1/product?page=0&size=50&sort=price'),
-          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
-          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
-          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=4&page=0&size=50&sort=productName'),
-          fetch('http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=4&sort=productName')
+          fetch('/api/ver0.0.1/product?page=0&size=50&sort=price'),
+          fetch('/api/ver0.0.1/product/categoryID?categoryID=2&page=0&size=50&sort=productName'),
+          fetch('/api/ver0.0.1/product/categoryID?categoryID=3&page=0&size=50&sort=productName'),
+          fetch('/api/ver0.0.1/product/categoryID?categoryID=4&page=0&size=50&sort=productName'),
+          fetch('/api/ver0.0.1/product/categoryID?categoryID=5&page=0&size=4&sort=productName')
         ]);
 
         const allData = await allRes.json();
@@ -146,6 +147,9 @@ export default function Homepage() {
 
   return (
       <div className="homepage">
+        <Helmet>
+          <title>Trang chủ</title>
+        </Helmet>
         <div className="header-banner" style={{ backgroundImage: `url(${bannerImages[currentIndex]})` }}></div>
 
         <div className="feature-bar">

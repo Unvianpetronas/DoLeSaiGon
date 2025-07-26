@@ -6,6 +6,7 @@ import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
 import ProductImage from '../common/ProductImage'; // Adjust path if necessary
+import { Helmet } from 'react-helmet-async';
 
 // ✅ ADD: Helper function to add cache keys
 const addCacheKey = (products) =>
@@ -47,7 +48,7 @@ const Description = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`http://localhost:8080/api/ver0.0.1/product/productID?id=${productId}`);
+        const res = await fetch(`/api/ver0.0.1/product/productID?id=${productId}`);
         if (!res.ok) {
           throw new Error('Không tìm thấy sản phẩm.');
         }
@@ -57,7 +58,7 @@ const Description = () => {
         setIsFavorite(isItemFavorite(data.id));
 
         if (data?.category?.id) {
-          const relRes = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=50&sort=productName`);
+          const relRes = await fetch(`/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=50&sort=productName`);
           if (relRes.ok) {
             const relData = await relRes.json();
             const related = (relData.content || []).filter(p => p.id !== data.id);
@@ -122,6 +123,9 @@ const Description = () => {
 
   return (
       <div className="product-detail-container">
+        <Helmet>
+          <title>Chi tiết sản phẩm</title>
+        </Helmet>
         <div className="product-main-wrapper">
           <div className="product-main">
             <div className="product-images">

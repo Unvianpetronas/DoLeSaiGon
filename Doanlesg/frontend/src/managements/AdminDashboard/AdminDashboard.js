@@ -7,6 +7,7 @@ import {
     LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
     PieChart, Pie, Cell
 } from 'recharts';
+import { Helmet } from 'react-helmet-async';
 
 // Helper function remains the same
 const hasRole = (user, role) => {
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
                 try {
                     setLoadingStats(true);
                     // Call the new, single endpoint for all stats
-                    const response = await fetch('http://localhost:8080/api/ver0.0.1/staff/dashboard/stats', { credentials: 'include' });
+                    const response = await fetch('/api/ver0.0.1/staff/dashboard/stats', { credentials: 'include' });
                     if (!response.ok) {
                         throw new Error('Không thể tải dữ liệu thống kê.');
                     }
@@ -77,6 +78,9 @@ export default function AdminDashboard() {
 
     return (
         <>
+            <Helmet>
+                <title>Dashboard Quản Trị</title>
+            </Helmet>
             <h2>Dashboard Quản Trị</h2>
 
             {/* Cards */}

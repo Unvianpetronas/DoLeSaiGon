@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './Like.css';
 import { getFavorites, toggleFavoriteItem } from '../LikeButton/LikeButton';
 import AddToCartButton from "../AddToCart/AddToCartButton";
+import { Helmet } from 'react-helmet-async';
 
   const FavoriteProducts = () => {
     const [products, setProducts] = useState([]);
@@ -23,6 +24,9 @@ import AddToCartButton from "../AddToCart/AddToCartButton";
 
   return (
     <div className="products-wrapper">
+      <Helmet>
+        <title>Yêu thích</title>
+      </Helmet>
           <h2 className="products-title">Sản phẩm yêu thích</h2>
 
           {products.length === 0 ? (

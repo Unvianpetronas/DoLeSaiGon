@@ -3,6 +3,7 @@ import './OrdersManagement.css';
 import { CiSearch } from 'react-icons/ci';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import { Helmet } from 'react-helmet-async';
 
 const statusDisplayMap = {
   'Pending': 'Đang chuẩn bị',
@@ -43,7 +44,7 @@ const OrdersManagement = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const res = await fetch('http://localhost:8080/api/ver0.0.1/staff/orders', {
+        const res = await fetch('/api/ver0.0.1/staff/orders', {
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Không thể tải đơn hàng.');
@@ -69,7 +70,7 @@ const OrdersManagement = () => {
     setEditingOrderId(null);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/orders/${id}/status`, {
+      const response = await fetch(`/api/ver0.0.1/staff/orders/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -95,6 +96,9 @@ const OrdersManagement = () => {
 
   return (
       <div className="orders-page">
+        <Helmet>
+          <title>Danh Sách Đơn Hàng</title>
+        </Helmet>
         <h2>Danh Sách Đơn Hàng</h2>
         <div className="search-bar">
           <input

@@ -37,9 +37,7 @@ public class OrderChecker {
                 }
                 if (paymentInfo != null) {
                     orderService.placeOrder(request, paymentInfo.uniqueCode());
-                    if (request.getPaymentMethodId() == 2) {
-                        orderService.processPaidOrder(paymentInfo.uniqueCode(), false);
-                    }
+                    orderService.processPaidOrder(paymentInfo.uniqueCode(), request.getPaymentMethodId() == 1);
                 }
             } catch (Exception e) {
                 throw new NumberFormatException("Place Order Failed.");

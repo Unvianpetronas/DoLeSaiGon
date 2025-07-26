@@ -57,9 +57,9 @@ const Cart = () => {
       try {
         let response;
         if (categoryToFetch) {
-          response = await fetch(`http://localhost:8080/api/ver0.0.1/product/categoryID?categoryID=${categoryToFetch}&page=0&size=10&sort=productName`);
+          response = await fetch(`/api/ver0.0.1/product/categoryID?categoryID=${categoryToFetch}&page=0&size=10&sort=productName`);
         } else {
-          response = await fetch(`http://localhost:8080/api/ver0.0.1/product?page=0&size=5&sort=price`);
+          response = await fetch(`/api/ver0.0.1/product?page=0&size=5&sort=price`);
         }
 
         if (response.ok) {
@@ -121,6 +121,9 @@ const Cart = () => {
 
   return (
       <div className="cart-container">
+        <Helmet>
+          <title>Giỏ hàng</title>
+        </Helmet>
         <div className="cart-main">
           <div className="cart-left">
             <h2>Giỏ hàng của bạn</h2>

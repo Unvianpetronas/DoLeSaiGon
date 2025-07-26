@@ -3,6 +3,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import './Policy.css';
+import { Helmet } from 'react-helmet-async';
 
 const instructionsData = {
   "huong-dan-mua-hang": {
@@ -162,6 +163,9 @@ export default function Instructions() {
 
   return (
     <div className="policy">
+        <Helmet>
+            <title>Hướng dẫn</title>
+        </Helmet>
       <h1>{data.title}</h1>
       {data.content}
     </div>

@@ -10,6 +10,7 @@ import {
   subCategoryMap,
   getSubCategoryName,
 } from "../../data/CategoryData";
+import { Helmet } from 'react-helmet-async';
 
 const ProductsPage = () => {
 
@@ -40,9 +41,9 @@ const ProductsPage = () => {
       try {
         let url = "";
         if (keyword.trim()) {
-          url = `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${encodeURIComponent(keyword)}&page=0&size=100&sort=productName`;
+          url = `/api/ver0.0.1/product/productname?keyword=${encodeURIComponent(keyword)}&page=0&size=100&sort=productName`;
         } else {
-          url = `http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=productName`;
+          url = `/api/ver0.0.1/product?page=0&size=100&sort=productName`;
         }
         const res = await fetch(url);
         const data = await res.json();
@@ -142,6 +143,9 @@ const ProductsPage = () => {
   /* ----------------- RENDER ----------------- */
   return (
       <div className="products-wrapper">
+        <Helmet>
+          <title>Sản phẩm</title>
+        </Helmet>
         {/* Banner when no category is selected */}
         {isAllPage && (
             <>

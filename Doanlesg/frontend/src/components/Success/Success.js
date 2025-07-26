@@ -1,6 +1,7 @@
 import React from 'react';
 import './Success.css';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 function Success() {
     const navigate = useNavigate();
@@ -13,6 +14,9 @@ function Success() {
 
     return (
         <div className="success-page">
+            <Helmet>
+                <title>Thanh toán thành công</title>
+            </Helmet>
             <div className="success-card">
               <div className="success-notification">
                 <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại DoleSaigon.</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './WarehouseManagement.css';
 import { CiSearch } from 'react-icons/ci';
+import { Helmet } from 'react-helmet-async';
 
 export default function WarehouseManagement() {
   const [search, setSearch] = useState('');
@@ -89,6 +90,9 @@ export default function WarehouseManagement() {
 
   return (
     <div className="warehouse-page">
+      <Helmet>
+        <title>Danh Sách Kiểm Kê Nhập Kho</title>
+      </Helmet>
       <h2>Danh Sách Kiểm Kê Nhập Kho</h2>
 
       <div className="admin-controls">

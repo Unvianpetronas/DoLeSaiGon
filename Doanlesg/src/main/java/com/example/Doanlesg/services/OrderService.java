@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,11 +26,12 @@ public class OrderService {
     private final PaymentRepository paymentRepository;
     private final ShippingRepository shippingRepository;
     private final InvoiceService invoiceService;
-    private final QRCodeManagermentService qrCodeManager;
     private final GhnApiService ghnApiService;
     private final ObjectMapper objectMapper;
+    private final TransactionalOrderService transactionalOrderService;
+    private final PostmarkEmailService emailService;
 
-    public OrderService(OrderRepository orderRepository, AccountRepository accountRepository, ProductRepository productRepository, OderItemRepository orderItemRepository, PaymentRepository paymentRepository, ShippingRepository shippingRepository, InvoiceService invoiceService, QRCodeManagermentService qrCodeManagermentService, GhnApiService ghnApiService, ObjectMapper objectMapper) {
+    public OrderService(OrderRepository orderRepository, AccountRepository accountRepository, ProductRepository productRepository, OderItemRepository orderItemRepository, PaymentRepository paymentRepository, ShippingRepository shippingRepository, InvoiceService invoiceService, GhnApiService ghnApiService, ObjectMapper objectMapper, TransactionalOrderService transactionalOrderService, PostmarkEmailService emailService) {
         this.orderRepository = orderRepository;
         this.accountRepository = accountRepository;
         this.productRepository = productRepository;
@@ -36,9 +39,10 @@ public class OrderService {
         this.paymentRepository = paymentRepository;
         this.shippingRepository = shippingRepository;
         this.invoiceService = invoiceService;
-        this.qrCodeManager = qrCodeManagermentService;
+        this.transactionalOrderService = transactionalOrderService;
         this.ghnApiService = ghnApiService;
         this.objectMapper = objectMapper;
+        this.emailService = emailService;
     }
 
 
@@ -234,55 +238,38 @@ public class OrderService {
         );
     }
 
-    @Transactional
-    public void processPaidOrder(String uniqueCode, boolean flag) {
+    public void processPaidOrder(String uniqueCode, boolean flag) throws IOException {
         // Find the order using the unique payment code
-        Order paidOrder = orderRepository.findByCode(uniqueCode)
-                .orElseThrow(() -> new RuntimeException("Paid order not found with code: " + uniqueCode));
+        Order updatedOrder = transactionalOrderService.updateOrderStatus(uniqueCode, flag);
+        if (updatedOrder != null && ("Paid".equals(updatedOrder.getOrderStatus()) || "Cash".equals(updatedOrder.getOrderStatus()))) {
 
-        // Check if order is already processed to prevent duplicate emails
-        if ("Paid".equalsIgnoreCase(paidOrder.getOrderStatus())) {
-            // Already paid, just remove from tracking and exit
-            qrCodeManager.markAsPaid(uniqueCode);
-            return;
+            List<InvoiceData.Item> items = updatedOrder.getOrderItems().stream()
+                    .map(orderItem -> new InvoiceData.Item(
+                            orderItem.getProduct().getProductName(),
+                            orderItem.getQuantity(),
+                            orderItem.getUnitPrice().doubleValue()
+                    ))
+                    .toList();
+
+            InvoiceData invoiceData = new InvoiceData(
+                    updatedOrder.getCode(), // Assuming order code is the invoice number
+                    updatedOrder.getOrderDate().toString(), // Or format it as needed
+                    "Công ty Dole Saigon\n123 ABC, Q1, TPHCM",
+                    updatedOrder.getReceiverFullName() + "\n" + updatedOrder.getFullShippingAddress(),
+                    items,
+                    updatedOrder.getTotalAmount().doubleValue(),
+                    invoiceService.getLogoAsBase64() // Logo will be added by InvoiceService
+            );
+
+            // 3. Send the invoice email
+            try {
+                emailService.sendOrderConfirmationEmail(updatedOrder, invoiceService.generateInlinedInvoiceHtml(invoiceData));
+            } catch (Exception e) {
+                // Log the error but don't stop the process, as the order is already paid
+                logger.error("Failed to send invoice email for order code {}: {}", uniqueCode, e.getMessage());
+            }
         }
-
-        // 1. Update order status to "Paid"
-        if (flag)
-            paidOrder.setOrderStatus("Paid");
-        else
-            paidOrder.setOrderStatus("Cash");
-        orderRepository.save(paidOrder);
-
-        // 2. Construct the InvoiceData object from the order
-        List<InvoiceData.Item> items = paidOrder.getOrderItems().stream()
-                .map(orderItem -> new InvoiceData.Item(
-                        orderItem.getProduct().getProductName(),
-                        orderItem.getQuantity(),
-                        orderItem.getUnitPrice().doubleValue()
-                ))
-                .toList();
-
-        InvoiceData invoiceData = new InvoiceData(
-                paidOrder.getCode(), // Assuming order code is the invoice number
-                paidOrder.getOrderDate().toString(), // Or format it as needed
-                "Công ty Dole Saigon\n123 ABC, Q1, TPHCM",
-                paidOrder.getReceiverFullName() + "\n" + paidOrder.getFullShippingAddress(),
-                items,
-                paidOrder.getTotalAmount().doubleValue(),
-                null // Logo will be added by InvoiceService
-        );
-
-        // 3. Send the invoice email
-        try {
-            invoiceService.createAndEmailInvoice(invoiceData, paidOrder.getReceiverEmail());
-        } catch (Exception e) {
-            // Log the error but don't stop the process, as the order is already paid
-            logger.error("Failed to send invoice email for order code {}: {}", uniqueCode, e.getMessage());
-        }
-
         // 4. Stop tracking this code as it's now processed
-        qrCodeManager.markAsPaid(uniqueCode);
     }
 
     public OrderTotalDTO calculateTotal(CheckoutRequestDTO request) {

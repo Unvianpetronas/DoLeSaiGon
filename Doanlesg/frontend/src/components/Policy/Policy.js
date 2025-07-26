@@ -2,6 +2,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import './Policy.css';
+import { Helmet } from 'react-helmet-async';
 
 const contents = {
   "mua-hang": {
@@ -179,6 +180,9 @@ export default function Policy() {
 
   return (
     <div className="policy">
+        <Helmet>
+            <title>Chính sách</title>
+        </Helmet>
       <h1>{policy.title}</h1>
       <div className="policy-content">
         {policy.content}

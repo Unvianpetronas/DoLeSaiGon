@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Register.css'; // Make sure this CSS file exists
+import { Helmet } from 'react-helmet-async';
 
 function Register() {
   // --- 1. State Management ---
@@ -28,7 +29,7 @@ function Register() {
     };
 
     try {
-      const response = await fetch('http://localhost:8080/api/ver0.0.1/register', { // Your backend endpoint
+      const response = await fetch('/api/ver0.0.1/register', { // Your backend endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,6 +55,9 @@ function Register() {
 
   return (
       <div className="login-wrapper">
+        <Helmet>
+          <title>Đăng ký</title>
+        </Helmet>
         <div className="login-container">
           <h2>ĐĂNG KÝ</h2>
 

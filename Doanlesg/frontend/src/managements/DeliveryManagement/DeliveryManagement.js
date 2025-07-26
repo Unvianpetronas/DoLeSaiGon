@@ -5,6 +5,7 @@ import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import { Helmet } from 'react-helmet-async';
 
 // Helper function to check for multiple roles
 const hasRole = (user, ...roles) => {
@@ -41,8 +42,8 @@ const DeliveryManagement = () => {
         setError(null);
         // Lưu ý: Các cuộc gọi API này vẫn cần backend cấu hình CORS để hoạt động
         const [ordersRes, staffRes] = await Promise.all([
-          fetch('http://localhost:8080/api/ver0.0.1/staff/orders', { credentials: 'include' }),
-          fetch('http://localhost:8080/api/ver0.0.1/staff/accounts', { credentials: 'include' })
+          fetch('/api/ver0.0.1/staff/orders', { credentials: 'include' }),
+          fetch('/api/ver0.0.1/staff/accounts', { credentials: 'include' })
         ]);
         if (!ordersRes.ok || !staffRes.ok) throw new Error('Không thể tải dữ liệu điều phối.');
 
@@ -128,7 +129,7 @@ const DeliveryManagement = () => {
 
     try {
       // ✅ FIX: Send the new status in the request body as JSON
-      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/orders/${id}/status`, {
+      const response = await fetch(`/api/ver0.0.1/staff/orders/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -170,6 +171,9 @@ const DeliveryManagement = () => {
 
   return (
       <div className="delivery-management">
+        <Helmet>
+          <title>Danh Sách Đơn Giao Hàng</title>
+        </Helmet>
         <h2>Danh Sách Đơn Giao Hàng</h2>
         <div className="admin-controls">
           <div className="filter-container" ref={filterRef}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './OrderPage.css';
+import { Helmet } from 'react-helmet-async';
 
 // --- THIS IS THE FIX ---
 // 1. The status map now uses an array for "Đang chuẩn bị"
@@ -44,7 +45,7 @@ export default function OrderPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:8080/api/ver0.0.1/orders', {
+        const response = await fetch('/api/ver0.0.1/orders', {
           credentials: 'include',
         });
         if (response.status === 401) throw new Error("Phiên đăng nhập đã hết hạn.");
@@ -73,6 +74,9 @@ export default function OrderPage() {
 
   return (
       <div className="order-page">
+        <Helmet>
+          <title>Đơn hàng</title>
+        </Helmet>
         <h1>Đơn hàng của bạn</h1>
         <div className="steps">
           {steps.map((step, index) => (

@@ -40,7 +40,7 @@ export default function CreateProduct() {
     const fetchCategories = async () => {
       try {
         // It's better to have a dedicated API for categories, but this works for now.
-        const res = await fetch('http://localhost:8080/api/ver0.0.1/staff/categories'); // Assuming you have a categories endpoint
+        const res = await fetch('/api/ver0.0.1/staff/categories'); // Assuming you have a categories endpoint
         if (!res.ok) throw new Error('Could not fetch categories');
         const data = await res.json();
         setCategories(data || []);
@@ -100,7 +100,7 @@ export default function CreateProduct() {
 
     try {
       // 4. Correct the API endpoint and add credentials
-      const response = await fetch('http://localhost:8080/api/ver0.0.1/staff/products/new', {
+      const response = await fetch('/api/ver0.0.1/staff/products/new', {
         method: 'POST',
         body: formData,
         credentials: 'include' // Important for sending session cookie

@@ -47,8 +47,8 @@ export default function EditProduct() {
 
         // Fetch both the product details and the list of all categories
         const [productRes, categoriesRes] = await Promise.all([
-          fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, { credentials: 'include' }),
-          fetch('http://localhost:8080/api/ver0.0.1/staff/categories', { credentials: 'include' })
+          fetch(`/api/ver0.0.1/staff/products/${id}`, { credentials: 'include' }),
+          fetch('/api/ver0.0.1/staff/categories', { credentials: 'include' })
         ]);
 
         if (!productRes.ok) throw new Error('Không tìm thấy sản phẩm.');
@@ -134,7 +134,7 @@ export default function EditProduct() {
 
     try {
       // Use the correct endpoint for updating, which might be different from creating
-      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, {
+      const response = await fetch(`/api/ver0.0.1/staff/products/${id}`, {
         method: 'PUT',
         credentials: 'include',
         body: formData,

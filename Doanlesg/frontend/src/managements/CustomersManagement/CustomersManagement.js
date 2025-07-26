@@ -4,6 +4,7 @@ import './CustomersManagement.css';
 import { CiSearch } from 'react-icons/ci';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import { Helmet } from 'react-helmet-async';
 
 // Helper function to safely check for a user's role
 const hasRole = (user, role) => {
@@ -38,7 +39,7 @@ const CustomersManagement = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:8080/api/ver0.0.1/staff/accounts', {
+        const response = await fetch('/api/ver0.0.1/staff/accounts', {
           credentials: 'include',
         });
 
@@ -98,6 +99,9 @@ const CustomersManagement = () => {
 
   return (
       <div className="customers-management">
+        <Helmet>
+          <title>Danh Sách Khách Hàng</title>
+        </Helmet>
         <h2>Danh Sách Khách Hàng</h2>
         <div className="admin-controls">
           <button className="btn yellow" onClick={handleExportCSV}>EXPORT</button>

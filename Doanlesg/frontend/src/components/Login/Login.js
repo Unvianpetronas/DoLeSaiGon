@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Login/Login.css';
 import { useAuth } from '../../contexts/AuthContext'; // BƯỚC 1: Import useAuth
+import { Helmet } from 'react-helmet-async';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -39,6 +40,9 @@ const Login = () => {
   // Giao diện component không thay đổi
   return (
       <div className="login-wrapper">
+        <Helmet>
+          <title>Đăng nhập</title>
+        </Helmet>
         <div className="login-container">
           <h2>ĐĂNG NHẬP</h2>
           {error && <p className="error-message">{error}</p>}

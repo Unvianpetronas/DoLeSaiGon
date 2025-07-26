@@ -5,6 +5,7 @@ import { CiSearch } from 'react-icons/ci';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import StaffAvatar from '../../components/common/StaffAvatar'; // Make sure this path is correct
+import { Helmet } from 'react-helmet-async';
 
 const hasRole = (user, role) => {
   if (!user || !user.roles) return false;
@@ -36,7 +37,7 @@ const StaffsManagement = () => {
   const filterRef = useRef(null);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/ver0.0.1/staff/accounts/staff', { method: 'GET', credentials: 'include' })
+    fetch('/api/ver0.0.1/staff/accounts/staff', { method: 'GET', credentials: 'include' })
         .then(res => res.json())
         .then(data => {
           const staffAccounts = data.map(dto => ({
@@ -78,7 +79,7 @@ const StaffsManagement = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) return;
-    fetch(`http://localhost:8080/api/ver0.0.1/staff/accounts/${id}`, {
+    fetch(`/api/ver0.0.1/staff/accounts/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     })
@@ -156,8 +157,8 @@ const StaffsManagement = () => {
     }
     const isEditing = editingId !== null;
     const url = isEditing
-        ? `http://localhost:8080/api/ver0.0.1/staff/accounts/staff/${editingId}`
-        : `http://localhost:8080/api/ver0.0.1/staff/accounts/new-staff`;
+        ? `/api/ver0.0.1/staff/accounts/staff/${editingId}`
+        : `/api/ver0.0.1/staff/accounts/new-staff`;
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
@@ -219,6 +220,9 @@ const StaffsManagement = () => {
 
   return (
       <div className="staffs-management">
+        <Helmet>
+          <title>Danh Sách Nhân Viên</title>
+        </Helmet>
         <h2>Danh Sách Nhân Viên</h2>
         <div className="admin-controls">
           <button className="btn green" onClick={handleOpenCreate}>CREATE</button>

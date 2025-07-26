@@ -6,17 +6,20 @@ import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import reportWebVitals from './reportWebVitals';
 import {CartProvider} from "./contexts/CartProvider";
+import { HelmetProvider } from 'react-helmet-async';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        <NotificationProvider>
-            <AuthProvider>
-                <CartProvider>
-                    <App />
-                </CartProvider>
-            </AuthProvider>
-        </NotificationProvider>
+        <HelmetProvider> 
+            <NotificationProvider>
+                <AuthProvider>
+                    <CartProvider>
+                        <App />
+                    </CartProvider>
+                </AuthProvider>
+            </NotificationProvider>
+        </HelmetProvider>
     </React.StrictMode>
 );
 

@@ -1,9 +1,13 @@
 import React from "react";
 import "./Shop.css"; // Bạn có thể thêm style giống như Contact.css nếu cần
+import { Helmet } from 'react-helmet-async';
 
 function Shop() {
   return (
     <div className="shop-page">
+      <Helmet>
+        <title>Thông tin của hàng</title>
+      </Helmet>
       <div className="store-info-container">
         <div className="store-info">
           <h2>CỬA HÀNG DOLESAIGON</h2>

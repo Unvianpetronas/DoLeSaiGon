@@ -3,11 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartProvider';
 import { useNotification } from '../../contexts/NotificationContext';
 import './Payment.css';
+import { Helmet } from 'react-helmet-async';
 
 // --- Constants for Session Storage Keys ---
 const PAYMENT_INFO_KEY = 'paymentInfo';
-const ORDER_DATA_KEY = 'orderData'; // Keep this for consistency
-const IS_BUY_NOW_KEY = 'isBuyNowSession'; // Key for the isBuyNow flag
+const ORDER_DATA_KEY = 'orderData';
+const IS_BUY_NOW_KEY = 'isBuyNowSession';
+
+// --- API Endpoint from Environment Variable ---
+// In your .env file: REACT_APP_API_BASE_URL=http://localhost:8080
+const API_BASE_URL = '';
+
 
 const Payment = () => {
     const location = useLocation();
@@ -16,38 +22,12 @@ const Payment = () => {
     const { addNotification } = useNotification();
 
     // --- STATE MANAGEMENT ---
-    // Initialize state using a function for lazy evaluation.
-    // This function runs ONLY ONCE when the component mounts.
-    const [paymentInfo, setPaymentInfo] = useState(() => {
-        const fromLocation = location.state?.paymentInfo;
-        if (fromLocation) {
-            sessionStorage.setItem(PAYMENT_INFO_KEY, JSON.stringify(fromLocation));
-            return fromLocation;
-        }
-        return JSON.parse(sessionStorage.getItem(PAYMENT_INFO_KEY));
-    });
+    // Using a lazy initializer function to read from sessionStorage only once.
+    const [paymentInfo, setPaymentInfo] = useState(() => JSON.parse(sessionStorage.getItem(PAYMENT_INFO_KEY)));
+    const [orderData, setOrderData] = useState(() => JSON.parse(sessionStorage.getItem(ORDER_DATA_KEY)));
+    const [isBuyNow, setIsBuyNow] = useState(() => JSON.parse(sessionStorage.getItem(IS_BUY_NOW_KEY)) || false);
 
-    const [orderData, setOrderData] = useState(() => {
-        const fromLocation = location.state?.orderData;
-        if (fromLocation) {
-            sessionStorage.setItem(ORDER_DATA_KEY, JSON.stringify(fromLocation));
-            return fromLocation;
-        }
-        return JSON.parse(sessionStorage.getItem(ORDER_DATA_KEY));
-    });
-
-    // Initialize the isBuyNow flag as well, ensuring it's persistent
-    const [isBuyNow, setIsBuyNow] = useState(() => {
-        const fromLocation = location.state?.isBuyNow;
-        if (typeof fromLocation === 'boolean') { // Check if it's explicitly passed as boolean
-            sessionStorage.setItem(IS_BUY_NOW_KEY, JSON.stringify(fromLocation));
-            return fromLocation;
-        }
-        const fromSession = JSON.parse(sessionStorage.getItem(IS_BUY_NOW_KEY));
-        return typeof fromSession === 'boolean' ? fromSession : false; // Default to false
-    });
-
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(300); // Default to 5 minutes
     const [isRegenerating, setIsRegenerating] = useState(false);
 
     const pollerRef = useRef(null);
@@ -55,126 +35,141 @@ const Payment = () => {
 
     const isExpired = timeLeft <= 0;
 
+    // --- EFFECT TO INITIALIZE STATE FROM LOCATION ---
+    // This effect runs only when the component is loaded via navigation,
+    // ensuring state is correctly populated from `location.state`.
+    useEffect(() => {
+        if (location.state) {
+            const { paymentInfo: pi, orderData: od, isBuyNow: ibn } = location.state;
+            if (pi) {
+                setPaymentInfo(pi);
+                sessionStorage.setItem(PAYMENT_INFO_KEY, JSON.stringify(pi));
+            }
+            if (od) {
+                setOrderData(od);
+                sessionStorage.setItem(ORDER_DATA_KEY, JSON.stringify(od));
+            }
+            if (typeof ibn === 'boolean') {
+                setIsBuyNow(ibn);
+                sessionStorage.setItem(IS_BUY_NOW_KEY, JSON.stringify(ibn));
+            }
+        }
+    }, [location.state]);
+
+
+    // --- PAYMENT STATUS CHECKER ---
+    // Wrapped in useCallback to memoize the function.
+    const checkPaymentStatus = useCallback(async () => {
+        if (!paymentInfo?.uniqueCode) return;
+
+        console.log(`[POLLER] Checking status for ${paymentInfo.uniqueCode}`);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
+            if (!response.ok) {
+                // Don't show error notification for pending status, just log it.
+                console.error("Status check failed with status:", response.status);
+                return;
+            }
+
+            const data = await response.json();
+            if (data.status === 'PAID') {
+                console.log("✅ Payment confirmed!");
+                addNotification('Thanh toán thành công!', 'success');
+
+                // Cleanup session storage
+                sessionStorage.removeItem(PAYMENT_INFO_KEY);
+                sessionStorage.removeItem(ORDER_DATA_KEY);
+                sessionStorage.removeItem(IS_BUY_NOW_KEY);
+
+                if (!isBuyNow) {
+                    clearCart();
+                }
+                navigate('/success', { replace: true });
+            }
+        } catch (error) {
+            // Avoid spamming notifications on network errors during polling
+            console.error("Error polling payment status:", error);
+        }
+    }, [paymentInfo, navigate, clearCart, addNotification, isBuyNow]);
+
+
     // --- MAIN EFFECT FOR TIMER AND POLLING ---
     useEffect(() => {
         if (!paymentInfo) {
-            addNotification('Không tìm thấy thông tin thanh toán. Vui lòng thử lại.', 'error');
-            navigate('/');
-            return;
+            // If there's no payment info after initial load, navigate away.
+            const timer = setTimeout(() => {
+                if (!sessionStorage.getItem(PAYMENT_INFO_KEY)) {
+                    addNotification('Không tìm thấy thông tin thanh toán. Vui lòng thử lại.', 'error');
+                    navigate('/');
+                }
+            }, 500);
+            return () => clearTimeout(timer);
         }
 
+        // --- Countdown Timer Logic ---
         const expiryDate = new Date(paymentInfo.expiryTime).getTime();
         const now = new Date().getTime();
         const initialTime = Math.floor((expiryDate - now) / 1000);
         setTimeLeft(initialTime > 0 ? initialTime : 0);
 
-        // Clear any existing intervals before setting new ones (important on re-render, like after regeneration)
         clearInterval(countdownRef.current);
-        clearInterval(pollerRef.current);
-
-        // Set up the countdown timer
         countdownRef.current = setInterval(() => {
-            setTimeLeft(prevTime => {
-                if (prevTime <= 1) {
-                    clearInterval(countdownRef.current);
-                    return 0;
-                }
-                return prevTime - 1;
-            });
+            setTimeLeft(prevTime => (prevTime > 0 ? prevTime - 1 : 0));
         }, 1000);
 
-        // Set up the payment status poller
-        const checkPaymentStatus = async () => {
-            if (new Date().getTime() > expiryDate) {
-                console.log("QR Code has expired on client side. Stopping poller.");
-                clearInterval(pollerRef.current);
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8080/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("Polling Response:", data);
-
-                    if (data.status === 'Paid') {
-                        console.log("Payment confirmed!");
-                        // Clear all relevant stored data on success
-                        sessionStorage.removeItem(PAYMENT_INFO_KEY);
-                        sessionStorage.removeItem(ORDER_DATA_KEY);
-                        sessionStorage.removeItem(IS_BUY_NOW_KEY); // Clear the buy now flag too
-
-                        if (!isBuyNow) { // Use the 'isBuyNow' state from the component
-                            clearCart();
-                        }
-                        addNotification('Thanh toán thành công!', 'success');
-                        navigate('/success');
-                    }
-                } else {
-                    const errorData = await response.json().catch(() => ({ message: 'Lỗi không xác định khi kiểm tra trạng thái.' }));
-                    console.error("Error response from status check:", errorData.message || response.statusText);
-                }
-            } catch (error) {
-                console.error("Error polling payment status:", error);
-                addNotification('Lỗi khi kiểm tra trạng thái thanh toán.', 'error');
-            }
-        };
-
-        checkPaymentStatus().then();
+        // --- Polling Logic ---
+        clearInterval(pollerRef.current);
+        // Check immediately on load, then set interval
+        checkPaymentStatus();
         pollerRef.current = setInterval(checkPaymentStatus, 5000);
 
-        // Cleanup function: runs when the component unmounts or dependencies change
+        // --- ⭐ SMART POLLING IMPROVEMENT ⭐ ---
+        // Add an event listener to check status immediately when the tab becomes visible.
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log("Tab is visible again. Checking payment status immediately.");
+                checkPaymentStatus();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Cleanup function
         return () => {
             clearInterval(countdownRef.current);
             clearInterval(pollerRef.current);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [paymentInfo, navigate, clearCart, addNotification, isBuyNow]); // Add isBuyNow to dependencies
+    }, [paymentInfo, navigate, addNotification, checkPaymentStatus]); // checkPaymentStatus is now a stable dependency
 
-    // --- Regeneration Handler ---
-    const handleRegenerateCode = async () => {
+
+    // --- REGENERATION HANDLER ---
+    const handleRegenerateCode = useCallback(async () => {
+        if (!orderData) {
+            addNotification('Không tìm thấy thông tin đơn hàng để tạo lại mã.', 'error');
+            return;
+        }
         setIsRegenerating(true);
         try {
-            // Ensure orderData is available for regeneration
-            if (!orderData) {
-                // If orderData is unexpectedly null, this indicates a deeper issue
-                // (e.g., initial load failed and was not fixed by F5)
-                // In a real app, you might navigate back or show a fatal error.
-                console.error("Order data is missing for regeneration!");
-                addNotification('Không tìm thấy thông tin đơn hàng để tạo lại mã QR. Vui lòng liên hệ hỗ trợ.', 'error');
-                return; // Stop here if critical data is missing
-            }
-
-            const response = await fetch("http://localhost:8080/api/ver0.0.1/orders", {
+            const response = await fetch(`${API_BASE_URL}/api/ver0.0.1/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData), // Re-using the existing orderData state
+                body: JSON.stringify(orderData),
                 credentials: 'include'
             });
             if (!response.ok) {
-                const errorResponse = await response.json().catch(() => ({ message: 'Lỗi không xác định khi tạo lại mã QR.' }));
+                const errorResponse = await response.json().catch(() => ({}));
                 throw new Error(errorResponse.message || 'Không thể tạo lại mã QR.');
             }
-
             const newPaymentInfo = await response.json();
-
-            // --- IMPORTANT: Update paymentInfo state AND sessionStorage ---
             setPaymentInfo(newPaymentInfo);
             sessionStorage.setItem(PAYMENT_INFO_KEY, JSON.stringify(newPaymentInfo));
-
-            // --- Crucial: If regeneration implies a *new* order for "buy now"
-            // (e.g., if you process it as a fresh order with a new ID),
-            // you might want to update orderData here too if the backend returns it.
-            // For now, assuming orderData remains the same for regeneration.
-
             addNotification('Mã QR đã được tạo lại thành công!', 'success');
-
         } catch (err) {
-            console.error("Regenerate code error:", err);
             addNotification(err.message, 'error');
         } finally {
             setIsRegenerating(false);
         }
-    };
+    }, [orderData, addNotification]);
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -188,6 +183,9 @@ const Payment = () => {
 
     return (
         <div className="payment-container">
+            <Helmet>
+                <title>Thanh toán</title>
+            </Helmet>
             <div className="payment-box">
                 <div className="qr-section">
                     <div className={`qr-image-wrapper ${isExpired ? 'expired' : ''}`}>
@@ -197,7 +195,7 @@ const Payment = () => {
                 </div>
                 <div className="info-section">
                     <div className={`timer ${isExpired ? 'expired-text' : ''}`}>
-                        {formatTime(timeLeft)}
+                        {isExpired ? "Đã hết hạn" : formatTime(timeLeft)}
                     </div>
                     {isExpired ? (
                         <div className="expired-actions">
@@ -209,11 +207,11 @@ const Payment = () => {
                         </div>
                     ) : (
                         <>
-                            <h3>Lưu ý:</h3>
+                            <h3>Lưu ý khi thanh toán:</h3>
                             <ol>
                                 <li>Vui lòng <strong>không thay đổi</strong> nội dung chuyển khoản.</li>
-                                <li>Bất kỳ giao dịch nào diễn ra sau thời gian quy định đều sẽ phải liên lạc với bộ phận chăm sóc khách hàng.</li>
-                                <li>Sau khi thanh toán vui lòng đợi, để hệ thống xác nhận đã thực hiện giao dịch.</li>
+                                <li>Mọi giao dịch sau khi mã hết hạn sẽ không được tự động xác nhận.</li>
+                                <li>Sau khi thanh toán, hệ thống sẽ tự động xác nhận trong giây lát.</li>
                             </ol>
                         </>
                     )}
@@ -224,3 +222,4 @@ const Payment = () => {
 };
 
 export default Payment;
+

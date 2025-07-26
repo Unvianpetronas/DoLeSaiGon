@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaBoxOpen, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // Added cancel icon
 import './Details.css';
+import { Helmet } from 'react-helmet-async';
 
 // --- THIS IS THE FIX ---
 
@@ -44,7 +45,7 @@ export default function Details() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:8080/api/ver0.0.1/orders/${orderId}`, {
+        const response = await fetch(`/api/ver0.0.1/orders/${orderId}`, {
           credentials: 'include',
         });
 
@@ -85,6 +86,9 @@ export default function Details() {
 
   return (
       <div className="details-container">
+        <Helmet>
+          <title>Trạng thái đơn hàng</title>
+        </Helmet>
         <h2>Trạng thái đơn hàng</h2>
 
         {/* 5. Conditionally render the status tracker or a "Cancelled" message */}

@@ -29,6 +29,12 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -132,6 +138,29 @@
 			<groupId>com.cloudinary</groupId>
 			<artifactId>cloudinary-http45</artifactId>
 			<version>1.38.0</version>
+		</dependency>
+        <!-- https://mvnrepository.com/artifact/com.postmarkapp/postmark -->
+        <dependency>
+            <groupId>com.postmarkapp</groupId>
+            <artifactId>postmark</artifactId>
+            <version>1.11.1</version>
+        </dependency>
+		<!-- https://mvnrepository.com/artifact/com.mailgun/mailgun-java -->
+		<dependency>
+			<groupId>com.mailgun</groupId>
+			<artifactId>mailgun-java</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>13.0</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<build>

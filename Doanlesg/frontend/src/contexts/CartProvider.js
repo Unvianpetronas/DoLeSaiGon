@@ -25,7 +25,7 @@ export const CartProvider = ({ children }) => {
             if (user) {
                 // User is logged in, fetch from API
                 try {
-                    const response = await fetch("http://localhost:8080/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
+                    const response = await fetch("/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
                     if (response.ok) {
                         const data = await response.json();
                         setCartItems(data);
@@ -52,14 +52,14 @@ export const CartProvider = ({ children }) => {
     const addToCart = useCallback(async (product, quantity = 1) => {
         if (user) {
             // API logic for logged-in user
-            await fetch('http://localhost:8080/api/ver0.0.1/cartItem/add', {
+            await fetch('/api/ver0.0.1/cartItem/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ productId: product.id, quantity }),
                 credentials: 'include'
             });
             // Refetch cart to get the latest state from DB
-            const response = await fetch("http://localhost:8080/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
+            const response = await fetch("/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
             const data = await response.json();
             setCartItems(data);
         } else {
@@ -80,7 +80,7 @@ export const CartProvider = ({ children }) => {
     const updateQuantity = useCallback(async (productId, newQuantity) => {
         if (user) {
             // API logic for logged-in user
-            await fetch(`http://localhost:8080/api/ver0.0.1/cartItem/updateId?productId=${productId}&quantity=${newQuantity}`, {
+            await fetch(`/api/ver0.0.1/cartItem/updateId?productId=${productId}&quantity=${newQuantity}`, {
                 method: "PUT",
                 credentials: "include",
             });
@@ -97,7 +97,7 @@ export const CartProvider = ({ children }) => {
     const removeItem = useCallback(async (productId) => {
         if (user) {
             // API logic for logged-in user
-            await fetch(`http://localhost:8080/api/ver0.0.1/cartItem/removeId?productId=${productId}`, {
+            await fetch(`/api/ver0.0.1/cartItem/removeId?productId=${productId}`, {
                 method: "DELETE", // Using DELETE is best practice
                 credentials: "include",
             });

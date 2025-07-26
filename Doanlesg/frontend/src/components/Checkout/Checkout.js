@@ -6,6 +6,7 @@ import { useCart } from "../../contexts/CartProvider";
 import { getProvinces, getDistricts, getWards } from "../../services/GhnApiService";
 // BƯỚC 1: Import hook useNotification
 import { useNotification } from "../../contexts/NotificationContext";
+import { Helmet } from 'react-helmet-async';
 
 // Define a constant for the session storage key
 const IS_BUY_NOW_KEY = 'isBuyNowSession';
@@ -133,7 +134,7 @@ export default function Checkout() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/ver0.0.1/orders", {
+      const response = await fetch("/api/ver0.0.1/orders", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(checkoutRequest),
@@ -165,7 +166,7 @@ export default function Checkout() {
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.priceAtAddition || item.price) * item.quantity, 0);
-  const shippingFee = form.shippingMethodId === 2 ? 20000 : 0;
+  const shippingFee = form.shippingMethodId === 2 ? 22000 : 0;
   const finalTotal = totalPrice + shippingFee;
 
   if (isAuthLoading || (isCartLoading && !buyNowCart)) {
@@ -174,6 +175,9 @@ export default function Checkout() {
 
   return (
       <div className="checkout-container">
+        <Helmet>
+          <title>Checkout</title>
+        </Helmet>
         <form onSubmit={handleSubmit} className="checkout-grid">
           <div className="checkout-form">
             <h2>Thông tin nhận hàng</h2>
@@ -253,10 +257,10 @@ export default function Checkout() {
             ) : (
                 <p>Giỏ hàng của bạn đang trống.</p>
             )}
-            <div className="voucher-section">
-              <input type="text" name="voucherCode" placeholder="Mã giảm giá" value={form.voucherCode} onChange={handleChange} className="voucher-input"/>
-              <button type="button" className="apply-voucher-btn">Áp dụng</button>
-            </div>
+            {/*<div className="voucher-section">*/}
+            {/*  <input type="text" name="voucherCode" placeholder="Mã giảm giá" value={form.voucherCode} onChange={handleChange} className="voucher-input"/>*/}
+            {/*  <button type="button" className="apply-voucher-btn">Áp dụng</button>*/}
+            {/*</div>*/}
             <button type="submit" className="checkout-btn" disabled={isSubmitting || cartItems.length === 0}>
               {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
             </button>

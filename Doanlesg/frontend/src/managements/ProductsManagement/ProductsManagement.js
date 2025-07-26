@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
 import ProductImage from "../../components/common/ProductImage"; // Make sure the path is correct
+import { Helmet } from 'react-helmet-async';
 
 // A custom hook to debounce user input, making API calls more efficient
 const useDebounce = (value, delay) => {
@@ -60,8 +61,8 @@ export default function ProductsManagement() {
     const fetchData = async () => {
       try {
         const url = debouncedSearchKeyword.trim()
-            ? `http://localhost:8080/api/ver0.0.1/product/productname?keyword=${debouncedSearchKeyword}&page=0&size=100&sort=productName`
-            : 'http://localhost:8080/api/ver0.0.1/product?page=0&size=100&sort=id';
+            ? `/api/ver0.0.1/product/productname?keyword=${debouncedSearchKeyword}&page=0&size=100&sort=productName`
+            : '/api/ver0.0.1/product?page=0&size=100&sort=id';
 
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch data');
@@ -120,7 +121,7 @@ export default function ProductsManagement() {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/ver0.0.1/staff/products/${id}`, {
+      const response = await fetch(`/api/ver0.0.1/staff/products/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -169,6 +170,9 @@ export default function ProductsManagement() {
 
   return (
       <div className="products-management">
+        <Helmet>
+          <title>Danh Sách Sản Phẩm</title>
+        </Helmet>
         <h2>Danh Sách Sản Phẩm</h2>
 
         <div className="admin-controls">

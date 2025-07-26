@@ -86,7 +86,7 @@ public class QRCodeManagermentService {
         // You will need to add this 'findByCode' method to your OrderRepository interface.
         Order orderToExpire = orderRepository.findByCode(code)
                 .orElse(null); // Use orElse(null) to handle cases where the order might already be deleted.
-
+        activeCodes.remove(code);
         // 2. If the order exists, delete it.
         if (orderToExpire != null) {
             orderRepository.delete(orderToExpire);

@@ -62,9 +62,9 @@ export default function AdminLayout() {
                     <li className={location.pathname.includes('/admin/orders') ? 'active' : ''}>
                       <Link to="/admin/orders">Quản lí đơn hàng</Link>
                     </li>
-                    <li className={location.pathname.includes('/admin/warehouse') ? 'active' : ''}>
-                      <Link to="/admin/warehouse">Quản lí kho hàng</Link>
-                    </li>
+                    {/*<li className={location.pathname.includes('/admin/warehouse') ? 'active' : ''}>*/}
+                    {/*  <Link to="/admin/warehouse">Quản lí kho hàng</Link>*/}
+                    {/*</li>*/}
                   </ul>
                 </div>
             )}
@@ -74,13 +74,13 @@ export default function AdminLayout() {
                 <div className="menu-section">
                   <div className="side-menu-title">ADMIN</div>
                   <ul>
-                    <li className={location.pathname === '/admin/delivery' ? 'active' : ''}>
-                      <Link to="/admin/delivery">Điều phối giao hàng</Link>
-                    </li>
+                    {/*<li className={location.pathname === '/admin/delivery' ? 'active' : ''}>*/}
+                    {/*  <Link to="/admin/delivery">Điều phối giao hàng</Link>*/}
+                    {/*</li>*/}
                     <li className={location.pathname === '/admin/dashboard' ? 'active' : ''}>
                       <Link to="/admin/dashboard">Báo cáo doanh thu</Link>
                     </li>
-                    <li className={location.pathname.includes('/admin/staff') ? 'active' : ''}>
+                     <li className={location.pathname.includes('/admin/staff') ? 'active' : ''}>
                       <Link to="/admin/staff">Quản lí nhân viên</Link>
                     </li>
                     <li className={location.pathname.includes('/admin/customer') ? 'active' : ''}>

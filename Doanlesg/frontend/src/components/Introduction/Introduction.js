@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import './Introduction.css';
+import { Helmet } from 'react-helmet-async';
 
 function Introduction() {
 const relatedArticles = [
@@ -46,6 +47,9 @@ const scroll = (direction) => {
   return (
    <>
       <div className="introduction-content">
+          <Helmet>
+              <title>Giới thiệu</title>
+          </Helmet>
         <h1>GIỚI THIỆU</h1>
 
         <p>

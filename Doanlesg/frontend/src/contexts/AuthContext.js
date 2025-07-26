@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkUserStatus = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/ver0.0.1/auth/status', {
+                const response = await fetch('/api/ver0.0.1/auth/status', {
                     credentials: 'include',
                 });
 
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     // The login function is correct
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:8080/api/ver0.0.1/login', {
+            const response = await fetch('/api/ver0.0.1/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             // Call the new logout endpoint you created
-            await fetch('http://localhost:8080/api/ver0.0.1/logout', {
+            await fetch('/api/ver0.0.1/logout', {
                 method: 'POST',
                 credentials: 'include',
             });

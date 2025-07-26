@@ -1,95 +1,140 @@
 package com.example.Doanlesg.services;
 
 import com.example.Doanlesg.model.InvoiceData;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 @Service
 public class InvoiceService {
 
+    private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);
     private final TemplateEngine templateEngine;
-
-    private final JavaMailSender mailSender;
+    // Không cần JavaMailSender emailSender nữa
+    private final String styleCssContent;
 
     @Autowired
-    public InvoiceService(TemplateEngine templateEngine, JavaMailSender mailSender) {
+    public InvoiceService(TemplateEngine templateEngine) throws IOException { // Bỏ JavaMailSender
         this.templateEngine = templateEngine;
-        this.mailSender = mailSender;
-    }
+        // Không cần this.emailSender = emailSender nữa
 
-    public void createAndEmailInvoice(InvoiceData invoiceData, String recipientEmail) throws IOException, MessagingException {
-        String htmlContent = parseThymeleafTemplate(invoiceData);
-        byte[] pdfBytes = generatePdfFromHtml(htmlContent);
-        sendEmailWithAttachment(recipientEmail, invoiceData.invoiceNumber(), pdfBytes);
-    }
-
-    private String parseThymeleafTemplate(InvoiceData invoiceData) {
-        Context thymeleafContext = new Context();
-        thymeleafContext.setVariable("invoice", invoiceData);
-        return templateEngine.process("invoice-template.html", thymeleafContext);
-    }
-
-    public String getLogoAsBase64() throws IOException {
-        // ClassPathResource sẽ tìm file trong thư mục 'src/main/resources'
-        ClassPathResource logoResource = new ClassPathResource("static/logo.png");
-
-        // Đọc toàn bộ file ảnh thành một mảng byte
-        byte[] logoBytes = logoResource.getInputStream().readAllBytes();
-
-        // Mã hóa mảng byte thành chuỗi Base64 và thêm tiền tố để tạo Data URL
-        return "data:image/png;base64," + Base64.getEncoder().encodeToString(logoBytes);
-    }
-
-    private byte[] generatePdfFromHtml(String html) throws IOException {
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            PdfRendererBuilder builder = new PdfRendererBuilder();
-
-            // 1. Tải font từ classpath vào một mảng byte
-            // Cách này xử lý IOException một cách an toàn và chỉ đọc file một lần.
-            byte[] fontBytes;
-            try (InputStream fontStream = new ClassPathResource("fonts/NotoSans-Vietnamese.ttf").getInputStream()) {
-                fontBytes = fontStream.readAllBytes();
-            }
-
-            // 2. Cung cấp font cho builder thông qua một InputStream được tạo từ mảng byte.
-            // Kỹ thuật này sử dụng một "supplier" (biểu thức lambda `() -> ...`)
-            // để builder có thể lấy stream font khi cần.
-            builder.useFont(() -> new ByteArrayInputStream(fontBytes), "Noto Sans");
-
-            // Dòng này rất có thể sẽ gây ra lỗi tương tự khi chạy trong file JAR
-            String baseUri = new ClassPathResource("/static/").getURL().toString();
-            builder.withHtmlContent(html, baseUri);
-
-            builder.toStream(os);
-            builder.run();
-            return os.toByteArray();
+        try (InputStream is = new ClassPathResource("static/style.css").getInputStream()) {
+            this.styleCssContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            logger.info("Đã đọc nội dung style.css từ classpath để inline.");
+        } catch (IOException e) {
+            logger.error("Không thể đọc style.css từ classpath. Email HTML có thể không có style.", e);
+            throw e;
         }
     }
 
-    private void sendEmailWithAttachment(String to, String invoiceNumber, byte[] pdfAttachment) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    /**
+     * Phương thức chính này giờ đây CHỈ tạo ra chuỗi HTML đã inline CSS.
+     * Nó được đặt public để các service khác (ví dụ: OrderService hoặc một lớp quản lý email) có thể gọi.
+     * @param invoiceData Dữ liệu hóa đơn để render template.
+     * @return Chuỗi HTML đã được inline CSS, sẵn sàng để gửi qua email.
+     */
+    public String generateInlinedInvoiceHtml(InvoiceData invoiceData) throws IOException { // Đổi tên method và kiểu trả về
+        logger.info("Bắt đầu chuẩn bị nội dung HTML cho email hóa đơn: {}", invoiceData.invoiceNumber());
 
-        helper.setFrom("no-reply@dolesaigon.io.vn");
-        helper.setTo(to);
-        helper.setSubject("Hóa đơn #" + invoiceNumber + " từ Đồ lễ Sài Gòn");
-        helper.setText("Kính gửi quý khách,\n\nVui lòng xem hóa đơn điện tử đính kèm.\n\nTrân trọng,\nĐồ lễ Sài Gòn.");
+        // 1. Render template Thymeleaf thành HTML thô
+        String rawHtmlContent = parseThymeleafTemplate(invoiceData);
 
-        String filename = "HoaDon_" + invoiceNumber + ".pdf";
-        helper.addAttachment(filename, () -> new ByteArrayInputStream(pdfAttachment));
+        // 2. Thêm CSS vào thẻ <style> bên trong HTML đã render
+        String htmlWithEmbeddedCss = rawHtmlContent.replace("</head>", "<style id='email-styles'>" + styleCssContent + "</style></head>");
 
-        mailSender.send(message);
-        System.out.println("Email đã được gửi thành công đến " + to);
+        // 3. Tự inline CSS bằng logic của chúng ta
+        String finalHtmlEmailContent = processHtmlForEmail(htmlWithEmbeddedCss); // Giữ lại method này
+
+        logger.info("Hoàn tất tạo nội dung HTML email cho hóa đơn {}.", invoiceData.invoiceNumber());
+        return finalHtmlEmailContent;
+    }
+
+    public String getLogoAsBase64() throws IOException {
+        ClassPathResource logoResource = new ClassPathResource("static/logo.png");
+        byte[] logoBytes = logoResource.getInputStream().readAllBytes();
+        return "data:image/png;base64," + Base64.getEncoder().encodeToString(logoBytes);
+    }
+
+    private String parseThymeleafTemplate(InvoiceData invoiceData) throws IOException {
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariable("invoice", invoiceData);
+        thymeleafContext.setVariable("logoBase64", getLogoAsBase64());
+        return templateEngine.process("invoice-template.html", thymeleafContext);
+    }
+
+    // Phương thức này giờ sẽ làm nhiệm vụ inline CSS
+    public String processHtmlForEmail(String html) { // Đặt là public để có thể gọi nội bộ hoặc từ test
+        Document doc = Jsoup.parse(html);
+
+        doc.select("link[rel='stylesheet']").remove();
+
+        Elements styleElements = doc.select("style");
+        Map<String, Map<String, String>> rulesBySelector = new HashMap<>();
+
+        for (Element styleElement : styleElements) {
+            String css = styleElement.html();
+            // Cải thiện regex để bắt các selector element và class đơn giản
+            Pattern pattern = Pattern.compile("([a-zA-Z0-9_\\-\\.]+|[a-zA-Z0-9_\\-]+)\\s*\\{([^}]+)\\}");
+            Matcher matcher = pattern.matcher(css);
+
+            while (matcher.find()) {
+                String selector = matcher.group(1).trim();
+                String propertiesString = matcher.group(2);
+
+                Map<String, String> properties = new HashMap<>();
+                for (String propDeclaration : propertiesString.split(";")) {
+                    String[] parts = propDeclaration.split(":", 2);
+                    if (parts.length == 2) {
+                        properties.put(parts[0].trim(), parts[1].trim());
+                    }
+                }
+                rulesBySelector.put(selector, properties);
+            }
+        }
+
+        for (Map.Entry<String, Map<String, String>> entry : rulesBySelector.entrySet()) {
+            String selector = entry.getKey();
+            Map<String, String> propertiesToApply = entry.getValue();
+
+            Elements elementsToStyle = doc.select(selector);
+            for (Element element : elementsToStyle) {
+                String currentStyle = element.attr("style");
+                StringBuilder newStyleBuilder = new StringBuilder();
+                if (!currentStyle.isEmpty()) {
+                    newStyleBuilder.append(currentStyle.trim());
+                    if (!newStyleBuilder.toString().endsWith(";")) {
+                        newStyleBuilder.append(";");
+                    }
+                    newStyleBuilder.append(" ");
+                }
+                for (Map.Entry<String, String> propEntry : propertiesToApply.entrySet()) {
+                    newStyleBuilder.append(propEntry.getKey()).append(":").append(propEntry.getValue()).append(";");
+                }
+                element.attr("style", newStyleBuilder.toString());
+            }
+        }
+
+        doc.select("style").remove();
+
+        return doc.html();
     }
 }
