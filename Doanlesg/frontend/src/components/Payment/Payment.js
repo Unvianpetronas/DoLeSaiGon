@@ -72,7 +72,7 @@ const Payment = () => {
             }
 
             const data = await response.json();
-            if (data.status === 'PAID') {
+            if (data.status === 'Paid') {
                 console.log("✅ Payment confirmed!");
                 addNotification('Thanh toán thành công!', 'success');
 

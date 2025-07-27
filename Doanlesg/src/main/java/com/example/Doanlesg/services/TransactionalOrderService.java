@@ -21,6 +21,10 @@ public class TransactionalOrderService {
         Order updatedOrder = orderRepository.findByCode(uniqueCode)
                 .orElseThrow(() -> new RuntimeException("Paid order not found with code: " + uniqueCode));
 
+        while ("Paid".equals(updatedOrder.getOrderStatus()) || "Cash".equals(updatedOrder.getOrderStatus())) {
+
+        }
+
         if ("Paid".equalsIgnoreCase(updatedOrder.getOrderStatus())) {
             // Already paid, just remove from tracking and exit
             qrCodeManager.markAsPaid(uniqueCode);

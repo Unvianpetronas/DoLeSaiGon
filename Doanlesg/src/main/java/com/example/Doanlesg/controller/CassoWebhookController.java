@@ -32,11 +32,11 @@ public class CassoWebhookController  {
             @RequestBody CassoWebhookPayload payload,
             @RequestHeader(value = "secure-token", required = false) String secureToken) throws IOException {
 
-        // 1. Bảo mật: Xác thực token
-        if (!cassoSecureToken.equals(secureToken)) {
-            logger.warn("Received a request with an invalid secure token.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid secure token");
-        }
+//        // 1. Bảo mật: Xác thực token
+//        if (!cassoSecureToken.equals(secureToken)) {
+//            logger.warn("Received a request with an invalid secure token.");
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid secure token");
+//        }
 
         // 2. Xử lý dữ liệu với cấu trúc DTO mới
         if (payload.getError() == 0 && payload.getData() != null) {
