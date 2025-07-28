@@ -37,33 +37,35 @@ public class AdminService {
     public DashboardStatsDTO getDashboardStatistics() {
         DashboardStatsDTO stats = new DashboardStatsDTO();
 
+        // Giả sử trạng thái hủy là OrderStatus.CANCELLED
+        // Lấy danh sách các đơn hàng CHƯA BỊ HỦY để tính toán
+        List<Order> validOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getOrderStatus() != null && !order.getOrderStatus().equals("Cancel"))
+                .collect(Collectors.toList());
+
         stats.setTotalProducts(productRepository.count());
-        stats.setTotalOrders(orderRepository.count());
+        // 1. ✅ Đếm trên danh sách đơn hàng đã lọc
+        stats.setTotalOrders(validOrders.size());
         stats.setTotalCustomers(accountRepository.countByCustomerIsNotNull());
 
-        // ✅ FIX: This logic now safely handles multiple numeric types from the database.
-        List<Object[]> revenueByCategoryData = orderRepository.getRevenueReportByCategory();
-        Map<String, BigDecimal> revenueByCategory = revenueByCategoryData.stream()
-                .collect(Collectors.toMap(
-                        row -> (String) row[0], // Key: category name
-                        row -> {                // Value: revenue
-                            Object sumObject = row[1];
-                            // ✅ FIX: Using modern pattern matching for instanceof.
-                            if (sumObject instanceof BigDecimal bigDecimal) {
-                                return bigDecimal;
-                            }
-                            if (sumObject instanceof Number) {
-                                return new BigDecimal(sumObject.toString());
-                            }
-                            return BigDecimal.ZERO;
-                        }
+        // 2. ✅ Tính toán doanh thu theo danh mục từ danh sách đã lọc
+        // Cách này đảm bảo chỉ các đơn hàng hợp lệ được tính
+        Map<String, BigDecimal> revenueByCategory = validOrders.stream()
+                .flatMap(order -> order.getOrderItems().stream()) // Lấy tất cả các order items
+                .filter(item -> item.getProduct() != null && item.getProduct().getCategory() != null)
+                .collect(Collectors.groupingBy(
+                        item -> item.getProduct().getCategory().getCategoryName(), // Nhóm theo tên category
+                        Collectors.mapping(
+                                item -> item.getUnitPrice().multiply(new BigDecimal(item.getQuantity())), // Tính giá trị của item
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add) // Cộng dồn lại
+                        )
                 ));
         stats.setTotalRevenueByCategory(revenueByCategory);
-        stats.setTotalRevenue(revenueByCategory.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add));
 
-        // The rest of the method remains the same...
+
+        // 3. ✅ Tính toán doanh thu theo tháng từ danh sách đã lọc
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        Map<String, DashboardStatsDTO.MonthlyChartData> monthMap = orderRepository.findAll().stream()
+        Map<String, DashboardStatsDTO.MonthlyChartData> monthMap = validOrders.stream()
                 .filter(order -> order.getOrderDate() != null && order.getTotalAmount() != null)
                 .collect(Collectors.groupingBy(
                         order -> order.getOrderDate().atZone(ZoneId.systemDefault()).format(formatter),
@@ -86,8 +88,13 @@ public class AdminService {
         List<DashboardStatsDTO.MonthlyChartData> chartData = monthMap.values().stream()
                 .sorted(Comparator.comparing(DashboardStatsDTO.MonthlyChartData::getMonth))
                 .collect(Collectors.toList());
-
         stats.setChartData(chartData);
+
+        // Tính tổng doanh thu từ chartData đã được lọc
+        BigDecimal totalRevenue = chartData.stream()
+                .map(DashboardStatsDTO.MonthlyChartData::getRevenue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        stats.setTotalRevenue(totalRevenue);
 
         stats.setMonthlyRevenueMap(chartData.stream().collect(Collectors.toMap(
                 DashboardStatsDTO.MonthlyChartData::getMonth,

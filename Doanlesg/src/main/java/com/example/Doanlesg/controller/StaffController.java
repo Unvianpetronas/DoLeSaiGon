@@ -168,10 +168,10 @@ public class StaffController {
     // Get product by ID - for both staff and admin
     @GetMapping("/products/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id, HttpSession session) {
-        Account account = getStaffOrAdmin(session);
-        if (account == null) {
-            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
-        }
+//        Account account = getStaffOrAdmin(session);
+//        if (account == null) {
+//            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+//        }
 
         Optional<ProductDTO> product = Optional.ofNullable(productService.findById(id));
         if (product.isPresent()) {

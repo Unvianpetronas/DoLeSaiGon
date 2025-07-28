@@ -20,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/cartItem")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class CartItemController {
 
     private final static String ACCOUNT = "account_id";

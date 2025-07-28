@@ -205,12 +205,12 @@ export default function Homepage() {
                           alt={item.productName}
                           cacheKey={item.lastUpdated}
                       />
-                      <span className="discount-tag">-10%</span>
+                      <span className="discount-tag">-20%</span>
                     </Link>
                     <div className="price-box">
                       <Link to={`/product/${item.id}`}>
                         <h4>{item.productName}</h4>
-                        <span className="old-price">{(item.price * 1.1).toLocaleString()}đ</span>
+                        <span className="old-price">{(item.price * 1.2).toLocaleString()}đ</span>
                         <span className="new-price">{item.price.toLocaleString()}đ</span>
                       </Link>
                       <div className="action-buttons-homepage">
