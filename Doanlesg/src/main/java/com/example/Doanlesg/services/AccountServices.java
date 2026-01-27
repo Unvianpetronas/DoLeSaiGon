@@ -9,10 +9,10 @@ import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,8 +23,9 @@ import java.util.Optional;
 public class AccountServices /* REMOVE: implements UserDetailsService */ {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final Cloudinary cloudinary;
+    private static final Logger logger = LoggerFactory.getLogger(AccountServices.class);
+
 
     public AccountServices(AccountRepository accountRepository, PasswordEncoder passwordEncoder, Cloudinary cloudinary) {
         this.accountRepository = accountRepository;
@@ -220,4 +221,32 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
                 .filter(p -> p.getAccount() != null)
                 .toList();
     }
+
+    @Transactional
+    public Long getOrCreateCartId(Long userID){
+        try {
+            Account account = findById(userID);
+            if(account == null){
+                throw new EntityNotFoundException("Account not found with ID: " + userID);
+            }
+
+            if (account.getCart() != null) {
+              return account.getCart().getId();
+            }
+
+            Cart cart = new Cart();
+            cart.setAccount(account);
+            account.setCart(cart);
+
+            Account savedAccount = accountRepository.save(account);
+
+            Long cartId = savedAccount.getCart().getId();
+            logger.info("Created new cart with ID {} for account {}", cartId, userID);
+            return cartId;
+        }catch (Exception e ){
+            logger.error("Error creating cart for account {}: {}", userID, e.getMessage());
+            throw new RuntimeException("Failed to create cart: " + e.getMessage(), e);
+        }
+    };
+    
 }
