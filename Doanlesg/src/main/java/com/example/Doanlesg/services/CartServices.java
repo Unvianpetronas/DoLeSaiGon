@@ -119,7 +119,9 @@ public class CartServices {
     public void addItem(Long cartId, Long productId, int quantity) {
         logger.info("Adding item to cart - cartId: {}, productId: {}, quantity: {}",
                 cartId, productId, quantity);
-
+        if(quantity < 0 ){
+            throw new IllegalArgumentException("số lượng phải lớn hơn 0");
+        }
         try {
             // Validate cart exists
             Cart cart = cartRepository.findById(cartId)
@@ -130,6 +132,14 @@ public class CartServices {
 
             // Check if item already exists
             CartItem existingItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
+            Product producted = productRepository.findById(productId)
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found: " + productId));
+
+            int currentQty = existingItem !=null ? existingItem.getQuantity() : 0;
+
+            if (currentQty + quantity > producted.getStockQuantity()) {
+                throw new IllegalArgumentException("Vượt quá số lượng tồn kho: " + producted .getStockQuantity());
+            }
 
             if (existingItem != null) {
                 logger.debug("Product {} already exists in cart {}, updating quantity from {} to {}",
@@ -147,7 +157,9 @@ public class CartServices {
                             logger.error("Product not found with ID: {}", productId);
                             return new EntityNotFoundException("Product not found with ID: " + productId);
                         });
-
+                if (currentQty + quantity > producted.getStockQuantity()) {
+                    throw new IllegalArgumentException("Vượt quá số lượng tồn kho: " + producted .getStockQuantity());
+                }
                 CartItem newItem = new CartItem();
                 newItem.setCart(cart);
                 newItem.setProduct(product);

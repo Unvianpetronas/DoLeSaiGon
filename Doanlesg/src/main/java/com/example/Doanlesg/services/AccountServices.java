@@ -35,6 +35,9 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     @Transactional
     public Account createCustomerAccount(Account accountDetail, Customer customerDetail) {
+        if (accountRepository.findByEmail(accountDetail.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại.");
+        }
         if(!validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
             accountDetail.setPasswordHash(encodedPassword);
@@ -55,7 +58,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return null;
     }
 
-    // ... (other methods like createStaffAccount, updateCustomerAccount, etc. remain the same)
     @Transactional
     public Account createStaffAccount(AccountStaffDTO dto, MultipartFile imageFile) throws IOException {
         // 1. Validate if the email already exists
@@ -101,8 +103,8 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     @Transactional
     public boolean updateCustomerAccount(Long id , Account accountUpdateDetail, Customer customerUpdateDetail) {
-        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
-        assert existAccount != null;
+        Account existAccount = accountRepository.findById(id).orElse(null);
+        if (existAccount == null) return false;
         Customer customerOld = existAccount.getCustomer();
         try{
             if(customerOld == null){
@@ -177,7 +179,9 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
     public boolean checkEmail(long id, String email){
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
-        // This returns false if the email is unchanged OR if it's taken by another user.
+        if(existingAccount.getEmail().equals(email)){
+            return true;
+        }
         return !existingAccount.getEmail().equals(email) && accountRepository.existsByEmail(email);
     }
 
@@ -197,11 +201,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return null;
     }
 
-    /**
-     * Finds an account by its ID.
-     * @param id The ID of the account.
-     * @return The Account object or null if not found.
-     */
     public Account findById(Long id) {
         return accountRepository.findById(id).orElse(null);
     }

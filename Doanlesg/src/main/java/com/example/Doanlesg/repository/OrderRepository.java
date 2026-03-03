@@ -37,5 +37,5 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "GROUP BY c.categoryName")
     List<Object[]> getRevenueReportByCategory();
 
-    Collection<Object> findAllByOrderByOrderDateDesc();
+    Collection<List> findAllByOrderByOrderDateDesc();
 }

@@ -30,7 +30,7 @@ public class CartItemController {
 
     @GetMapping("/allCartItem")
     public List<CartItemDTO> getAllCartItems(HttpSession session) {
-        // 1. Check login
+
         Long accountId = (Long) session.getAttribute(ACCOUNT);
         if (accountId == null) {
             logger.warn("Unauthorized access attempt to get cart items");
@@ -123,13 +123,11 @@ public class CartItemController {
                 return new ResponseEntity<>("Không tìm thấy tài khoản.", HttpStatus.NOT_FOUND);
             }
 
-            Long cartId;
             if (account.getCart() == null) {
-                logger.info("Creating new cart for account {}", accountId);
-                cartId = accountServices.getOrCreateCartId(accountId);
-            } else {
-                cartId = account.getCart().getId();
+                return new ResponseEntity<>("Giỏ hàng không tồn tại.", HttpStatus.NOT_FOUND);
             }
+            Long cartId = account.getCart().getId();
+            cartServices.updateItemQuantityFromCart(accountId, cartId, productId, quantity);
 
             // Service will validate ownership
             cartServices.updateItemQuantityFromCart(accountId, cartId, productId, quantity);

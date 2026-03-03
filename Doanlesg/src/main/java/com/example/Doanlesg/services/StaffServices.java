@@ -158,9 +158,17 @@ public class StaffServices {
 
     // Search orders by order status or customer name
     public List<Order> searchOrders(String keyword) {
+        String lowerKeyword = keyword.toLowerCase();
         return orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus().toLowerCase().contains(keyword.toLowerCase())
-                        || order.getAccount().getCustomer().getFullName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(order -> {
+                    boolean matchStatus = order.getOrderStatus() != null
+                            && order.getOrderStatus().toLowerCase().contains(lowerKeyword);
+                    boolean matchName = order.getAccount() != null
+                            && order.getAccount().getCustomer() != null
+                            && order.getAccount().getCustomer().getFullName() != null
+                            && order.getAccount().getCustomer().getFullName().toLowerCase().contains(lowerKeyword);
+                    return matchStatus || matchName;
+                })
                 .toList();
     }
 
@@ -177,7 +185,7 @@ public class StaffServices {
     @Transactional(readOnly = true)
     public List<OrderManagementDTO> getAllOrdersForManagement() {
         return orderRepository.findAllByOrderByOrderDateDesc().stream()
-                .map((Object order) -> OrderManagementDTO.fromEntity((Order) order))
+                .map(OrderManagementDTO::fromEntity)
                 .toList();
     }
 

@@ -18,6 +18,8 @@ public class OrderChecker {
 
     private final QRCodeManagermentService qrCodeManagerService;
     private final OrderService orderService;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderChecker.class);
+
 
     public OrderChecker(QRCodeManagermentService qrCodeManagerService, OrderService orderService) {
         this.qrCodeManagerService = qrCodeManagerService;
@@ -26,37 +28,55 @@ public class OrderChecker {
 
     @PostMapping
     public ResponseEntity<QRCodeManagermentService.PaymentInfo> createPaymentQrCode(@RequestBody CheckoutRequestDTO request) {
-        OrderTotalDTO total = orderService.calculateTotal(request);
-        QRCodeManagermentService.PaymentInfo paymentInfo;
+        log.info("=== CREATE PAYMENT QR CODE ===");
+        log.debug("Received checkout request: {}", request);
 
-            try {
-                if (request.getPaymentMethodId() == 1) {
-                    paymentInfo = qrCodeManagerService.trackCode(total.getTotalAmount());
-                } else {
-                    paymentInfo = qrCodeManagerService.getPaymentInfo();
-                }
-                if (paymentInfo != null) {
-                    orderService.placeOrder(request, paymentInfo.uniqueCode());
-//                    orderService.processPaidOrder(paymentInfo.uniqueCode(), request.getPaymentMethodId() == 1);
-                }
-            } catch (Exception e) {
-                throw new NumberFormatException("Place Order Failed.");
+        OrderTotalDTO total = orderService.calculateTotal(request);
+        log.debug("Calculated total amount: {} for user id: {}", total.getTotalAmount(), request.getCustomerId());
+
+        QRCodeManagermentService.PaymentInfo paymentInfo;
+        try {
+            if (request.getPaymentMethodId() == 1) {
+                log.info("Using Payment Method ID 1 – generating track code");
+                paymentInfo = qrCodeManagerService.trackCode(total.getTotalAmount());
+            } else {
+                log.info("Using default payment method – fetching payment info");
+                paymentInfo = qrCodeManagerService.getPaymentInfo();
             }
 
+            if (paymentInfo != null) {
+                log.debug("Placing order with unique code: {}", paymentInfo.uniqueCode());
+                orderService.placeOrder(request, paymentInfo.uniqueCode());
+                // orderService.processPaidOrder(paymentInfo.uniqueCode(), request.getPaymentMethodId() == 1);
+                log.info("Order placed successfully for user id: {} with unique code: {}", request.getCustomerId(),
+                        paymentInfo.uniqueCode());
+            } else {
+                log.warn("Received null PaymentInfo from QRCodeManagermentService");
+            }
+        } catch (Exception e) {
+            log.error("Failed to create payment QR code for user id: {} – {}", request.getCustomerId(), e.getMessage(), e);
+            throw new NumberFormatException("Place Order Failed.");
+        }
+
+        log.info("=== END CREATE PAYMENT QR CODE ===");
         return ResponseEntity.ok(paymentInfo);
     }
 
     @GetMapping("/status/{uniqueCode}")
     public ResponseEntity<Map<String, String>> getOrderStatus(@PathVariable String uniqueCode) {
-        Optional<Order> order = orderService.findOrderByPaymentCode(uniqueCode);
+        log.info("=== GET ORDER STATUS for code: {} ===", uniqueCode);
 
+        Optional<Order> order = orderService.findOrderByPaymentCode(uniqueCode);
         if (order.isEmpty()) {
+            log.warn("No order found with payment code: {}", uniqueCode);
             return ResponseEntity.notFound().build();
         }
 
         Map<String, String> response = new HashMap<>();
         response.put("status", order.get().getOrderStatus());
 
+        log.debug("Order status for code {}: {}", uniqueCode, order.get().getOrderStatus());
+        log.info("=== END GET ORDER STATUS ===");
         return ResponseEntity.ok(response);
     }
 }
