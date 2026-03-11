@@ -127,8 +127,6 @@ public class CartItemController {
                 return new ResponseEntity<>("Giỏ hàng không tồn tại.", HttpStatus.NOT_FOUND);
             }
             Long cartId = account.getCart().getId();
-            cartServices.updateItemQuantityFromCart(accountId, cartId, productId, quantity);
-
             // Service will validate ownership
             cartServices.updateItemQuantityFromCart(accountId, cartId, productId, quantity);
 

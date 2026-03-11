@@ -119,7 +119,7 @@ public class CartServices {
     public void addItem(Long cartId, Long productId, int quantity) {
         logger.info("Adding item to cart - cartId: {}, productId: {}, quantity: {}",
                 cartId, productId, quantity);
-        if(quantity < 0 ){
+        if(quantity <= 0 ){
             throw new IllegalArgumentException("số lượng phải lớn hơn 0");
         }
         try {
@@ -132,34 +132,25 @@ public class CartServices {
 
             // Check if item already exists
             CartItem existingItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
-            Product producted = productRepository.findById(productId)
+            Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new EntityNotFoundException("Product not found: " + productId));
 
-            int currentQty = existingItem !=null ? existingItem.getQuantity() : 0;
+            int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
 
-            if (currentQty + quantity > producted.getStockQuantity()) {
-                throw new IllegalArgumentException("Vượt quá số lượng tồn kho: " + producted .getStockQuantity());
+            if (currentQty + quantity > product.getStockQuantity()) {
+                throw new IllegalArgumentException("Vượt quá số lượng tồn kho: " + product.getStockQuantity());
             }
 
             if (existingItem != null) {
                 logger.debug("Product {} already exists in cart {}, updating quantity from {} to {}",
                         productId, cartId, existingItem.getQuantity(), existingItem.getQuantity() + quantity);
 
-                int newQuantity = existingItem.getQuantity() + quantity;
-                existingItem.setQuantity(newQuantity);
+                existingItem.setQuantity(existingItem.getQuantity() + quantity);
                 cartItemRepository.save(existingItem);
 
                 logger.info("Successfully updated item quantity in cart {}", cartId);
             } else {
                 // Add new item
-                Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> {
-                            logger.error("Product not found with ID: {}", productId);
-                            return new EntityNotFoundException("Product not found with ID: " + productId);
-                        });
-                if (currentQty + quantity > producted.getStockQuantity()) {
-                    throw new IllegalArgumentException("Vượt quá số lượng tồn kho: " + producted .getStockQuantity());
-                }
                 CartItem newItem = new CartItem();
                 newItem.setCart(cart);
                 newItem.setProduct(product);

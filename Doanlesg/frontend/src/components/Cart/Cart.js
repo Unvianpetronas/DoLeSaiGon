@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from "react"; // ✅ ADDED: useMemo
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
 import { FaShoppingCart, FaCartPlus } from "react-icons/fa";
@@ -23,11 +24,10 @@ const Cart = () => {
 
   const [recommendedProducts, setRecommendedProducts] = useState([]);
 
-  // ✅ ADDED: Create a memoized version of cart items with a cache key
   const processedCartItems = useMemo(() => {
     return cartItems.map(item => ({
       ...item,
-      lastUpdated: Date.now()
+      lastUpdated: item.lastUpdated ?? item.productId
     }));
   }, [cartItems]);
 
@@ -98,9 +98,13 @@ const Cart = () => {
     addNotification("Đã xóa sản phẩm khỏi giỏ hàng.", "success");
   };
 
-  const handleAddToCart = (product) => {
-    addToCart(product, 1);
-    addNotification("Đã thêm sản phẩm vào giỏ hàng!", "success");
+  const handleAddToCart = async (product) => {
+    try {
+      await addToCart(product, 1);
+      addNotification("Đã thêm sản phẩm vào giỏ hàng!", "success");
+    } catch (err) {
+      addNotification(err.message || "Lỗi khi thêm sản phẩm.", "error");
+    }
   };
 
   const handleCheckout = () => {
