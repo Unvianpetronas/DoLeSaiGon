@@ -64,6 +64,17 @@ public class Product {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "embedding", columnDefinition = "NVARCHAR(MAX)")
+    private String embedding;
+
+    public String getEmbedding() {
+        return embedding;
+    }
+
+    public void setEmbedding(String embedding) {
+        this.embedding = embedding;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
