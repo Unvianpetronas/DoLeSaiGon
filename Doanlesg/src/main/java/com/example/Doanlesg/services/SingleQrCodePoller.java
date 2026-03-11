@@ -1,31 +1,27 @@
 package com.example.Doanlesg.services;
 
-import com.example.Doanlesg.model.TransactionRecordDTO;
-import com.example.Doanlesg.model.TransactionResponseWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Component
 public class SingleQrCodePoller {
 
     private static final Logger logger = LoggerFactory.getLogger(SingleQrCodePoller.class);
-    private final CassoService cassoService;
+    private final N8nPaymentService n8nPaymentService;
     private final QRCodeManagermentService qrCodeManager;
     private final OrderService orderService;
 
     @Value("${CASSO_POLLING_DELAY_MS}")
     private long pollIntervalMillis;
 
-    public SingleQrCodePoller(CassoService cassoService, QRCodeManagermentService qrCodeManager, OrderService orderService) {
-        this.cassoService = cassoService;
+    public SingleQrCodePoller(N8nPaymentService n8nPaymentService, QRCodeManagermentService qrCodeManager, OrderService orderService) {
+        this.n8nPaymentService = n8nPaymentService;
         this.qrCodeManager = qrCodeManager;
         this.orderService = orderService;
     }
@@ -49,27 +45,14 @@ public class SingleQrCodePoller {
                     return;
                 }
 
-                logger.info("[POLLER for {}] Checking for payment...", uniqueCode);
+                logger.info("[POLLER for {}] Checking for payment via n8n...", uniqueCode);
 
-                LocalDateTime startTimeForCasso = startTimeUtc.toLocalDateTime(); // This is the LocalDateTime part of UTC OffsetDateTime
+                Boolean isPaid = n8nPaymentService.checkPayment(uniqueCode).block();
 
-                TransactionResponseWrapper response = cassoService.getTransactionFiltered(1, 100, startTimeForCasso).block();
-
-                if ((response != null) && (response.getError() == 0) && (response.getData() != null)) {
-                    for (TransactionRecordDTO record : response.getData().getRecords()) {
-                        // Ensure record.getCreatedAt() is also handled consistently (e.g., convert to UTC)
-                        // If record.getDescription() contains uniqueCode, that's fine for matching
-                        if (record.getDescription() != null && record.getDescription().contains(uniqueCode)) {
-                            logger.info("✅✅✅ [POLLER for {}] PAYMENT FOUND! ID: {}, Amount: {}",
-                                    uniqueCode, record.getId(), record.getAmount());
-
-                            orderService.processPaidOrder(uniqueCode, true);
-                            paymentFound = true;
-                            break;
-                        }
-                    }
-                } else if (response != null) {
-                    logger.warn("[POLLER for {}] API returned a business error: {}", uniqueCode, response.getMessage());
+                if (Boolean.TRUE.equals(isPaid)) {
+                    logger.info("[POLLER for {}] PAYMENT FOUND via n8n!", uniqueCode);
+                    orderService.processPaidOrder(uniqueCode, true);
+                    paymentFound = true;
                 }
 
             } catch (Exception e) {
