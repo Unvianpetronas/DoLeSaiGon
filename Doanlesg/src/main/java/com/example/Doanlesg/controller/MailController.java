@@ -27,7 +27,7 @@ public class MailController {
 
 //    @PostMapping("/send-invoice")
 //    public String sendInvoice(RedirectAttributes redirectAttributes) {
-//        String msg = "";
+//        String msg = "";SS
 //
 //        try {
 //            List<InvoiceData.Item> items = List.of(

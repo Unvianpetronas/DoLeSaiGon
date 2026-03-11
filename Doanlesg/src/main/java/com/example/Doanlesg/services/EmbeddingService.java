@@ -24,10 +24,10 @@ public class EmbeddingService {
         ResponseEntity<Map> response =
                 restTemplate.postForEntity(url, request, Map.class);
 
-        List<Double> embeddingList =
+        List<Double> vector =
                 (List<Double>) response.getBody().get("embedding");
 
-        return embeddingList.stream()
+        return vector.stream()
                 .mapToDouble(Double::doubleValue)
                 .toArray();
     }
