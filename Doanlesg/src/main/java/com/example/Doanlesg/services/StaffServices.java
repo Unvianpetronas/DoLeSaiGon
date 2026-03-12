@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,8 @@ public class StaffServices {
     private final OrderRepository orderRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private EmbeddingService embeddingService;
 
     private final Cloudinary  cloudinary;
 
@@ -110,6 +113,21 @@ public class StaffServices {
 
         product.setCreatedAt(LocalDateTime.now());
         // ... map other fields ...
+
+        // generate embedding for newly created product
+        String text =
+                product.getProductName() + " " +
+                        (product.getCategory() != null ? product.getCategory().getCategoryName() : "") + " " +
+                        product.getShortDescription() + " " +
+                        product.getDetailDescription();
+
+        double[] vector = embeddingService.generateEmbedding(text);
+
+        String embedding = Arrays.stream(vector)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        product.setEmbedding(embedding);
 
         // Step 2: Save the entity to the database FIRST to generate its ID
         Product savedProduct = productRepository.save(product);

@@ -2,6 +2,7 @@ package com.example.Doanlesg.controller;
 
 import com.example.Doanlesg.dto.ProductDTO;
 import com.example.Doanlesg.services.ProductService;
+import com.example.Doanlesg.services.RecommendationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/ver0.0.1/product") // React dev server
@@ -18,9 +20,12 @@ public class GetProductController {
     private static final Logger logger = LoggerFactory.getLogger(GetProductController.class);
 
     private final ProductService productService;
+    private final RecommendationService recommendationService;
 
-    public GetProductController(ProductService productService) {
+    public GetProductController(ProductService productService,
+                                RecommendationService recommendationService) {
         this.productService = productService;
+        this.recommendationService = recommendationService;
     }
 
 
@@ -96,6 +101,20 @@ public class GetProductController {
             logger.error("Error retrieving product with id {}: {}", id, e.toString(), e);
             throw new RuntimeException("Failed to fetch product", e);
         }
+    }
+
+    @GetMapping("/recommend/{id}")
+    public ResponseEntity<List<ProductDTO>> recommendProducts(@PathVariable Long id) {
+
+        logger.info("GET /product/recommend/{}", id);
+
+        List<ProductDTO> recommendations = recommendationService
+                .recommendProducts(id)
+                .stream()
+                .map(productService::convertToDto)
+                .toList();
+
+        return ResponseEntity.ok(recommendations);
     }
 
 }

@@ -35,6 +35,7 @@ const Description = () => {
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -56,6 +57,13 @@ const Description = () => {
         // ✅ ADD: Add a cache key to the main product object
         setProduct({ ...data, lastUpdated: Date.now() });
         setIsFavorite(isItemFavorite(data.id));
+
+        // Fetch AI recommendations
+        const recRes = await fetch(`/api/ver0.0.1/product/recommend/${data.id}`);
+        if (recRes.ok) {
+          const recData = await recRes.json();
+          setRecommendedProducts(addCacheKey(recData));
+        }
 
         if (data?.category?.id) {
           const relRes = await fetch(`/api/ver0.0.1/product/categoryID?categoryID=${data.category.id}&page=0&size=50&sort=productName`);
@@ -234,6 +242,38 @@ const Description = () => {
                       </Link>
                   ))}
                 </div>
+                <button onClick={() => scroll(1)} className="slider-btn right">▶</button>
+              </div>
+            </div>
+        )}
+
+        {recommendedProducts.length > 0 && (
+            <div className="related-products-wrapper">
+              <h2>Gợi Ý Cho Bạn</h2>
+
+              <div className="slider-wrapper">
+                <button onClick={() => scroll(-1)} className="slider-btn left">◀</button>
+
+                <div className="related-products" ref={scrollRef}>
+                  {recommendedProducts.map((rec) => (
+                      <Link to={`/product/${rec.id}`} className="related-item" key={rec.id}>
+
+                        <ProductImage
+                            productId={rec.id}
+                            alt={rec.productName}
+                            cacheKey={rec.lastUpdated}
+                        />
+
+                        <p>{rec.productName}</p>
+
+                        <span className="related-price">
+              {rec.price.toLocaleString()}₫
+            </span>
+
+                      </Link>
+                  ))}
+                </div>
+
                 <button onClick={() => scroll(1)} className="slider-btn right">▶</button>
               </div>
             </div>
