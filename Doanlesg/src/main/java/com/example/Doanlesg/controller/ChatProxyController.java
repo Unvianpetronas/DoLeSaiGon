@@ -73,24 +73,30 @@ public class ChatProxyController {
                     .limit(15)
                     .collect(Collectors.toList());
 
+            // Build name -> sku lookup for injecting SKU into recommendations later
+            Map<String, String> nameToSku = new HashMap<>();
+            for (Map<String, Object> p : products) {
+                String n = String.valueOf(p.getOrDefault("name", "")).toLowerCase().trim();
+                String s = String.valueOf(p.getOrDefault("sku", ""));
+                if (!n.isEmpty() && !s.isEmpty()) nameToSku.put(n, s);
+            }
+
             String productCatalog = relevant.stream().map(p -> {
-                String sku = String.valueOf(p.getOrDefault("sku", ""));
                 String name = String.valueOf(p.getOrDefault("name", ""));
                 String category = String.valueOf(p.getOrDefault("category", ""));
                 double price = p.get("price") instanceof Number ? ((Number) p.get("price")).doubleValue() : 0;
                 String desc = String.valueOf(p.getOrDefault("description", ""));
                 if (desc.length() > 80) desc = desc.substring(0, 80);
-                return "[" + sku + "] " + name + " | " + category + " | "
-                        + String.format("%,.0f", price) + "đ | " + desc;
+                return name + " | " + category + " | " + String.format("%,.0f", price) + "đ | " + desc;
             }).collect(Collectors.joining("\n"));
 
             String cartSummary = cart.isEmpty() ? "Trống" :
-                    cart.stream().map(c -> "[" + c.get("sku") + "] " + c.get("name") + " ×" + c.get("quantity"))
+                    cart.stream().map(c -> c.get("name") + " ×" + c.get("quantity"))
                             .collect(Collectors.joining(", "));
 
             String historySummary = purchaseHistory.isEmpty() ? "Chưa có" :
                     purchaseHistory.stream().limit(5)
-                            .map(h -> "[" + h.get("sku") + "] " + h.get("name") + " x" + h.getOrDefault("times_bought", 1))
+                            .map(h -> h.get("name") + " x" + h.getOrDefault("times_bought", 1))
                             .collect(Collectors.joining(", "));
 
             String systemPrompt = "Tư vấn viên Dole Saigon. Quy tắc: chỉ dùng sản phẩm trong catalog, tối đa 3-5 gợi ý, "
@@ -134,9 +140,11 @@ public class ChatProxyController {
             List<Map<String, Object>> recs = ((List<Map<String, Object>>) parsed.getOrDefault("recommendations", List.of()))
                     .stream().limit(5)
                     .map(r -> {
+                        String recName = String.valueOf(r.getOrDefault("name", ""));
+                        String sku = nameToSku.getOrDefault(recName.toLowerCase().trim(), "");
                         Map<String, Object> rec = new LinkedHashMap<>();
-                        rec.put("sku", r.getOrDefault("sku", ""));
-                        rec.put("name", r.getOrDefault("name", ""));
+                        rec.put("sku", sku);
+                        rec.put("name", recName);
                         rec.put("reason", r.getOrDefault("reason", ""));
                         rec.put("price", r.getOrDefault("price", 0));
                         rec.put("category", r.getOrDefault("category", ""));
