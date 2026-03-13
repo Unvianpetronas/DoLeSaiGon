@@ -94,8 +94,8 @@ public class ChatProxyController {
                             .collect(Collectors.joining(", "));
 
             String systemPrompt = "Tư vấn viên Dole Saigon. Quy tắc: chỉ dùng sản phẩm trong catalog, tối đa 3-5 gợi ý, "
-                    + "tiếng Việt ngắn gọn, kèm [SKU]. Trả JSON: {\"reply\":\"...\","
-                    + "\"recommendations\":[{\"sku\":\"...\",\"name\":\"...\",\"reason\":\"...\",\"price\":0,\"category\":\"...\"}],"
+                    + "tiếng Việt ngắn gọn. Trả JSON: {\"reply\":\"...\","
+                    + "\"recommendations\":[{\"name\":\"...\",\"reason\":\"...\",\"price\":0,\"category\":\"...\"}],"
                     + "\"intent\":\"product_query|price_check|recommendation|complaint|other\"}";
 
             String userPrompt = "KH: " + message
