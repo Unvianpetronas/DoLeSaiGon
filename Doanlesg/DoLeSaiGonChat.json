@@ -1,0 +1,155 @@
+{
+  "name": "DoLeSaiGonChat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "product-consult",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4a379544-a8ca-46c2-98ef-c9286057b19d",
+      "name": "Webhook - Nhận tin nhắn KH",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [656, -64],
+      "webhookId": "product-consult-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"body\"][\"customer_id\"] }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json[\"body\"][\"message\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "11c903f5-113b-4070-ad93-0966d54087bd",
+      "name": "IF - Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [864, -64]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst body = $('Webhook - Nhận tin nhắn KH').item.json['body'];\n\nconst customerId      = body['customer_id'] || '';\nconst sessionId       = body['session_id']  || ('session_' + Date.now());\nconst customerMessage = body['message']     || '';\nconst allProducts     = body['products']    || [];\nconst cartItems       = body['cart']        || [];\nconst purchaseHistory = body['purchase_history'] || [];\n\n// Format catalog\nconst productCatalog = allProducts.map(function(p) {\n  const priceNum     = Number(p['price'])      || 0;\n  const salePriceNum = Number(p['sale_price']) || 0;\n  const priceStr = (salePriceNum > 0 && salePriceNum < priceNum)\n    ? salePriceNum.toLocaleString('vi-VN') + 'đ (giảm từ ' + priceNum.toLocaleString('vi-VN') + 'đ)'\n    : priceNum.toLocaleString('vi-VN') + 'đ';\n  const stockStatus = (p['stock'] > 0) ? ('Còn ' + p['stock']) : 'Hết hàng';\n  return '[' + p['sku'] + '] ' + p['name'] + ' | ' + p['category'] + ' | ' + priceStr + ' | ' + stockStatus + '\\n  Mô tả: ' + (p['description'] || '');\n}).join('\\n---\\n');\n\n// Format cart\nconst cartSummary = cartItems.length > 0\n  ? cartItems.map(function(c) {\n      return '- [' + c['sku'] + '] ' + c['name'] + ' × ' + c['quantity'] + ' = ' + (c['price'] * c['quantity']).toLocaleString('vi-VN') + 'đ';\n    }).join('\\n')\n  : 'Giỏ hàng đang trống.';\n\n// Format history\nconst historySummary = purchaseHistory.length > 0\n  ? purchaseHistory.map(function(h) {\n      return '- [' + h['sku'] + '] ' + h['name'] + ' (' + h['category'] + ') - đã mua ' + (h['times_bought'] || 1) + ' lần';\n    }).join('\\n')\n  : 'Chưa có lịch sử mua hàng.';\n\nconst systemPrompt = `Bạn là chuyên gia tư vấn sản phẩm thông minh. Nhiệm vụ:\n1. Tư vấn dựa CHÍNH XÁC trên catalog sản phẩm được cung cấp.\n2. Gợi ý tối đa 3-5 sản phẩm dựa trên giỏ hàng và lịch sử mua.\n3. Dùng tiếng Việt tự nhiên, thân thiện, ngắn gọn.\n4. Khi mention sản phẩm LUÔN kèm mã [SKU].\n5. Chỉ recommend sản phẩm còn hàng. KHÔNG bịa thêm thông tin.\n\nTrả về JSON với format:\n{\n  \"reply\": \"<câu trả lời thân thiện>\",\n  \"recommendations\": [\n    { \"sku\": \"<SKU>\", \"name\": \"<tên>\", \"reason\": \"<lý do ngắn>\", \"price\": <số>, \"category\": \"<danh mục>\" }\n  ],\n  \"intent\": \"<product_query|price_check|recommendation|complaint|other>\"\n}`;\n\nconst userPrompt = `=== TIN NHẮN KHÁCH HÀNG ===\nCustomer ID: ${customerId}\nNội dung: ${customerMessage}\n\n=== GIỎ HÀNG HIỆN TẠI ===\n${cartSummary}\n\n=== LỊCH SỬ MUA HÀNG ===\n${historySummary}\n\n=== CATALOG SẢN PHẨM (${allProducts.length} sản phẩm) ===\n${productCatalog}\n\nHãy tư vấn và gợi ý sản phẩm. Trả về đúng format JSON.`;\n\nreturn [{\n  json: {\n    customer_id:      customerId,\n    session_id:       sessionId,\n    customer_message: customerMessage,\n    system_prompt:    systemPrompt,\n    user_prompt:      userPrompt,\n    product_count:    allProducts.length\n  }\n}];\n"
+      },
+      "id": "c6791bbc-7995-4051-95c8-87994fb20820",
+      "name": "Code - Build AI Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1056, -64]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"success\": false, \"error\": \"Missing required fields: customer_id, message\" }",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "ca20bf3a-0d7f-4629-88d1-4c32ab8d006a",
+      "name": "Respond - Lỗi thiếu data",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1056, 96]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1%3A0/invoke",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [{ \"text\": {{ JSON.stringify($json[\"user_prompt\"]) }} }]\n    }\n  ],\n  \"system\": [{ \"text\": {{ JSON.stringify($json[\"system_prompt\"]) }} }],\n  \"inferenceConfig\": {\n    \"temperature\": 0.4,\n    \"maxTokens\": 1500\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "a567a0c7-cc81-4a4b-879c-fd18ca17a200",
+      "name": "HTTP - Gọi AWS Bedrock",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1280, -64],
+      "notes": "Credential type: AWS\nRegion: us-east-1 (change if needed)\nMake sure Amazon Nova Lite is enabled in Bedrock Model Access"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst novaResponse = $json;\nconst prev = $('Code - Build AI Prompt').item.json;\n\n// Extract text from Nova response\nlet rawText = '';\nlet inputTokens  = 0;\nlet outputTokens = 0;\nlet finishReason = 'end_turn';\n\ntry {\n  rawText      = novaResponse['output']['message']['content'][0]['text'];\n  inputTokens  = (novaResponse['usage'] || {})['inputTokens']  || 0;\n  outputTokens = (novaResponse['usage'] || {})['outputTokens'] || 0;\n  finishReason = novaResponse['stopReason'] || 'end_turn';\n} catch(e) {\n  rawText = JSON.stringify(novaResponse);\n}\n\n// Parse JSON from AI reply\nlet parsed = null;\ntry {\n  parsed = JSON.parse(rawText);\n} catch(e1) {\n  try {\n    const match = rawText.match(/\\{[\\s\\S]*\\}/);\n    if (match) parsed = JSON.parse(match[0]);\n    else throw new Error('No JSON');\n  } catch(e2) {\n    parsed = {\n      reply: rawText || 'Xin lỗi, tôi không thể xử lý yêu cầu. Vui lòng thử lại.',\n      recommendations: [],\n      intent: 'other'\n    };\n  }\n}\n\n// Safety / content filter block\nif (finishReason === 'content_filtered') {\n  parsed = {\n    reply: 'Xin lỗi, tôi không thể trả lời câu hỏi này. Vui lòng liên hệ nhân viên hỗ trợ.',\n    recommendations: [],\n    intent: 'blocked'\n  };\n}\n\nconst recs = (parsed['recommendations'] || []).slice(0, 5).map(function(r) {\n  return {\n    sku:      r['sku']      || '',\n    name:     r['name']     || '',\n    reason:   r['reason']   || '',\n    price:    r['price']    || 0,\n    category: r['category'] || ''\n  };\n});\n\nreturn [{\n  json: {\n    customer_id:      prev['customer_id'],\n    session_id:       prev['session_id'],\n    original_message: prev['customer_message'],\n    reply:            parsed['reply'] || '',\n    recommendations:  recs,\n    intent:           parsed['intent'] || 'other',\n    meta: {\n      model:         'amazon.nova-lite-v1:0',\n      input_tokens:  inputTokens,\n      output_tokens: outputTokens,\n      finish_reason: finishReason,\n      timestamp:     new Date().toISOString()\n    }\n  }\n}];\n"
+      },
+      "id": "a1fb66e7-6b96-42db-94f2-0a180b91c53e",
+      "name": "Code - Parse & Clean Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1504, -64]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, data: { session_id: $json[\"session_id\"], reply: $json[\"reply\"], recommendations: $json[\"recommendations\"], intent: $json[\"intent\"] } }) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "75b2a034-dc01-4413-803f-39e16d208a7a",
+      "name": "Respond - Trả về KH",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1728, -64]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Nhận tin nhắn KH": {
+      "main": [[{ "node": "IF - Validate Input", "type": "main", "index": 0 }]]
+    },
+    "IF - Validate Input": {
+      "main": [
+        [{ "node": "Code - Build AI Prompt", "type": "main", "index": 0 }],
+        [{ "node": "Respond - Lỗi thiếu data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Build AI Prompt": {
+      "main": [[{ "node": "HTTP - Gọi AWS Bedrock", "type": "main", "index": 0 }]]
+    },
+    "HTTP - Gọi AWS Bedrock": {
+      "main": [[{ "node": "Code - Parse & Clean Response", "type": "main", "index": 0 }]]
+    },
+    "Code - Parse & Clean Response": {
+      "main": [[{ "node": "Respond - Trả về KH", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
