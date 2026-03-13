@@ -34,6 +34,9 @@ import Success from './components/Success/Success';
 import Details from './components/Details/Details';
 import Payment from './components/Payment/Payment';
 
+// --- AI CHAT ---
+import AIChatWidget from './components/common/AIChatWidget';
+
 // --- ADMIN COMPONENTS ---
 import AdminDashboard from './managements/AdminDashboard/AdminDashboard';
 import AdminLayoutComponent from './managements/AdminLayout/AdminLayout';
@@ -110,6 +113,7 @@ function App() {
                 <Router>
                     <div className="app">
                         <WarningBanner/>
+                        <AIChatWidget />
                         <Routes>
                             {/* --- Customer Routes with Breadcrumb --- */}
                             <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />
