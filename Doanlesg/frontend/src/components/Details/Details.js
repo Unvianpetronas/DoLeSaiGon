@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaBoxOpen, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // Added cancel icon
+import { FaBoxOpen, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import './Details.css';
 import { Helmet } from 'react-helmet-async';
 
-// --- THIS IS THE FIX ---
 
-// 1. Define the visual steps for the tracker in the UI
 const visualSteps = [
   { name: 'Đang chuẩn bị', icon: <FaBoxOpen /> },
   { name: 'Đang giao', icon: <FaTruck /> },
   { name: 'Đã nhận', icon: <FaCheckCircle /> }
 ];
 
-// 2. Create a mapping from the BACKEND status string to the step INDEX
 const statusToIndex = {
   'Pending': 0,
   'Paid': 0,
   'Cash': 0,
   'Shipping': 1,
   'Complete': 2,
-  'Cancel': -1 // A special index for cancelled orders
+  'Cancel': -1
 };
 
-// 3. Create a map to get the display name for any status
 const statusDisplayName = {
   'Pending': 'Đang chuẩn bị',
   'Paid': 'Đang chuẩn bị',
@@ -91,7 +87,6 @@ export default function Details() {
         </Helmet>
         <h2>Trạng thái đơn hàng</h2>
 
-        {/* 5. Conditionally render the status tracker or a "Cancelled" message */}
         {order.orderStatus === 'Cancel' ? (
             <div className="status-steps-cancelled">
               <FaTimesCircle />

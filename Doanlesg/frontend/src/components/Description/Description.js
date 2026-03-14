@@ -5,10 +5,10 @@ import { useCart } from "../../contexts/CartProvider";
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
-import ProductImage from '../common/ProductImage'; // Adjust path if necessary
+import ProductImage from '../common/ProductImage';
 import { Helmet } from 'react-helmet-async';
 
-// ✅ ADD: Helper function to add cache keys
+
 const addCacheKey = (products) =>
     (products || []).map(p => ({ ...p, lastUpdated: Date.now() }));
 
@@ -42,7 +42,6 @@ const Description = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    // Reset image index when product changes
     setImageIndex(0);
 
     const fetchProduct = async () => {
@@ -54,7 +53,6 @@ const Description = () => {
           throw new Error('Không tìm thấy sản phẩm.');
         }
         const data = await res.json();
-        // ✅ ADD: Add a cache key to the main product object
         setProduct({ ...data, lastUpdated: Date.now() });
         setIsFavorite(isItemFavorite(data.id));
 
@@ -70,7 +68,6 @@ const Description = () => {
           if (relRes.ok) {
             const relData = await relRes.json();
             const related = (relData.content || []).filter(p => p.id !== data.id);
-            // ✅ ADD: Add cache keys to related products
             setRelatedProducts(addCacheKey(related));
           }
         }
@@ -142,7 +139,6 @@ const Description = () => {
                     <button className="nav-button prev" onClick={() => handleImageChange(-1)}>❮</button>
                 )}
 
-                {/* ✅ PASS: Pass the cacheKey prop */}
                 <ProductImage
                     productId={selectedImageId}
                     alt={product.productName}
@@ -163,7 +159,6 @@ const Description = () => {
                             className={`thumbnail-item ${imageIndex === index ? "active" : ""}`}
                             onClick={() => setImageIndex(index)}
                         >
-                          {/* ✅ PASS: Pass the cacheKey prop */}
                           <ProductImage
                               productId={id}
                               alt={`Thumbnail ${index + 1}`}
@@ -231,7 +226,6 @@ const Description = () => {
                 <div className="related-products" ref={scrollRef}>
                   {relatedProducts.map((rel) => (
                       <Link to={`/product/${rel.id}`} className="related-item" key={rel.id}>
-                        {/* ✅ PASS: Pass the cacheKey prop */}
                         <ProductImage
                             productId={rel.id}
                             alt={rel.productName}

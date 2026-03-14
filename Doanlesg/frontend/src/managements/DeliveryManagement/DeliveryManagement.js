@@ -40,7 +40,6 @@ const DeliveryManagement = () => {
       try {
         setLoading(true);
         setError(null);
-        // Lưu ý: Các cuộc gọi API này vẫn cần backend cấu hình CORS để hoạt động
         const [ordersRes, staffRes] = await Promise.all([
           fetch('/api/ver0.0.1/staff/orders', { credentials: 'include' }),
           fetch('/api/ver0.0.1/staff/accounts', { credentials: 'include' })
@@ -54,7 +53,7 @@ const DeliveryManagement = () => {
             .filter(o => ['Pending', 'Shipping', 'Paid'].includes(o.orderStatus))
             .map(o => ({ ...o, assignedStaffId: o.assignedStaffId || null }));
 
-        // SỬA: Đọc dữ liệu từ Local Storage
+        // Đọc dữ liệu từ Local Storage
         shippingOrders = shippingOrders.map(order => {
           const savedStaffId = localStorage.getItem(`order_${order.id}`);
           if (savedStaffId) {
@@ -106,7 +105,7 @@ const DeliveryManagement = () => {
     }
 
     addNotification('Đã lưu lựa chọn nhân viên vào trình duyệt.', 'info');
-    // Lưu ý: Phần gọi API vẫn được giữ lại để bạn có thể kích hoạt lại trong tương lai nếu cần
+    // Phần gọi API vẫn được giữ lại để bạn có thể kích hoạt lại trong tương lai nếu cần
     /*
     try {
       const response = await fetch(`.../assign`, { ... });
@@ -128,7 +127,6 @@ const DeliveryManagement = () => {
     setDeliveries(prev => prev.map(order => order.id === id ? { ...order, orderStatus: newStatus } : order));
 
     try {
-      // ✅ FIX: Send the new status in the request body as JSON
       const response = await fetch(`/api/ver0.0.1/staff/orders/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -139,12 +137,10 @@ const DeliveryManagement = () => {
       });
 
       if (!response.ok) {
-        // If the API call fails, throw an error to be caught below
         const errorText = await response.text();
         throw new Error(errorText || 'Cập nhật trạng thái thất bại.');
       }
 
-      // On success, show a notification
       addNotification(`Cập nhật trạng thái thành công!`, 'success');
 
       // If the order is now complete, remove it from the UI after a short delay
@@ -155,9 +151,7 @@ const DeliveryManagement = () => {
       }
 
     } catch (error) {
-      // If an error occurs, revert the UI to its original state
       setDeliveries(originalDeliveries);
-      // And show an error notification
       addNotification(error.message, 'error');
     }
   };

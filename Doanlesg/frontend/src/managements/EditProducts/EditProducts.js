@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import './EditProducts.css'; // Assuming you have this CSS file
+import './EditProducts.css';
 
 // Helper function to safely check for a user's role
 const hasRole = (user, role) => {
@@ -59,7 +59,7 @@ export default function EditProduct() {
 
         setProduct(productData);
         setCategories(categoriesData);
-        setImagePreview(productData.image); // Set initial image preview
+        setImagePreview(productData.image);
 
       } catch (err) {
         setError(err.message);
@@ -114,12 +114,10 @@ export default function EditProduct() {
     const productData = {
       id: product.id,
       productName: product.productName,
-      // CORRECTED LINE: Use stockQuantity to match the input field name
       stockQuantity: parseInt(product.stockQuantity, 10),
       price: parseFloat(product.price),
       shortDescription: product.shortDescription,
       detailDescription: product.detailDescription,
-      // Make sure the status is a boolean
       status: String(product.status) === 'true',
       category: { id: product.category.id },
     };
@@ -127,13 +125,11 @@ export default function EditProduct() {
     const formData = new FormData();
     formData.append('product', new Blob([JSON.stringify(productData)], { type: 'application/json' }));
 
-    // Only append the image if a new one has been selected
     if (newImage) {
       formData.append('image', newImage);
     }
 
     try {
-      // Use the correct endpoint for updating, which might be different from creating
       const response = await fetch(`/api/ver0.0.1/staff/products/${id}`, {
         method: 'PUT',
         credentials: 'include',

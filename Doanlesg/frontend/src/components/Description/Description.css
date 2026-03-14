@@ -20,7 +20,7 @@ body {
 
 
 
-/* ========== PHẦN 1: THÔNG TIN SẢN PHẨM ========== */
+/* THÔNG TIN SẢN PHẨM */
 .product-main-wrapper {
   background-color: #fff;
   padding: 30px;
@@ -42,11 +42,11 @@ body {
 
 .main-image {
   width: 100%;
-  height: 600px; /* hoặc giá trị bạn muốn */
-  object-fit: contain; /* CHỈNH Ở ĐÂY */
+  height: 600px;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid #ddd;
-  background-color: #fff; /* đảm bảo không bị màu nền lạ */
+  background-color: #fff;
 }
 
 
@@ -204,7 +204,7 @@ body {
   color: #444;
 }
 
-/* ========== PHẦN 3: SẢN PHẨM LIÊN QUAN ========== */
+/* SẢN PHẨM LIÊN QUAN  */
 .related-products-wrapper {
   background-color: #fff;
   padding: 30px;
@@ -298,7 +298,7 @@ body {
   right: 10px;
 }
 
-/* --- ACTION BUTTONS --- */
+/* ACTION BUTTONS */
 .action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -306,7 +306,7 @@ body {
   margin-bottom: 20px;
 }
 
-/* ✅ NEW: A shared style for both buttons */
+
 .action-buttons .buy-now,
 .action-buttons .dole-add-to-cart-btn {
   padding: 15px;
@@ -331,7 +331,7 @@ body {
   background-color: #c56b3a;
 }
 
-/* ✅ NEW: Specific style for the "Add to Cart" button */
+/* Specific style for the "Add to Cart" button */
 .action-buttons .dole-add-to-cart-btn {
   background-color: #fff;
   color: #1f3f32;

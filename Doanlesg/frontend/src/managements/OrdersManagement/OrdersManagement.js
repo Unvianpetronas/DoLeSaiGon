@@ -31,7 +31,6 @@ const OrdersManagement = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { addNotification } = useNotification();
 
-  // ✅ NEW: State to track which order is being edited
   const [editingOrderId, setEditingOrderId] = useState(null);
 
   useEffect(() => {
@@ -135,7 +134,6 @@ const OrdersManagement = () => {
                       <td>{order.totalAmount.toLocaleString()}₫</td>
                       <td>{order.shippingMethodName}</td>
                       <td>
-                        {/* ✅ FIX: Conditionally render a dropdown or a chip */}
                         {editingOrderId === order.id ? (
                             <select
                                 className="status-select-inline"

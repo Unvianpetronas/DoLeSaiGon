@@ -1,4 +1,4 @@
-/* ========== Layout & Table Styles ========== */
+
 .orders-page {
   padding: 30px;
   font-family: 'Poppins', sans-serif;
@@ -31,7 +31,7 @@
   color: white;
 }
 
-/* ========== Trạng thái đơn hàng (dropdown) ========== */
+/*Trạng thái đơn hàng (dropdown)*/
 .status-select {
   font-size: 14px;
   font-weight: bold;
@@ -41,23 +41,23 @@
   outline: none;
   padding: 0;
   cursor: pointer;
-  appearance: none; /* Xóa giao diện mặc định trình duyệt */
+  appearance: none;
   text-align: center;
 }
 
 /* Trạng thái: Đang chuẩn bị */
 .status-select.prepare {
-  color: #d48806;             /* cam chữ */
+  color: #d48806;
 }
 
 /* Trạng thái: Đang giao */
 .status-select.shipping {
-  color: #096dd9;             /* xanh dương */
+  color: #096dd9;
 }
 
 /* Trạng thái: Đã giao */
 .status-select.delivered {
-  color: #389e0d;             /* xanh lá */
+  color: #389e0d;
 }
 
 .order-status-chip {
@@ -69,7 +69,7 @@
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
-  cursor: pointer; /* Make it look clickable */
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 

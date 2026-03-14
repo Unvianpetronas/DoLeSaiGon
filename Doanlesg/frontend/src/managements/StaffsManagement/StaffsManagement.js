@@ -4,7 +4,7 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import StaffAvatar from '../../components/common/StaffAvatar'; // Make sure this path is correct
+import StaffAvatar from '../../components/common/StaffAvatar';
 import { Helmet } from 'react-helmet-async';
 
 const hasRole = (user, role) => {
@@ -48,7 +48,6 @@ const StaffsManagement = () => {
             code: dto.staff.employeeId,
             phone: dto.staff.phoneNumber,
             department: dto.staff.department,
-            // ✅ ADD: Give each employee an initial timestamp for cache-busting.
             lastUpdated: Date.now()
           }));
           setEmployees(staffAccounts);
@@ -169,7 +168,6 @@ const StaffsManagement = () => {
       });
       if (response.ok) {
         if (isEditing) {
-          // ✅ FIX: Update the specific employee's `lastUpdated` timestamp to force a re-render.
           setEmployees(prev => prev.map(e => {
             if (e.id === editingId) {
               return {
@@ -288,7 +286,6 @@ const StaffsManagement = () => {
                   <td>{e.department}</td>
                   <td>
                     <div className="avatar-container">
-                      {/* ✅ PASS: Pass the employee-specific timestamp as the cacheKey. */}
                       <StaffAvatar
                           employeeId={e.code}
                           alt={e.name}

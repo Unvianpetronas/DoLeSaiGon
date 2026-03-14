@@ -49,12 +49,10 @@ export default function AIChatWidget() {
     // Hide on admin pages
     if (location.pathname.startsWith('/admin')) return null;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         fetchAllProducts().then(setProducts);
     }, []);
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);

@@ -47,7 +47,6 @@ const CustomersManagement = () => {
           throw new Error('Không thể tải danh sách khách hàng.');
         }
         const data = await response.json();
-        // ✅ FIX: Filter by role instead of checking for a nested object.
         const customerAccounts = data.filter(acc => hasRole(acc, 'ROLE_CUSTOMER'));
         setCustomers(customerAccounts);
       } catch (err) {
@@ -129,7 +128,6 @@ const CustomersManagement = () => {
             {filteredCustomers.map((c) => (
                 <tr key={c.id}>
                   <td>{`KH${c.id}`}</td>
-                  {/* ✅ FIX: Access properties directly from 'c' */}
                   <td>{c.fullName}</td>
                   <td>{c.phoneNumber}</td>
                   <td>{c.email}</td>

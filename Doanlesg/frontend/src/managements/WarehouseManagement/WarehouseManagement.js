@@ -11,7 +11,6 @@ export default function WarehouseManagement() {
 
   const getTodayKey = () => new Date().toISOString().split('T')[0];
 
-  // ✅ Load dữ liệu hôm nay nếu còn hợp lệ
   useEffect(() => {
     const today = getTodayKey();
     const savedData = localStorage.getItem('warehouse-stock');
@@ -26,7 +25,7 @@ export default function WarehouseManagement() {
     }
   }, []);
 
-  // ✅ Tự động lưu và set ngày hết hạn
+
   useEffect(() => {
     if (stock.length > 0) {
       const today = getTodayKey();

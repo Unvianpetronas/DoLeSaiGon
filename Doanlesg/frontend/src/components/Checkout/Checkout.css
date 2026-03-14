@@ -119,13 +119,13 @@
   color: #444;
   line-height: 1.6;
 }
-/* Add this to your existing Checkout.css file */
+
 
 .shipping-method-box {
   border: 1px solid #eee;
   padding: 20px;
   border-radius: 4px;
-  margin-top: 20px; /* Add space between payment and shipping boxes */
+  margin-top: 20px;
 }
 
 .shipping-method-box label, .payment-method-box label {

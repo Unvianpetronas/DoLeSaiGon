@@ -13,14 +13,12 @@
     animation: slideIn 0.5s forwards;
 }
 
-/* Specific style for error messages */
 .notification.error {
-    background-color: #d9534f; /* A standard red color for errors */
+    background-color: #d9534f;
 }
 
-/* Specific style for success messages */
 .notification.success {
-    background-color: #5cb85c; /* A standard green for success */
+    background-color: #5cb85c;
 }
 
 /* Animation to slide in from the right */

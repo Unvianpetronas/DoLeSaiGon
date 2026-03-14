@@ -8,7 +8,7 @@
 // ====================================================================================
 
 /**
- * ❶ CategoryData
+ *  CategoryData
  * - Danh sách danh mục chính (cấp 1), mỗi mục có:
  *    • name: tên tiếng Việt hiển thị.
  *    • slug: đoạn URL (dạng không dấu).
@@ -91,7 +91,7 @@ export const CategoryData = [
 ];
 
 /**
- * ❷ keywordMap
+ *  keywordMap
  * - Map từ tên subcategory ➜ slug danh mục cha
  * - Dùng để hỗ trợ lọc khi biết tên subcategory mà chưa biết slug
  */
@@ -128,7 +128,7 @@ export const keywordMap = {
 };
 
 /**
- * ❸ subCategoryMap
+ *  subCategoryMap
  * - Map từ slug danh mục cấp 1 ➜ mảng tên subcategory cấp 2
  * - Dùng để render tab subcategory trong /category/:slug hoặc lọc sản phẩm
  */
@@ -155,14 +155,14 @@ export const subCategoryMap = {
 };
 
 /**
- * ❹ getSubCategoryName(product, categorySlug?)
+ *  getSubCategoryName(product, categorySlug?)
  * - Phân tích tên sản phẩm để xác định subcategory phù hợp
  * - Ưu tiên lọc theo categorySlug nếu được truyền vào để tăng độ chính xác
  */
 export const getSubCategoryName = (product, categorySlug = '') => {
   const name = product.productName?.toLowerCase() || '';
 
-  // ==== Khi biết categorySlug: dò chính xác subcategory thuộc danh mục đó ====
+  //  Khi biết categorySlug: dò chính xác subcategory thuộc danh mục đó
   if (categorySlug) {
     let result = '';
 
@@ -218,7 +218,7 @@ export const getSubCategoryName = (product, categorySlug = '') => {
         break;
     }
 
-    // ✅ Chỉ return nếu khớp subcategory thật sự
+    //  Chỉ return nếu khớp subcategory thật sự
     if (result && subCategoryMap[categorySlug]?.includes(result)) {
       return result;
     }
@@ -226,7 +226,7 @@ export const getSubCategoryName = (product, categorySlug = '') => {
     return 'Khác';
   }
 
-  // ==== Fallback khi không có slug: dò đoán chung ====
+  // Fallback khi không có slug: dò đoán chung
   if (name.includes('phật thủ')) return 'Mâm Phật Thủ';
   if (name.includes('tháp') && name.includes('quả')) return 'Tháp Quả';
   if (name.includes('quả') || name.includes('trái cây')) return 'Mâm Quả';

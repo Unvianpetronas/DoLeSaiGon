@@ -1,7 +1,5 @@
-// ProductImage.js
 import React, { useState, useEffect } from 'react';
 
-// Read the cloud name securely from your .env file
 const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
 /**
@@ -15,7 +13,7 @@ const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const ProductImage = ({ productId, alt, className, cacheKey }) => {
   const [imageError, setImageError] = useState(false);
 
-  // When the productId or the cacheKey changes, reset the error state.
+  // The productId or the cacheKey changes, reset the error state.
   useEffect(() => {
     setImageError(false);
   }, [productId, cacheKey]);
@@ -24,9 +22,6 @@ const ProductImage = ({ productId, alt, className, cacheKey }) => {
     return <span className={`no-image ${className || ''}`}>🚫</span>;
   }
 
-  // Use the cacheKey as a version component in the URL path.
-  // This is the most reliable way to invalidate the cache.
-  // The URL format is: /upload/v<version>/<public_id>
   const imageUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v${cacheKey}/${productId}`;
 
   return (

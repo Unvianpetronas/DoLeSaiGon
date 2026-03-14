@@ -4,16 +4,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import './OrderPage.css';
 import { Helmet } from 'react-helmet-async';
 
-// --- THIS IS THE FIX ---
-// 1. The status map now uses an array for "Đang chuẩn bị"
 const statusMap = {
-  'Đang chuẩn bị': ['Pending', 'Paid', 'Cash'], // Will show orders with any of these statuses
+  'Đang chuẩn bị': ['Pending', 'Paid', 'Cash'],
   'Đang giao': ['Shipping'],
   'Đã nhận': ['Complete'],
   'Đã hủy': ['Cancel']
 };
 
-// This reverse map helps display the correct Vietnamese name
 const reverseStatusMap = {
   'Pending': 'Đang chuẩn bị',
   'Paid': 'Đang chuẩn bị',
@@ -62,7 +59,7 @@ export default function OrderPage() {
     fetchOrders().then();
   }, [user, isAuthLoading]);
 
-  // 2. The filtering logic is now more robust
+  // The filtering logic is now more robust
   const backendStatusesToFilter = statusMap[selectedStatus];
   const filteredOrders = orders.filter((order) =>
       backendStatusesToFilter.includes(order.orderStatus)

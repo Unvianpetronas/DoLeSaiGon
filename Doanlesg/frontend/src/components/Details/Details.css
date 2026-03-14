@@ -48,12 +48,12 @@
   align-items: center;
   justify-content: center;
   padding: 15px;
-  background-color: #f0f0f0; /* Default inactive state */
+  background-color: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 12px;
   transition: all 0.3s ease;
   min-width: 120px;
-  color: #888; /* Inactive text color */
+  color: #888;
 }
 
 .step svg {

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreateProducts.css';
-import { useAuth } from '../../contexts/AuthContext'; // 1. Import Auth context
-import { useNotification } from '../../contexts/NotificationContext'; // 2. Import Notification context
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 
 export default function CreateProduct() {
   const navigate = useNavigate();
-  const { user, isLoading: isAuthLoading } = useAuth(); // Get user and loading state
-  const { addNotification } = useNotification(); // Get notification function
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { addNotification } = useNotification();
 
   const [product, setProduct] = useState({
     productName: '',
@@ -24,7 +24,6 @@ export default function CreateProduct() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Effect to protect the route
   useEffect(() => {
     if (!isAuthLoading) {
       // If auth check is done and user is not an admin, redirect
@@ -35,12 +34,10 @@ export default function CreateProduct() {
     }
   }, [user, isAuthLoading, navigate, addNotification]);
 
-  // Effect to fetch categories for the dropdown
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        // It's better to have a dedicated API for categories, but this works for now.
-        const res = await fetch('/api/ver0.0.1/staff/categories'); // Assuming you have a categories endpoint
+        const res = await fetch('/api/ver0.0.1/staff/categories');
         if (!res.ok) throw new Error('Could not fetch categories');
         const data = await res.json();
         setCategories(data || []);
@@ -71,11 +68,10 @@ export default function CreateProduct() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // 3. Build the Product object to match the backend entity
     const productData = {
       productName: product.productName,
       stockQuantity: parseInt(product.stockQuantity, 10) || 0,
-      status: product.status === 'true', // Convert string "true"/"false" to boolean
+      status: product.status === 'true',
       price: parseFloat(product.price) || 0,
       shortDescription: product.shortDescription,
       detailDescription: product.detailDescription,
@@ -99,16 +95,15 @@ export default function CreateProduct() {
     }
 
     try {
-      // 4. Correct the API endpoint and add credentials
       const response = await fetch('/api/ver0.0.1/staff/products/new', {
         method: 'POST',
         body: formData,
-        credentials: 'include' // Important for sending session cookie
+        credentials: 'include'
       });
 
       if (response.ok) {
         addNotification('Tạo sản phẩm thành công!', 'success');
-        navigate('/admin/products'); // Redirect to products list after success
+        navigate('/admin/products');
       } else {
         const errorText = await response.text();
         addNotification(`Tạo thất bại: ${errorText}`, 'error');

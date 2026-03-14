@@ -4,7 +4,7 @@ import "./Checkout.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartProvider";
 import { getProvinces, getDistricts, getWards } from "../../services/GhnApiService";
-// BƯỚC 1: Import hook useNotification
+
 import { useNotification } from "../../contexts/NotificationContext";
 import { Helmet } from 'react-helmet-async';
 
@@ -59,7 +59,7 @@ export default function Checkout() {
       }
     };
     fetchProvinces();
-  }, [addNotification]); // Thêm addNotification vào dependency array
+  }, [addNotification]);
 
   useEffect(() => {
     if (!isAuthLoading && user) {
@@ -157,7 +157,6 @@ export default function Checkout() {
       }
 
     } catch (err) {
-      // Thay vì set state, giờ ta dùng notification
       addNotification(err.message, "error");
     } finally {
       setIsSubmitting(false);

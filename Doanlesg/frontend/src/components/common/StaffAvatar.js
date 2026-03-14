@@ -1,7 +1,5 @@
-// StaffAvatar.js
 import React, { useState, useEffect } from 'react';
 
-// Read the cloud name securely from your .env file
 const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
 /**
@@ -24,9 +22,6 @@ const StaffAvatar = ({ employeeId, alt, className, cacheKey }) => {
         return <span className={`no-image ${className || ''}`}>🚫</span>;
     }
 
-    // ✅ FINAL FIX: Use the cacheKey as a version component in the URL path.
-    // This is the most reliable way to invalidate the cache.
-    // The URL format is: /upload/v<version>/<public_id>
     const imageUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v${cacheKey}/${employeeId}`;
 
     return (
