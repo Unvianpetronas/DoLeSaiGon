@@ -80,10 +80,8 @@ function ShopClosedBanner() {
 }
 
 function WarningBanner() {
-  // Use state to manage whether the banner is visible or not
   const [isVisible, setIsVisible] = useState(true);
 
-  // If the banner is not visible, render nothing
   if (!isVisible) {
     return null;
   }
@@ -125,7 +123,6 @@ function NoBreadcrumbLayout({ children }) {
 }
 
 function AdminLayout() {
-    // This component wraps all admin pages with the admin sidebar and header
     return <AdminLayoutComponent><Outlet /></AdminLayoutComponent>;
 }
 

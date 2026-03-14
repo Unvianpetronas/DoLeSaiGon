@@ -6,7 +6,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // This useEffect is now fully supported by the updated backend
     useEffect(() => {
         const checkUserStatus = async () => {
             try {
@@ -17,7 +16,7 @@ export const AuthProvider = ({ children }) => {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.isAuthenticated) {
-                        setUser(data.user); // This will now work correctly
+                        setUser(data.user);
                     }
                 } else {
                     setUser(null);
@@ -33,7 +32,6 @@ export const AuthProvider = ({ children }) => {
         checkUserStatus().then();
     }, []);
 
-    // The login function is correct
     const login = async (email, password) => {
         try {
             const response = await fetch('/api/ver0.0.1/login', {

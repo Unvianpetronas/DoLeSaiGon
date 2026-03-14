@@ -123,7 +123,6 @@ const DeliveryManagement = () => {
     // Keep a backup of the current state to revert to in case of an error
     const originalDeliveries = [...deliveries];
 
-    // Optimistically update the UI for a responsive feel
     setDeliveries(prev => prev.map(order => order.id === id ? { ...order, orderStatus: newStatus } : order));
 
     try {
@@ -133,7 +132,7 @@ const DeliveryManagement = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include', // Important for sending session cookies
-        body: JSON.stringify({ status: newStatus }), // The payload your backend expects
+        body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {

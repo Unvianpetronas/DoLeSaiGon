@@ -76,23 +76,19 @@ export default function EditProduct() {
     const { name, value } = e.target;
 
     setProduct(prevProduct => {
-      // This function receives the most up-to-date state (prevProduct)
-
-      // Handle the special case for the nested category ID
       if (name === 'categoryId') {
         return {
-          ...prevProduct, // 1. Copy all existing top-level product properties
+          ...prevProduct,
           category: {
-            ...prevProduct.category, // 2. Copy existing nested category data
-            id: parseInt(value, 10) || '', // 3. Only update the category's ID
+            ...prevProduct.category,
+            id: parseInt(value, 10) || '',
           },
         };
       }
 
-      // For all other standard inputs (e.g., productName, price)
       return {
-        ...prevProduct, // 1. This is the key: copy all existing data
-        [name]: value,  // 2. Then, overwrite only the field that changed
+        ...prevProduct,
+        [name]: value,
       };
     });
   };
@@ -110,7 +106,6 @@ export default function EditProduct() {
     if (!product) return;
     setIsSubmitting(true);
 
-    // This is the data object that matches your backend Product entity
     const productData = {
       id: product.id,
       productName: product.productName,

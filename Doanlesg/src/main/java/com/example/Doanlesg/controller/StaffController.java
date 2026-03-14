@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// REMOVE: Spring Security import
-// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +31,7 @@ public class StaffController {
 
     private final StaffServices staffServices;
 
-    private final AccountServices accountServices; // Inject AccountServices
+    private final AccountServices accountServices;
 
     private final AdminService adminService;
 
@@ -48,28 +46,25 @@ public class StaffController {
     }
 
 
-    // Helper to check authorization
     private Account getAuthorizedAccount(HttpSession session, String requiredRole) {
         Long accountId = (Long) session.getAttribute("account_id");
         if (accountId == null) {
-            return null; // Not authenticated
+            return null;
         }
         Account account = accountServices.findById(accountId);
         if (account == null) {
-            return null; // Account not found
+            return null;
         }
         List<String> roles = getRolesForAccount(account);
         if (roles.contains(requiredRole)) {
-            return account; // Authorized
+            return account;
         }
-        return null; // Not authorized
+        return null;
     }
 
-    // Helper to check if user is either staff or admin
     private Account getStaffOrAdmin(HttpSession session) {
         Account account = getAuthorizedAccount(session, STAFF_ROLE);
         if (account == null) {
-            // If not staff, check if admin
             account = getAuthorizedAccount(session, ADMIN_ROLE);
         }
         return account;
@@ -82,11 +77,9 @@ public class StaffController {
         if (account == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
-        // Return all products without filtering but with a high limit
         return getFilteredProducts(null, null, null, 0, Integer.MAX_VALUE, session);
     }
 
-    // Get products with filtering and pagination - Chỉnh sửa lại nếu sử dụng
     @GetMapping("/products/filter")
     public ResponseEntity<?> getFilteredProducts(
             @RequestParam(required = false) String name,
@@ -112,35 +105,29 @@ public class StaffController {
         return ResponseEntity.ok(filteredProducts);
     }
 
-    //Create product
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(
             @RequestPart("product") ProductDTO productDTO,
             @RequestPart(value = "image", required = false) MultipartFile imageFile,
             HttpSession session) {
 
-        // Authorization check
         if (getStaffOrAdmin(session) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
         try {
-            // Single, clean call to the service layer, passing both data and file
             Product createdProduct = staffServices.createProductWithImage(productDTO, imageFile);
             return ResponseEntity.ok(createdProduct);
-
         } catch (Exception e) {
-            // Catch any errors thrown by the service (e.g., upload failure, database error)
             return new ResponseEntity<>("Lỗi khi tạo sản phẩm: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    //Update product
     @PutMapping(value = "/products/{id}", consumes = { "multipart/form-data" })
     public ResponseEntity<?> updateProduct(
             @PathVariable Long id,
-            @RequestPart("product") ProductDTO productDTO, // Maps the 'product' JSON part to the DTO
-            @RequestPart(value = "image", required = false) MultipartFile image, // Maps the optional 'image' file part
+            @RequestPart("product") ProductDTO productDTO,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             HttpSession session
     ) {
         Account account = getStaffOrAdmin(session);
@@ -148,24 +135,21 @@ public class StaffController {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        // You will now need to pass the image file to your service layer
         return staffServices.updateProduct(id, productDTO, image)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //Delete product
     @DeleteMapping("/products/{id}")
     @Transactional
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id, HttpSession session) {
-        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) { // Only ADMIN can delete
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         staffServices.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Get product by ID - for both staff and admin
     @GetMapping("/products/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id, HttpSession session) {
 //        Account account = getStaffOrAdmin(session);
@@ -181,7 +165,6 @@ public class StaffController {
         }
     }
 
-    // View all orders
     @GetMapping("/orders")
     public ResponseEntity<?> getAllOrders(HttpSession session) {
         if (getStaffOrAdmin(session) == null) {
@@ -246,7 +229,6 @@ public class StaffController {
         return ResponseEntity.ok(stats);
     }
 
-    // Copied from AuthController for role checking
     private List<String> getRolesForAccount(Account account) {
         List<String> roles = new ArrayList<>();
         if (account.getAdmin() != null) roles.add(ADMIN_ROLE);
@@ -255,7 +237,6 @@ public class StaffController {
         return roles;
     }
 
-    // Get all accounts - for admin view
     @GetMapping("/accounts")
     public ResponseEntity<?> getAllAccounts(HttpSession session) {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
@@ -266,7 +247,6 @@ public class StaffController {
         return ResponseEntity.ok(accounts);
     }
 
-    // Get account by ID
     @GetMapping("/accounts/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable Long id, HttpSession session) {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
@@ -288,19 +268,16 @@ public class StaffController {
         return ResponseEntity.ok(accounts);
     }
 
-    // Create new customer account
     @PostMapping("/accounts/new-customer")
     public ResponseEntity<?> createCustomerAccount(@RequestBody AccountCustomerDTO request, HttpSession session) {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        // Build Account
         Account account = new Account();
         account.setEmail(request.getEmail());
         account.setPasswordHash(request.getPassword());
 
-        // Build Customer
         Customer customer = new Customer();
         customer.setFullName(request.getFullName());
         customer.setPhoneNumber(request.getPhoneNumber());
@@ -313,18 +290,16 @@ public class StaffController {
         }
     }
 
-    // Create new staff account
     @PostMapping("/accounts/new-staff")
     public ResponseEntity<?> createStaffAccount(
-            @RequestPart("staff") AccountStaffDTO request, // For the JSON part
-            @RequestPart(value = "image", required = false) MultipartFile imageFile, // For the image file
+            @RequestPart("staff") AccountStaffDTO request,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
             HttpSession session
     ) throws IOException {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
-        // Your service layer will now need to handle the imageFile
         Account createdAccount = accountServices.createStaffAccount(request, imageFile);
 
         if (createdAccount != null) {
@@ -334,7 +309,6 @@ public class StaffController {
         }
     }
 
-    // Update existing customer account
     @PutMapping("/accounts/customer-{id}")
     public ResponseEntity<?> updateCustomerAccount(@PathVariable Long id, @RequestBody AccountCustomerDTO request, HttpSession session) {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
@@ -349,7 +323,6 @@ public class StaffController {
         }
     }
 
-    // Update existing staff account
     @PutMapping(value = "/accounts/staff/{id}", consumes = { "multipart/form-data" })
     public ResponseEntity<?> updateStaffAccount(
             @PathVariable Long id,
@@ -357,30 +330,22 @@ public class StaffController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile,
             HttpSession session) {
 
-        // 1. Authorization Check
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
             return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
         }
 
         try {
-            // 2. Call the service method, passing the DTO and the optional image file
             Optional<Account> updatedAccountOpt = accountServices.updateStaffAccount(id, dto, imageFile);
-
-            // 3. Handle the response from the service
             return updatedAccountOpt
-                    .map(account -> new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK)) // If update was successful
-                    .orElseGet(() -> new ResponseEntity<>("Tài khoản không tồn tại.", HttpStatus.NOT_FOUND)); // If account was not found
-
+                    .map(account -> new ResponseEntity<>("Cập nhật thành công", HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>("Tài khoản không tồn tại.", HttpStatus.NOT_FOUND));
         } catch (IOException e) {
-            // Catch errors specifically from the image upload process
             return new ResponseEntity<>("Lỗi khi tải ảnh lên: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IllegalArgumentException | IllegalStateException e) {
-            // Catch validation errors from the service (e.g., email already exists)
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Delete account
     @DeleteMapping("/accounts/{id}")
     public ResponseEntity<?> deleteAccount(@PathVariable Long id, HttpSession session) {
         if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {

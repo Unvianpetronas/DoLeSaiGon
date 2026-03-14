@@ -2,12 +2,9 @@ package com.example.Doanlesg.controller;
 
 import com.example.Doanlesg.dto.ApiResponse;
 import com.example.Doanlesg.model.Account;
-import com.example.Doanlesg.services.AccountServices; // Use the service
+import com.example.Doanlesg.services.AccountServices;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
-// REMOVE: Spring Security imports
-// import org.springframework.security.core.annotation.AuthenticationPrincipal;
-// import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

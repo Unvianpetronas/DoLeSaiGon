@@ -64,7 +64,6 @@ const Cart = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // ✅ MODIFIED: Add 'lastUpdated' timestamp for cache-busting
           const products = (data.content || []).map(p => ({
             ...p,
             lastUpdated: Date.now()

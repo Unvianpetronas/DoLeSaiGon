@@ -7,8 +7,6 @@ function Success() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get the orderId from the state passed during navigation
-    // This could be the order ID for cash payments or the unique code for QR payments
     const orderCode = location.state?.orderCode;
     const orderId = location.state?.orderId;
 

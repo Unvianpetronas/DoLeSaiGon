@@ -110,9 +110,7 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Shipping method not found: "
                         + request.getShippingMethodId()));
         order.setShippingMethod(shippingMethod);
-        order.setTotalAmount(totalAmount.add(BigDecimal.valueOf(shippingMethod.getPrice()))); // Tạm tính, chưa có phí voucher
-
-        // TODO: Thêm logic tính áp dụng voucher ở đây để ra tổng cuối cùng
+        order.setTotalAmount(totalAmount.add(BigDecimal.valueOf(shippingMethod.getPrice())));
 
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
@@ -292,13 +290,6 @@ public class OrderService {
         if (shippingMethod != null) {
             totalAmount = totalAmount.add(BigDecimal.valueOf(shippingMethod.getPrice()));
         }
-        // TODO: Thêm logic trừ tiền voucher nếu có
-        // Ví dụ:
-        // if (request.getVoucherCode() != null) {
-        //     Voucher voucher = voucherRepository.findByCode(request.getVoucherCode());
-        //     totalAmount = totalAmount.subtract(voucher.getDiscountAmount());
-        // }
-
         OrderTotalDTO orderTotalDTO = new OrderTotalDTO();
         orderTotalDTO.setTotalAmount(totalAmount);
 

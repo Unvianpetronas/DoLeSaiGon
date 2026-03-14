@@ -23,7 +23,6 @@ export const CartProvider = ({ children }) => {
         const loadCart = async () => {
             setLoading(true);
             if (user) {
-                // User is logged in, fetch from API
                 try {
                     const response = await fetch("/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
                     if (response.ok) {
@@ -124,7 +123,6 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
     }, [user]);
 
-    // The value object now includes all necessary functions
     const value = {
         cartItems,
         loading,

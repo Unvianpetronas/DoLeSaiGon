@@ -60,7 +60,6 @@ const CustomersManagement = () => {
     fetchCustomers();
   }, [user, isAuthLoading, navigate, addNotification]);
 
-  // This filter correctly works with the flat JSON structure.
   const filteredCustomers = customers.filter((c) =>
       c?.phoneNumber?.includes(searchPhone)
   );
