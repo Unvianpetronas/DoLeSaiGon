@@ -99,7 +99,6 @@ const AddToCartButton = ({ product, quantity = 1, onSuccess }) => {
                 onSuccess();
             }
         } catch (error) {
-            // The context will handle the error logic, but we can still show a notification
             addNotification(error.message || 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
         }
     };

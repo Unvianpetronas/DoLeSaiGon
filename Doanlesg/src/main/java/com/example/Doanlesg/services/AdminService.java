@@ -44,12 +44,9 @@ public class AdminService {
                 .collect(Collectors.toList());
 
         stats.setTotalProducts(productRepository.count());
-        // 1. ✅ Đếm trên danh sách đơn hàng đã lọc
         stats.setTotalOrders(validOrders.size());
         stats.setTotalCustomers(accountRepository.countByCustomerIsNotNull());
 
-        // 2. ✅ Tính toán doanh thu theo danh mục từ danh sách đã lọc
-        // Cách này đảm bảo chỉ các đơn hàng hợp lệ được tính
         Map<String, BigDecimal> revenueByCategory = validOrders.stream()
                 .flatMap(order -> order.getOrderItems().stream()) // Lấy tất cả các order items
                 .filter(item -> item.getProduct() != null && item.getProduct().getCategory() != null)
@@ -63,7 +60,6 @@ public class AdminService {
         stats.setTotalRevenueByCategory(revenueByCategory);
 
 
-        // 3. ✅ Tính toán doanh thu theo tháng từ danh sách đã lọc
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         Map<String, DashboardStatsDTO.MonthlyChartData> monthMap = validOrders.stream()
                 .filter(order -> order.getOrderDate() != null && order.getTotalAmount() != null)

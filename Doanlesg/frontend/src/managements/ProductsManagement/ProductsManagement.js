@@ -90,7 +90,6 @@ export default function ProductsManagement() {
     };
   }, [debouncedSearchKeyword, addNotification]);
 
-  // This effect now only derives categories when the base product list changes
   useEffect(() => {
     const uniqueCategories = [...new Set(products.map(p => p.category?.categoryName).filter(Boolean))];
     setAllCategories(uniqueCategories);
@@ -98,7 +97,6 @@ export default function ProductsManagement() {
     setSelectedCategories(uniqueCategories);
   }, [products]);
 
-  // This effect filters the displayed products based on the selected categories
   useEffect(() => {
     const result = products.filter(p =>
         selectedCategories.includes(p.category?.categoryName)

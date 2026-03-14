@@ -77,7 +77,7 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         Staff staff = new Staff();
         staff.setFullName(dto.getFullName());
         staff.setPhoneNumber(dto.getPhoneNumber());
-        staff.setEmployeeId(dto.getEmployeeId()); // This will be used as the image name
+        staff.setEmployeeId(dto.getEmployeeId());
         staff.setDepartment(dto.getDepartment());
 
         // 4. Link the entities together
@@ -94,7 +94,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
                     "overwrite", true,
                     "resource_type", "image"
             );
-            // This will throw an IOException on failure, which the controller will catch
             cloudinary.uploader().upload(imageFile.getBytes(), options);
         }
 
@@ -139,9 +138,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
         // 2. Update the Account and Staff entities from the DTO
         accountToUpdate.setEmail(dto.getEmail());
-        // Note: Password updates should typically be handled in a separate, dedicated method for security.
-        // We are omitting password changes here.
-
         staffToUpdate.setFullName(dto.getFullName());
         staffToUpdate.setPhoneNumber(dto.getPhoneNumber());
         staffToUpdate.setEmployeeId(dto.getEmployeeId());
@@ -205,11 +201,11 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return accountRepository.findById(id).orElse(null);
     }
 
-    @Transactional // Use readOnly for performance
+    @Transactional
     public List<AccountDisplayDTO> getAllAccountsAsDTO() {
         return accountRepository.findAll()
                 .stream()
-                .map(AccountDisplayDTO::fromEntity) // Convert each Account to a DTO
+                .map(AccountDisplayDTO::fromEntity)
                 .toList();
     }
 

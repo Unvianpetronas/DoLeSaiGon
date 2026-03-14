@@ -59,7 +59,6 @@ export default function OrderPage() {
     fetchOrders().then();
   }, [user, isAuthLoading]);
 
-  // The filtering logic is now more robust
   const backendStatusesToFilter = statusMap[selectedStatus];
   const filteredOrders = orders.filter((order) =>
       backendStatusesToFilter.includes(order.orderStatus)

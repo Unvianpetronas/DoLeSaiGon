@@ -22,7 +22,6 @@ export const NotificationProvider = ({ children }) => {
     );
 };
 
-// This is the actual UI component for the notification
 function Notification({ message, type }) {
     return (
         <div className={`notification ${type}`}>

@@ -34,8 +34,6 @@ public class SingleQrCodePoller {
         // The expiry time will also be in UTC
         OffsetDateTime expiryTimeUtc = startTimeUtc.plusMinutes(5);
 
-        // Convert the current time to UTC for consistent comparison
-        // This is crucial to avoid timezone mismatches in the loop condition
         while (OffsetDateTime.now(ZoneOffset.UTC).isBefore(expiryTimeUtc)) {
             boolean paymentFound = false;
 

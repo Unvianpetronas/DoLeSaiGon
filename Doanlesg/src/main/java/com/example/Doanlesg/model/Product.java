@@ -37,7 +37,6 @@ public class Product {
     @Temporal(TemporalType.TIMESTAMP) // Hoặc dùng java.time.LocalDateTime với Hibernate phiên bản mới
     private java.util.Date createdAt;  */
 
-    // ✅ This is correct. It's the "many" side and has the back reference.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @JsonBackReference
