@@ -4,16 +4,19 @@ import com.example.Doanlesg.dto.OrderDetailDTO;
 import com.example.Doanlesg.dto.OrderSummaryDTO;
 import com.example.Doanlesg.services.OrderService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/ver0.0.1/orders")
 public class OrderController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
 
@@ -26,17 +29,22 @@ public class OrderController {
      */
     @GetMapping
     public ResponseEntity<List<OrderSummaryDTO>> getUserOrders(HttpSession session) {
-        // 2. Get the account ID from the session
-        Long accountId = (Long) session.getAttribute("account_id");
+        logger.debug("Entering getUserOrders()");
 
+        Long accountId = (Long) session.getAttribute("account_id");
         if (accountId == null) {
-            // If no user is logged in, return an empty list or a 401 Unauthorized error
+            logger.warn("Unauthorized access attempt to /orders – no account_id in session");
             return ResponseEntity.status(401).body(Collections.emptyList());
         }
 
-        List<OrderSummaryDTO> orders = orderService.findOrdersByAccountId(accountId);
-//        System.out.println(orders);
-        return ResponseEntity.ok(orders);
+        try {
+            List<OrderSummaryDTO> orders = orderService.findOrdersByAccountId(accountId);
+            logger.info("User {} retrieved {} orders", accountId, orders.size());
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            logger.error("Error retrieving orders for user {}", accountId, e);
+            throw new RuntimeException("Failed to fetch user orders", e);
+        }
     }
 
     /**
@@ -45,23 +53,28 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailDTO> getOrderDetails(@PathVariable Integer orderId, HttpSession session) {
-        // 3. Get the account ID from the session
-        Long accountId = (Long) session.getAttribute("account_id");
+        logger.debug("Entering getOrderDetails() for orderId={}", orderId);
 
+        Long accountId = (Long) session.getAttribute("account_id");
         if (accountId == null) {
-            // User is not logged in, they cannot view any order.
+            logger.warn("Unauthorized access attempt to /orders/{} – no account_id in session", orderId);
             return ResponseEntity.status(401).build();
         }
 
-        // 4. The service layer will now handle checking if this accountId owns the order
-        OrderDetailDTO orderDetails = orderService.findOrderDetailsByIdForAccount(orderId, accountId);
+        try {
+            OrderDetailDTO details = orderService.findOrderDetailsByIdForAccount(orderId, accountId);
 
-        if (orderDetails == null) {
-            // This means either the order doesn't exist OR the user doesn't own it.
-            // Returning 404 is a safe default.
-            return ResponseEntity.notFound().build();
+            if (details == null) {
+                logger.warn("User {} attempted to access non‑existent or unauthorized order {}", accountId, orderId);
+                return ResponseEntity.notFound().build();
+            }
+
+            logger.info("User {} retrieved details for order {}", accountId, orderId);
+            return ResponseEntity.ok(details);
+
+        } catch (Exception e) {
+            logger.error("Error retrieving order {} for user {}", orderId, accountId, e);
+            throw new RuntimeException("Failed to fetch order details", e);
         }
-
-        return ResponseEntity.ok(orderDetails);
     }
 }

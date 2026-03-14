@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 
 // --- IMPORTS FROM BOTH FILES ---
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import { BrowserRouter as Router, Route, Routes, Link, Outlet} from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
@@ -33,7 +33,9 @@ import Checkout from './components/Checkout/Checkout';
 import Success from './components/Success/Success';
 import Details from './components/Details/Details';
 import Payment from './components/Payment/Payment';
-import TawkChat from "./components/common/TawkChat";
+
+// --- AI CHAT ---
+import AIChatWidget from './components/common/AIChatWidget';
 
 // --- ADMIN COMPONENTS ---
 import AdminDashboard from './managements/AdminDashboard/AdminDashboard';
@@ -49,6 +51,33 @@ import CustomersManagement from './managements/CustomersManagement/CustomersMana
 
 
 // --- LAYOUT COMPONENTS ---
+
+function ShopClosedBanner() {
+  const [isClosed, setIsClosed] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const closed = h >= 20 || h < 9 || (h === 9 && m < 30);
+      setIsClosed(closed);
+    };
+    check();
+    const interval = setInterval(check, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!isClosed) return null;
+
+  return (
+    <div className="shop-closed-banner">
+      <p>
+        <strong>Thông báo:</strong> Cửa hàng tạm nghỉ từ <strong>20:00</strong> đến <strong>09:00</strong>. Chúng tôi sẽ mở cửa trở lại lúc <strong>09:30</strong>. Xin cảm ơn!
+      </p>
+    </div>
+  );
+}
 
 function WarningBanner() {
   // Use state to manage whether the banner is visible or not
@@ -109,9 +138,10 @@ function App() {
         <NotificationProvider>
             <AuthProvider>
                 <Router>
-                    <TawkChat />
                     <div className="app">
+                        <ShopClosedBanner />
                         <WarningBanner/>
+                        <AIChatWidget />
                         <Routes>
                             {/* --- Customer Routes with Breadcrumb --- */}
                             <Route path="/cart" element={<MainLayout label="Giỏ hàng"><Cart /></MainLayout>} />

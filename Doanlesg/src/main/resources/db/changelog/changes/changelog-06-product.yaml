@@ -57,3 +57,15 @@ databaseChangeLog:
                   defaultValueBoolean: true
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 7
+      author: DoLeSaiGon
+      changes:
+        - addColumn:
+            tableName: product
+            columns:
+              - column:
+                  name: embedding
+                  type: NVARCHAR(MAX)
+                  constraints:
+                    nullable: true

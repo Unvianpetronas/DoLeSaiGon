@@ -22,6 +22,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("update Order o set o.code = 'Paid' where upper(o.code) = upper(?1)")
     void updateState(@NonNull String code);
 
+    @Transactional
     @Modifying
     @Query("delete from Order o where upper(o.code) = upper(?1)")
     void deleteOrderByCode(@NonNull String code);
@@ -37,5 +38,5 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "GROUP BY c.categoryName")
     List<Object[]> getRevenueReportByCategory();
 
-    Collection<Object> findAllByOrderByOrderDateDesc();
+    List<Order> findAllByOrderByOrderDateDesc();
 }

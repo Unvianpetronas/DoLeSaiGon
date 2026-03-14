@@ -22,10 +22,39 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final EmbeddingService embeddingService;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository,
+                          EmbeddingService embeddingService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.embeddingService = embeddingService;
+    }
+
+    @Transactional
+    public void generateEmbeddingsForAllProducts() {
+
+        List<Product> products = productRepository.findAll();
+
+        for (Product product : products) {
+
+            String text =
+                    product.getProductName() + " " +
+                            (product.getCategory() != null ? product.getCategory().getCategoryName() : "") + " " +
+                            product.getShortDescription() + " " +
+                            product.getDetailDescription();
+
+            double[] vector = embeddingService.generateEmbedding(text);
+
+            String embedding = java.util.Arrays.stream(vector)
+                    .mapToObj(String::valueOf)
+                    .collect(java.util.stream.Collectors.joining(","));
+
+            product.setEmbedding(embedding);
+
+            productRepository.save(product);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -33,7 +62,7 @@ public class ProductService {
         Page<Product> productPage = productRepository.findAll(pageable);
         return productPage.map(this::convertToDto);
     }
-    private ProductDTO convertToDto(Product product) {
+    public ProductDTO convertToDto(Product product) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(product.getId());
         productDTO.setProductName(product.getProductName());

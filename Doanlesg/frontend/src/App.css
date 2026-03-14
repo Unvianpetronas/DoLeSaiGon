@@ -330,3 +330,22 @@ background-repeat: repeat;
 .close-banner-btn:hover {
   opacity: 1;
 }
+
+.shop-closed-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-bottom: 1px solid #f5c6cb;
+  padding: 10px 20px;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+}
+
+.shop-closed-banner p {
+  margin: 0;
+  text-align: center;
+}

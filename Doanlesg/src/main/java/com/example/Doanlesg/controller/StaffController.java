@@ -191,7 +191,7 @@ public class StaffController {
         return ResponseEntity.ok(orders);
     }
 
-    // ... (Apply the same pattern for searchOrders and getOrderDetails)
+
 
     @GetMapping("/orders/search")
     public ResponseEntity<?> searchOrders(@RequestParam("keyword") String keyword, HttpSession session) {
@@ -238,7 +238,10 @@ public class StaffController {
     }
 
     @GetMapping("/dashboard/stats")
-    public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
+    public ResponseEntity<?> getDashboardStats(HttpSession session) {
+        if (getAuthorizedAccount(session, ADMIN_ROLE) == null) {
+            return new ResponseEntity<>("Truy cập bị từ chối.", HttpStatus.FORBIDDEN);
+        }
         DashboardStatsDTO stats = adminService.getDashboardStatistics();
         return ResponseEntity.ok(stats);
     }

@@ -79,6 +79,15 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (CartItemDTO itemDTO : request.getItems()) {
+            Product product = productRepository.findById(itemDTO.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+            if (product.getStockQuantity() < itemDTO.getQuantity()) {
+                throw new RuntimeException("'" + product.getProductName() + "' không đủ tồn kho.");
+            }
+        }
+
+
+        for (CartItemDTO itemDTO : request.getItems()) {
 
             Product product = productRepository.findById(itemDTO.getProductId())
                     .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
@@ -92,20 +101,15 @@ public class OrderService {
             orderItem.setTotal(total);
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(total);
-            // 1. Kiểm tra xem số lượng tồn kho có đủ không
-            if (product.getStockQuantity() < itemDTO.getQuantity()) {
-                throw new RuntimeException("Sản phẩm '" + product.getProductName() + "' không đủ số lượng tồn kho.");
-            }
-            // 2. Trừ số lượng tồn kho
             int newQuantityInStock = product.getStockQuantity() - itemDTO.getQuantity();
             product.setStockQuantity(newQuantityInStock);
             productRepository.save(product); // Lưu lại thông tin sản phẩm đã cập nhật
         }
 
-        ShippingMethod shippingMethod = shippingRepository.findById(request.getShippingMethodId()).orElse(null);
-
-        order.setOrderItems(orderItems);
-        assert shippingMethod != null;
+        ShippingMethod shippingMethod = shippingRepository.findById(request.getShippingMethodId())
+                .orElseThrow(() -> new IllegalArgumentException("Shipping method not found: "
+                        + request.getShippingMethodId()));
+        order.setShippingMethod(shippingMethod);
         order.setTotalAmount(totalAmount.add(BigDecimal.valueOf(shippingMethod.getPrice()))); // Tạm tính, chưa có phí voucher
 
         // TODO: Thêm logic tính áp dụng voucher ở đây để ra tổng cuối cùng

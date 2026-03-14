@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,8 @@ public class StaffServices {
     private final OrderRepository orderRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private EmbeddingService embeddingService;
 
     private final Cloudinary  cloudinary;
 
@@ -111,6 +114,21 @@ public class StaffServices {
         product.setCreatedAt(LocalDateTime.now());
         // ... map other fields ...
 
+        // generate embedding for newly created product
+        String text =
+                product.getProductName() + " " +
+                        (product.getCategory() != null ? product.getCategory().getCategoryName() : "") + " " +
+                        product.getShortDescription() + " " +
+                        product.getDetailDescription();
+
+        double[] vector = embeddingService.generateEmbedding(text);
+
+        String embedding = Arrays.stream(vector)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        product.setEmbedding(embedding);
+
         // Step 2: Save the entity to the database FIRST to generate its ID
         Product savedProduct = productRepository.save(product);
 
@@ -158,9 +176,17 @@ public class StaffServices {
 
     // Search orders by order status or customer name
     public List<Order> searchOrders(String keyword) {
+        String lowerKeyword = keyword.toLowerCase();
         return orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus().toLowerCase().contains(keyword.toLowerCase())
-                        || order.getAccount().getCustomer().getFullName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(order -> {
+                    boolean matchStatus = order.getOrderStatus() != null
+                            && order.getOrderStatus().toLowerCase().contains(lowerKeyword);
+                    boolean matchName = order.getAccount() != null
+                            && order.getAccount().getCustomer() != null
+                            && order.getAccount().getCustomer().getFullName() != null
+                            && order.getAccount().getCustomer().getFullName().toLowerCase().contains(lowerKeyword);
+                    return matchStatus || matchName;
+                })
                 .toList();
     }
 
@@ -177,7 +203,7 @@ public class StaffServices {
     @Transactional(readOnly = true)
     public List<OrderManagementDTO> getAllOrdersForManagement() {
         return orderRepository.findAllByOrderByOrderDateDesc().stream()
-                .map((Object order) -> OrderManagementDTO.fromEntity((Order) order))
+                .map(OrderManagementDTO::fromEntity)
                 .toList();
     }
 

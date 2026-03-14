@@ -52,14 +52,19 @@ export const CartProvider = ({ children }) => {
     const addToCart = useCallback(async (product, quantity = 1) => {
         if (user) {
             // API logic for logged-in user
-            await fetch('/api/ver0.0.1/cartItem/add', {
+            const addResponse = await fetch('/api/ver0.0.1/cartItem/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ productId: product.id, quantity }),
                 credentials: 'include'
             });
+            if (!addResponse.ok) {
+                const errorText = await addResponse.text();
+                throw new Error(errorText || 'Không thể thêm sản phẩm vào giỏ hàng.');
+            }
             // Refetch cart to get the latest state from DB
             const response = await fetch("/api/ver0.0.1/cartItem/allCartItem", { credentials: "include" });
+            if (!response.ok) throw new Error('Không thể tải giỏ hàng.');
             const data = await response.json();
             setCartItems(data);
         } else {

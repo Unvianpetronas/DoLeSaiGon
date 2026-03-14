@@ -9,10 +9,10 @@ import com.example.Doanlesg.model.*;
 import com.example.Doanlesg.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,8 +23,9 @@ import java.util.Optional;
 public class AccountServices /* REMOVE: implements UserDetailsService */ {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final Cloudinary cloudinary;
+    private static final Logger logger = LoggerFactory.getLogger(AccountServices.class);
+
 
     public AccountServices(AccountRepository accountRepository, PasswordEncoder passwordEncoder, Cloudinary cloudinary) {
         this.accountRepository = accountRepository;
@@ -34,6 +35,9 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     @Transactional
     public Account createCustomerAccount(Account accountDetail, Customer customerDetail) {
+        if (accountRepository.findByEmail(accountDetail.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại.");
+        }
         if(!validateNewAccount(accountDetail.getEmail())){
             String encodedPassword = passwordEncoder.encode(accountDetail.getPasswordHash());
             accountDetail.setPasswordHash(encodedPassword);
@@ -54,7 +58,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return null;
     }
 
-    // ... (other methods like createStaffAccount, updateCustomerAccount, etc. remain the same)
     @Transactional
     public Account createStaffAccount(AccountStaffDTO dto, MultipartFile imageFile) throws IOException {
         // 1. Validate if the email already exists
@@ -100,8 +103,8 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
 
     @Transactional
     public boolean updateCustomerAccount(Long id , Account accountUpdateDetail, Customer customerUpdateDetail) {
-        Account existAccount = accountRepository.existsById(id) ? accountRepository.findById(id).get() : null;
-        assert existAccount != null;
+        Account existAccount = accountRepository.findById(id).orElse(null);
+        if (existAccount == null) return false;
         Customer customerOld = existAccount.getCustomer();
         try{
             if(customerOld == null){
@@ -176,7 +179,9 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
     public boolean checkEmail(long id, String email){
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: "));
-        // This returns false if the email is unchanged OR if it's taken by another user.
+        if(existingAccount.getEmail().equals(email)){
+            return true;
+        }
         return !existingAccount.getEmail().equals(email) && accountRepository.existsByEmail(email);
     }
 
@@ -196,11 +201,6 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
         return null;
     }
 
-    /**
-     * Finds an account by its ID.
-     * @param id The ID of the account.
-     * @return The Account object or null if not found.
-     */
     public Account findById(Long id) {
         return accountRepository.findById(id).orElse(null);
     }
@@ -220,4 +220,32 @@ public class AccountServices /* REMOVE: implements UserDetailsService */ {
                 .filter(p -> p.getAccount() != null)
                 .toList();
     }
+
+    @Transactional
+    public Long getOrCreateCartId(Long userID){
+        try {
+            Account account = findById(userID);
+            if(account == null){
+                throw new EntityNotFoundException("Account not found with ID: " + userID);
+            }
+
+            if (account.getCart() != null) {
+              return account.getCart().getId();
+            }
+
+            Cart cart = new Cart();
+            cart.setAccount(account);
+            account.setCart(cart);
+
+            Account savedAccount = accountRepository.save(account);
+
+            Long cartId = savedAccount.getCart().getId();
+            logger.info("Created new cart with ID {} for account {}", cartId, userID);
+            return cartId;
+        }catch (Exception e ){
+            logger.error("Error creating cart for account {}: {}", userID, e.getMessage());
+            throw new RuntimeException("Failed to create cart: " + e.getMessage(), e);
+        }
+    };
+    
 }
