@@ -1,4 +1,4 @@
-/* ========== Layout & Fonts ========== */
+/*  Layout & Fonts  */
 .products-management {
   padding: 30px;
   font-family: 'Poppins', sans-serif;
@@ -9,7 +9,7 @@ h2 {
   color: #333;
 }
 
-/* ========== Controls Header ========== */
+/*  Controls Header */
 .admin-controls {
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* ========== Button Styles ========== */
+/* Button Styles  */
 .btn {
   padding: 8px 16px;
   border: none;
@@ -31,7 +31,7 @@ h2 {
 .btn.pink { background-color: #f7c8c8; color: black; }
 .btn.yellow { background-color: #fef3a5; color: black; }
 
-/* ========== Filter Popup ========== */
+/*  Filter Popup */
 .filter-container {
   position: relative;
 }
@@ -88,15 +88,15 @@ h2 {
   line-height: 1.2;
 }
 
-/* ========== Table Wrapper ========== */
+/*  Table Wrapper  */
 .table-wrapper {
   overflow-x: auto;
 }
 
-/* ========== Table Styles ========== */
+/*  Table Styles  */
 .admin-product-table {
   width: 100%;
-  table-layout: fixed; /* ✅ Cố định chiều rộng */
+  table-layout: fixed;
   border-collapse: collapse;
   background-color: white;
 }
@@ -106,7 +106,7 @@ h2 {
   color: white;
 }
 
-/* ========== Table Cells ========== */
+/* Table Cells  */
 .admin-product-table th,
 .admin-product-table td {
   padding: 12px;
@@ -120,7 +120,7 @@ h2 {
   line-height: 1.4;
 }
 
-/* ✅ Tên sản phẩm (cột 2) + Tiêu đề (cột 3) căn giữa và xuống dòng */
+
 .admin-product-table th:nth-child(2),
 .admin-product-table td:nth-child(2),
 .admin-product-table th:nth-child(3),
@@ -134,7 +134,7 @@ h2 {
   line-height: 1.4;
 }
 
-/* ✅ Hình ảnh (cột 6) căn giữa */
+/* Hình ảnh (cột 6) căn giữa */
 .admin-product-table td:nth-child(6) {
   text-align: center;
   vertical-align: middle;
@@ -148,7 +148,7 @@ h2 {
   border-radius: 4px;
 }
 
-/* ========== Cố định chiều rộng các cột ========== */
+/*  Cố định chiều rộng các cột */
 .admin-product-table th:nth-child(1),
 .admin-product-table td:nth-child(1) { width: 70px; }    /* Mã */
 
@@ -173,7 +173,7 @@ h2 {
 .admin-product-table th:nth-child(8),
 .admin-product-table td:nth-child(8) { width: 90px; }  /* Hành động */
 
-/* ========== Status Styles ========== */
+/*  Status Styles  */
 .status.in {
   color: green;
   font-weight: bold;
@@ -183,7 +183,7 @@ h2 {
   font-weight: bold;
 }
 
-/* ========== Icons ========== */
+/*  Icons  */
 .icon {
   font-size: 18px;
   margin: 0 5px;
@@ -192,7 +192,7 @@ h2 {
 .icon.edit { color: #007bff; }
 .icon.delete { color: #dc3545; }
 
-/* ========== Empty State ========== */
+/*  Empty State  */
 .no-category {
   padding: 10px;
   color: #999;

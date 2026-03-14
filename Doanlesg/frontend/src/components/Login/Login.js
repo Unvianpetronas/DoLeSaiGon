@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Login/Login.css';
-import { useAuth } from '../../contexts/AuthContext'; // BƯỚC 1: Import useAuth
+import { useAuth } from '../../contexts/AuthContext';
 import { Helmet } from 'react-helmet-async';
 
 const Login = () => {
@@ -10,34 +10,25 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // BƯỚC 2: Lấy hàm login từ AuthContext
   const { login } = useAuth();
 
-  // BƯỚC 3: Cập nhật hàm handleSubmit để sử dụng context
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      // Gọi hàm login từ context
       const result = await login(email, password);
 
       if (result.success) {
-        // --- CHANGE HERE ---
-        // Nếu đăng nhập thành công, chuyển hướng về trang chủ
-        // VÀ gửi kèm một state để hiển thị thông báo
         navigate('/', { state: { message: 'Đăng nhập thành công!', type: 'success' } });
       } else {
-        // Nếu thất bại, hiển thị thông báo lỗi từ server
         setError(result.message || 'Đăng nhập thất bại');
       }
     } catch (err) {
-      // Xử lý các lỗi kết nối mạng
       setError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
       console.error("Lỗi khi đăng nhập:", err);
     }
   };
 
-  // Giao diện component không thay đổi
   return (
       <div className="login-wrapper">
         <Helmet>

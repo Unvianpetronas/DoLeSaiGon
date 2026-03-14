@@ -47,7 +47,6 @@ export const CartProvider = ({ children }) => {
         loadCart().then();
     }, [user, isAuthLoading]);
 
-    // --- IMPLEMENTED FUNCTIONS ---
 
     const addToCart = useCallback(async (product, quantity = 1) => {
         if (user) {

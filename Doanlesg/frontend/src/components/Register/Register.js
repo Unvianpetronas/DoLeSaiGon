@@ -1,35 +1,31 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Register.css'; // Make sure this CSS file exists
+import './Register.css';
 import { Helmet } from 'react-helmet-async';
 
 function Register() {
-  // --- 1. State Management ---
-  // State for each input field
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
 
-  // State for handling server responses
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // --- 2. Form Submission Handler ---
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevents the page from reloading
+    e.preventDefault();
     setError('');
     setSuccessMessage('');
 
     const userData = {
-      fullName: name, // Use fullName to match previous examples
+      fullName: name,
       email,
       phoneNumber,
       password,
     };
 
     try {
-      const response = await fetch('/api/ver0.0.1/register', { // Your backend endpoint
+      const response = await fetch('/api/ver0.0.1/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +35,6 @@ function Register() {
 
       if (response.ok) {
         setSuccessMessage('Đăng ký thành công! Bạn có thể đăng nhập.');
-        // Clear the form on success
         setName('');
         setEmail('');
         setPhoneNumber('');
@@ -65,7 +60,6 @@ function Register() {
           {error && <p style={{ color: 'red' }}>{error}</p>}
           {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
 
-          {/* --- 3. Connect Form to State and Handler --- */}
           <form className="login-form" onSubmit={handleSubmit}>
             <input
                 type="text"

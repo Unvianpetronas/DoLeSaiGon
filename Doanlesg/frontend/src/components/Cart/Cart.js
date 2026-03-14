@@ -143,7 +143,6 @@ const Cart = () => {
                     <div className="column name">Sản phẩm</div>
                     <div className="column total">Thành tiền</div>
                   </div>
-                  {/* ✅ MODIFIED: Use processedCartItems */}
                   {processedCartItems.map((item) => (
                       <div key={item.productId} className="cart-row">
                         <div className="column image">
@@ -151,7 +150,7 @@ const Cart = () => {
                               productId={item.productId}
                               alt={item.productName}
                               className="cart-item-image"
-                              cacheKey={item.lastUpdated} // ✅ ADDED: Pass the cacheKey
+                              cacheKey={item.lastUpdated}
                           />
                         </div>
                         <div className="column name">
@@ -197,7 +196,7 @@ const Cart = () => {
                       <ProductImage
                           productId={product.id}
                           alt={product.productName}
-                          cacheKey={product.lastUpdated} // ✅ ADDED: Pass the cacheKey
+                          cacheKey={product.lastUpdated}
                       />
                     </div>
                     <span className="recommended-name">{product.productName}</span>

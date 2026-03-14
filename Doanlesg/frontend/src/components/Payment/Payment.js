@@ -9,9 +9,6 @@ import { Helmet } from 'react-helmet-async';
 const PAYMENT_INFO_KEY = 'paymentInfo';
 const ORDER_DATA_KEY = 'orderData';
 const IS_BUY_NOW_KEY = 'isBuyNowSession';
-
-// --- API Endpoint from Environment Variable ---
-// In your .env file: REACT_APP_API_BASE_URL=http://localhost:8080
 const API_BASE_URL = '';
 
 
@@ -21,7 +18,6 @@ const Payment = () => {
     const { clearCart } = useCart();
     const { addNotification } = useNotification();
 
-    // --- STATE MANAGEMENT ---
     // Using a lazy initializer function to read from sessionStorage only once.
     const [paymentInfo, setPaymentInfo] = useState(() => JSON.parse(sessionStorage.getItem(PAYMENT_INFO_KEY)));
     const [orderData, setOrderData] = useState(() => JSON.parse(sessionStorage.getItem(ORDER_DATA_KEY)));
@@ -35,8 +31,6 @@ const Payment = () => {
 
     const isExpired = timeLeft <= 0;
 
-    // --- EFFECT TO INITIALIZE STATE FROM LOCATION ---
-    // This effect runs only when the component is loaded via navigation,
     // ensuring state is correctly populated from `location.state`.
     useEffect(() => {
         if (location.state) {
@@ -56,8 +50,6 @@ const Payment = () => {
         }
     }, [location.state]);
 
-
-    // --- PAYMENT STATUS CHECKER ---
     // Wrapped in useCallback to memoize the function.
     const checkPaymentStatus = useCallback(async () => {
         if (!paymentInfo?.uniqueCode) return;
@@ -66,14 +58,13 @@ const Payment = () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/ver0.0.1/orders/status/${paymentInfo.uniqueCode}`);
             if (!response.ok) {
-                // Don't show error notification for pending status, just log it.
                 console.error("Status check failed with status:", response.status);
                 return;
             }
 
             const data = await response.json();
             if (data.status === 'Paid') {
-                console.log("✅ Payment confirmed!");
+                console.log(" Payment confirmed!");
                 addNotification('Thanh toán thành công!', 'success');
 
                 // Cleanup session storage
@@ -87,16 +78,12 @@ const Payment = () => {
                 navigate('/success', { replace: true });
             }
         } catch (error) {
-            // Avoid spamming notifications on network errors during polling
             console.error("Error polling payment status:", error);
         }
     }, [paymentInfo, navigate, clearCart, addNotification, isBuyNow]);
 
-
-    // --- MAIN EFFECT FOR TIMER AND POLLING ---
     useEffect(() => {
         if (!paymentInfo) {
-            // If there's no payment info after initial load, navigate away.
             const timer = setTimeout(() => {
                 if (!sessionStorage.getItem(PAYMENT_INFO_KEY)) {
                     addNotification('Không tìm thấy thông tin thanh toán. Vui lòng thử lại.', 'error');
@@ -119,12 +106,8 @@ const Payment = () => {
 
         // --- Polling Logic ---
         clearInterval(pollerRef.current);
-        // Check immediately on load, then set interval
         checkPaymentStatus();
         pollerRef.current = setInterval(checkPaymentStatus, 5000);
-
-        // --- ⭐ SMART POLLING IMPROVEMENT ⭐ ---
-        // Add an event listener to check status immediately when the tab becomes visible.
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 console.log("Tab is visible again. Checking payment status immediately.");
@@ -142,7 +125,6 @@ const Payment = () => {
     }, [paymentInfo, navigate, addNotification, checkPaymentStatus]); // checkPaymentStatus is now a stable dependency
 
 
-    // --- REGENERATION HANDLER ---
     const handleRegenerateCode = useCallback(async () => {
         if (!orderData) {
             addNotification('Không tìm thấy thông tin đơn hàng để tạo lại mã.', 'error');

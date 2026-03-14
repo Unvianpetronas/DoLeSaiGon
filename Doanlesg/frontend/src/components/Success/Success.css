@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 1000px;
     background-image: url('../../assets/success.png');
-    background-size: 900px; /* phủ hết khung */
+    background-size: 900px;
     background-repeat: no-repeat;
     background-position: center;
     display: flex;
@@ -16,7 +16,7 @@
 /* Nút nằm giữa hình */
 .success-btn {
   position: absolute;
-  top: 60%; /* chính giữa theo chiều cao */
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #800000;
@@ -39,7 +39,7 @@
 @media (max-width: 768px) {
   .success-page {
     max-width: 100%;
-    aspect-ratio: 9 / 16; /* tỉ lệ cao hơn cho màn nhỏ */
+    aspect-ratio: 9 / 16;
   }
 
   .success-btn {

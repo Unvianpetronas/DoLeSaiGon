@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
-/* ===== NỀN TRANG CHUNG ===== */
+/* NỀN TRANG CHUNG */
 body {
   margin: 0;
   padding: 0;
@@ -9,7 +9,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== CONTAINER CHÍNH ===== */
+/*  CONTAINER CHÍNH */
 .products-wrapper {
   width: 100%;
   max-width: 1600px;
@@ -155,7 +155,7 @@ body {
   width: 100%;
   padding-right: 10px;
   padding-left: 10px;
-  line-height: 1.9; /* tăng line-height từ 1.6 lên 1.9 */
+  line-height: 1.9;
 }
 
 

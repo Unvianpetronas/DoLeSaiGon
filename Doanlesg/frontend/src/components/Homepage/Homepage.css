@@ -22,7 +22,7 @@
   align-items: flex-start;
   background-color: #f5f0e8;
   padding: 0 10px;
-  margin-top: 20px; /* xích xuống một chút từ banner */
+  margin-top: 20px;
   width: 100%;
   max-width: 1100px;
   margin-left: auto;
@@ -38,7 +38,7 @@
   padding: 12px;
   background: white;
   position: relative;
-  height: 55px; /* thấp hơn */
+  height: 55px;
   box-sizing: border-box;
   transition: background 0.3s ease;
   cursor: pointer;
@@ -54,7 +54,7 @@
 }
 
 .feature-item .line {
-  height: 25px; /* dây treo ngắn hơn */
+  height: 25px;
   width: 1.5px;
   background: #000;
   position: absolute;
@@ -80,7 +80,7 @@
 
 .feature-item .text strong {
   display: block;
-  font-size: 13px; /* chữ nhỏ hơn */
+  font-size: 13px;
   color: #2b2b2b;
 }
 

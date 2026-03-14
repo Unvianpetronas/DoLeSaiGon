@@ -71,7 +71,6 @@ h2 {
 }
 
 .admin-product-table th.col-status {
-  /* Mẹo CSS: Ép cột chiếm chiều rộng nhỏ nhất có thể */
   width: 6%;
   white-space: nowrap;
 }
@@ -154,11 +153,10 @@ h2 {
   background-image: none;
 }
 
-/* Thêm vào file DeliveryManagement.css của bạn */
 
 .action-cell {
   display: flex;
-  justify-content: space-between; /* Đẩy 2 nhóm con về 2 phía */
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
@@ -166,7 +164,7 @@ h2 {
 .action-icons {
   display: flex;
   align-items: center;
-  gap: 5px; /* Khoảng cách giữa các icon nếu có nhiều hơn 1 */
+  gap: 5px;
 }
 
 /* Giữ nguyên các class cũ */

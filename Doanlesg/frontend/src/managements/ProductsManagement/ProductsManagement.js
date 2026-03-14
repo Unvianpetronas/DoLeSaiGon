@@ -5,10 +5,9 @@ import { CiSearch } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import ProductImage from "../../components/common/ProductImage"; // Make sure the path is correct
+import ProductImage from "../../components/common/ProductImage";
 import { Helmet } from 'react-helmet-async';
 
-// A custom hook to debounce user input, making API calls more efficient
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function ProductsManagement() {
         const data = await res.json();
 
         if (!isCancelled) {
-          // ✅ ADD: Add a 'lastUpdated' timestamp to each product for cache-busting.
+
           const productsWithCacheKey = (data.content || []).map(p => ({
             ...p,
             lastUpdated: Date.now()
@@ -138,8 +137,6 @@ export default function ProductsManagement() {
   };
 
   const handleCreate = () => navigate('/admin/create');
-  // ✅ FIX: When editing, pass the current product state to the edit page.
-  // This allows the EditProduct component to receive the `lastUpdated` key.
   const handleEdit = (product) => navigate(`/admin/edit/${product.id}`, { state: { product } });
 
   const handleCategoryChange = (cat) =>
@@ -239,7 +236,6 @@ export default function ProductsManagement() {
                   <td>{p.stockQuantity}</td>
                   <td>
                     <div className="product-image-container">
-                      {/* ✅ PASS: Pass the product-specific timestamp as the cacheKey. */}
                       <ProductImage
                           productId={p.id}
                           alt={p.productName}

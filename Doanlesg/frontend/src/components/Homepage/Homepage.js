@@ -5,10 +5,9 @@ import { FaTruck, FaHeadset, FaCreditCard, FaGift } from 'react-icons/fa';
 import AddToCartButton from "../AddToCart/AddToCartButton";
 import { FaHeart } from 'react-icons/fa';
 import { toggleFavoriteItem, isItemFavorite } from '../LikeButton/LikeButton';
-import ProductImage from '../common/ProductImage'; // Import the ProductImage component
+import ProductImage from '../common/ProductImage';
 import { Helmet } from 'react-helmet-async';
 
-// ✅ ADD: A helper function to add a cache key to each product
 const addCacheKey = (products) =>
     (products || []).map(p => ({ ...p, lastUpdated: Date.now() }));
 
@@ -81,7 +80,6 @@ export default function Homepage() {
         const mamData = await mamRes.json();
         const giftData = await giftRes.json();
 
-        // ✅ UPDATE: Use the helper to add cache keys to all product lists
         setPromoProducts(addCacheKey(allData.content.slice(0, 4)));
         setXoiProducts(addCacheKey(xoiData.content));
         setCheProducts(addCacheKey(cheData.content));
@@ -167,7 +165,6 @@ export default function Homepage() {
                 <div key={gift.id} className="gift-item">
                   <div className="gift-image">
                     <Link to={`/product/${gift.id}`}>
-                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={gift.id}
                           alt={gift.productName}
@@ -199,7 +196,6 @@ export default function Homepage() {
               return (
                   <div className="promo-item-homepage" key={item.id}>
                     <Link to={`/product/${item.id}`} className="related-item">
-                      {/* ✅ PASS: Pass the cacheKey prop */}
                       <ProductImage
                           productId={item.id}
                           alt={item.productName}
@@ -270,7 +266,6 @@ export default function Homepage() {
                     return (
                         <div className="promo-item-homepage" key={item.id}>
                           <Link to={`/product/${item.id}`}>
-                            {/* ✅ PASS: Pass the cacheKey prop */}
                             <ProductImage
                                 productId={item.id}
                                 alt={item.productName}
@@ -327,7 +322,6 @@ export default function Homepage() {
                     return(
                         <div className="promo-item-homepage" key={item.id}>
                           <Link to={`/product/${item.id}`}>
-                            {/* ✅ PASS: Pass the cacheKey prop */}
                             <ProductImage
                                 productId={item.id}
                                 alt={item.productName}

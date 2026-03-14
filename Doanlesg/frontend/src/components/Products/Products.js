@@ -14,12 +14,10 @@ import { Helmet } from 'react-helmet-async';
 
 const ProductsPage = () => {
 
-  const { categorySlug } = useParams();         // null if at /products
-  const location = useLocation();               // used to get query ?sub=...
+  const { categorySlug } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
-  // Get subcategory from URL query
-  // Lấy subcategory từ URL query
   const searchParams = new URLSearchParams(location.search);
   const keyword = searchParams.get("keyword") || "";
   const selectedSub = searchParams.get("sub") || "";
@@ -35,7 +33,6 @@ const ProductsPage = () => {
       ? CategoryData?.find((c) => c.name === selectedCategory)?.slug
       : categorySlug;
 
-  /* ----------------- FETCH ----------------- */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -47,7 +44,6 @@ const ProductsPage = () => {
         }
         const res = await fetch(url);
         const data = await res.json();
-        // Add a 'lastUpdated' timestamp to each product for cache-busting
         const productsWithCacheKey = (data.content || []).map(p => ({
           ...p,
           lastUpdated: Date.now()
@@ -78,16 +74,13 @@ const ProductsPage = () => {
 
   const mainCategories = CategoryData ? CategoryData.map((c) => c.name) : [];
 
-  /* ----------------- FILTER ----------------- */
   let filtered = products;
 
   if (currentSlug && CategoryData) {
-    // Use CategoryData filtering when available
     filtered = products.filter((p) => {
       const sub = getSubCategoryName(p, currentSlug);
       if (!subCategoryMap[currentSlug]?.includes(sub)) return false;
 
-      // If there's a selected sub in query ?sub=
       if (selectedSub) return sub === selectedSub;
 
       return true;
@@ -105,7 +98,6 @@ const ProductsPage = () => {
       ? subCategoryMap[currentSlug]
       : [...new Set(products.map(getSubCategoryNameFallback))];
 
-  /* ----------------- SORT ----------------- */
   const sorted = [...filtered].sort((a, b) => {
     switch (sortOption) {
       case 'price-asc':
@@ -121,7 +113,6 @@ const ProductsPage = () => {
     }
   });
 
-  /* ----------------- PAGINATION ----------------- */
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sorted
@@ -140,7 +131,6 @@ const ProductsPage = () => {
     );
   };
 
-  /* ----------------- RENDER ----------------- */
   return (
       <div className="products-wrapper">
         <Helmet>
@@ -185,7 +175,6 @@ const ProductsPage = () => {
 
         {/* Sub-category tabs */}
         {!isAllPage && CategoryData && subCategoryMap[categorySlug] ? (
-            // For category pages with CategoryData
             <div className="tabs sub-tabs">
               {subCategoryMap[categorySlug].map((sub) => (
                   <button

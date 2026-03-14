@@ -39,7 +39,6 @@ export default function AdminDashboard() {
         }
     }, [user, isLoading, navigate, addNotification]);
 
-    // ✅ Simplified data fetching effect
     useEffect(() => {
         if (user && hasRole(user, 'ROLE_ADMIN')) {
             const fetchStats = async () => {
@@ -127,7 +126,6 @@ export default function AdminDashboard() {
                     </ResponsiveContainer>
                 </div>
 
-                {/* ✅ FIX: Updated Pie Chart Layout */}
                 <div className="dashboard-card chart-card">
                     <h3>Doanh thu theo danh mục</h3>
                     <div className="pie-chart-wrapper">
