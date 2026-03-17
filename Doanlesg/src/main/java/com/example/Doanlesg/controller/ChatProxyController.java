@@ -2,6 +2,7 @@ package com.example.Doanlesg.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import java.text.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,17 +62,29 @@ public class ChatProxyController {
         }
 
         try {
-            String[] msgWords = message.toLowerCase().split("\\s+");
+            String[] msgWords = normalize(message).split("\\s+");
 
-            // Filter in-stock products, score by keyword relevance, take top 15
+            // Filter in-stock products, score by keyword relevance
             List<Map<String, Object>> relevant = products.stream()
                     .filter(p -> {
                         Object stock = p.get("stock");
                         return stock instanceof Number && ((Number) stock).intValue() > 0;
                     })
+                    .filter(p -> scoreProduct(p, msgWords) > 0)  // drop products with no keyword match
                     .sorted(Comparator.comparingInt((Map<String, Object> p) -> scoreProduct(p, msgWords)).reversed())
-                    .limit(15)
+                    .limit(5)
                     .collect(Collectors.toList());
+
+            // If no products matched keywords, fall back to top 5 by default (general question)
+            if (relevant.isEmpty()) {
+                relevant = products.stream()
+                        .filter(p -> {
+                            Object stock = p.get("stock");
+                            return stock instanceof Number && ((Number) stock).intValue() > 0;
+                        })
+                        .limit(5)
+                        .collect(Collectors.toList());
+            }
 
             // Build name -> sku lookup for injecting SKU into recommendations later
             Map<String, String> nameToSku = new HashMap<>();
@@ -86,8 +99,8 @@ public class ChatProxyController {
                 String category = String.valueOf(p.getOrDefault("category", ""));
                 double price = p.get("price") instanceof Number ? ((Number) p.get("price")).doubleValue() : 0;
                 String desc = String.valueOf(p.getOrDefault("description", ""));
-                if (desc.length() > 80) desc = desc.substring(0, 80);
-                return name + " | " + category + " | " + String.format("%,.0f", price) + "đ | " + desc;
+                if (desc.length() > 50) desc = desc.substring(0, 50);
+                return name + "|" + category + "|" + String.format("%,.0f", price) + "đ|" + desc;
             }).collect(Collectors.joining("\n"));
 
             String cartSummary = cart.isEmpty() ? "Trống" :
@@ -99,17 +112,25 @@ public class ChatProxyController {
                             .map(h -> h.get("name") + " x" + h.getOrDefault("times_bought", 1))
                             .collect(Collectors.joining(", "));
 
-            String systemPrompt = "Tư vấn viên Dole Saigon. Quy tắc: chỉ dùng sản phẩm trong catalog, tối đa 3-5 gợi ý, "
-                    + "tiếng Việt ngắn gọn. Trả JSON: {\"reply\":\"...\","
-                    + "\"recommendations\":[{\"name\":\"...\",\"reason\":\"...\",\"price\":0,\"category\":\"...\"}],"
-                    + "\"intent\":\"product_query|price_check|recommendation|complaint|other\"}";
+            String systemPrompt = "Tư vấn viên DoleSaigon. Trả lời tiếng Việt ngắn gọn.\n"
+                    + "CHÍNH SÁCH:\n"
+                    + "- Thanh toán: tiền mặt tại cửa hàng (Đường D1, Khu CNC, Thủ Đức, HCM) hoặc chuyển khoản trước.\n"
+                    + "- Giao hàng: miễn phí Q1,2,3,Thủ Đức,Bình Thạnh,Gò Vấp,Tân Bình; phí theo khoảng cách (bán kính 60km); khung 10h-18h; giao trong 3-5h sau xác nhận.\n"
+                    + "- Đổi trả: 7 ngày kể từ khi nhận, hàng còn mới 100%.\n"
+                    + "- Bảo hành: 12 tháng với quà lễ.\n"
+                    + "- Khiếu nại: giải quyết trong 3 ngày làm việc, hotline 1900 0000.\n"
+                    + "QUY TẮC:\n"
+                    + "1) Chỉ dùng sản phẩm trong catalog.\n"
+                    + "2) Hỏi loại nào (chè/xôi/mâm...) chỉ gợi ý đúng loại đó.\n"
+                    + "3) Hỏi đích danh 1 sản phẩm thì chỉ trả về sản phẩm đó, không thêm.\n"
+                    + "4) Catalog không có sản phẩm phù hợp: recommendations=[], giải thích ngắn.\n"
+                    + "5) Hỏi chính sách: trả lời dựa vào CHÍNH SÁCH trên, không cần catalog.\n"
+                    + "Trả JSON: {\"reply\":\"...\",\"recommendations\":[{\"name\":\"...\",\"reason\":\"...\",\"price\":0,\"category\":\"...\"}],\"intent\":\"product_query|policy|recommendation|complaint|other\"}";
 
             String userPrompt = "KH: " + message
                     + "\nGiỏ: " + cartSummary
-                    + "\nLịch sử: " + historySummary
-                    + "\n\nCATALOG (" + relevant.size() + " sản phẩm liên quan):\n"
-                    + productCatalog
-                    + "\n\nTrả JSON.";
+                    + "\nCATALOG:\n" + productCatalog
+                    + "\nJSON:";
 
             // Build LM Studio request (OpenAI-compatible)
             Map<String, Object> lmRequest = new LinkedHashMap<>();
@@ -167,15 +188,39 @@ public class ChatProxyController {
         }
     }
 
+    private static final Set<String> STOPWORDS = Set.of(
+            "co", "cac", "loai", "nao", "gi", "la", "va", "toi", "ban",
+            "muon", "can", "the", "nhu", "vay", "khi", "duoc", "khong",
+            "mot", "hai", "nhung", "cung", "da", "dang", "se", "thi",
+            "len", "xuong", "ra", "vao", "tu", "den", "trong", "ngoai", "day",
+            "hay", "van", "ve", "oi", "nhe", "vui", "long", "xin", "cam", "on",
+            "bao", "nhieu", "gia", "mua", "tim", "thich", "hoi", "xem",
+            "gioi", "thieu", "cho", "biet", "dung", "tot", "nhat", "noi"
+    );
+
+    /** Strip Vietnamese diacritics and lowercase — "Chè" → "che", "Có" → "co" */
+    private String normalize(String s) {
+        if (s == null) return "";
+        String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replace('đ', 'd').replace('Đ', 'd')
+                .toLowerCase();
+    }
+
     private int scoreProduct(Map<String, Object> p, String[] words) {
-        String text = (String.valueOf(p.getOrDefault("name", "")) + " "
-                + String.valueOf(p.getOrDefault("category", "")) + " "
-                + String.valueOf(p.getOrDefault("description", ""))).toLowerCase();
-        int count = 0;
+        String name     = normalize(String.valueOf(p.getOrDefault("name",        "")));
+        String category = normalize(String.valueOf(p.getOrDefault("category",    "")));
+        String desc     = normalize(String.valueOf(p.getOrDefault("description", "")));
+
+        int score = 0;
         for (String w : words) {
-            if (text.contains(w)) count++;
+            String nw = normalize(w);
+            if (nw.length() < 2 || STOPWORDS.contains(nw)) continue;
+            if (name.contains(nw))     score += 3;
+            if (category.contains(nw)) score += 2;
+            if (desc.contains(nw))     score += 1;
         }
-        return count;
+        return score;
     }
 
     @SuppressWarnings("unchecked")
