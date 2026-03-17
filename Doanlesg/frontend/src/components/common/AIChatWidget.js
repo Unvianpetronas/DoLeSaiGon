@@ -46,9 +46,6 @@ export default function AIChatWidget() {
     const [products, setProducts] = useState([]);
     const messagesEndRef = useRef(null);
 
-    // Hide on admin pages
-    if (location.pathname.startsWith('/admin')) return null;
-
     useEffect(() => {
         fetchAllProducts().then(setProducts);
     }, []);
@@ -56,6 +53,10 @@ export default function AIChatWidget() {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    if (location.pathname.startsWith('/admin')) {
+        return null;
+    }
 
     const sendMessage = async () => {
         const text = input.trim();

@@ -32,15 +32,16 @@ public class StaffServices {
 
     private final CategoryRepository categoryRepository;
 
-    private EmbeddingService embeddingService;
+    private final EmbeddingService embeddingService;
 
     private final Cloudinary  cloudinary;
 
-    public StaffServices(OrderRepository orderRepository, ProductRepository productRepository, CategoryRepository categoryRepository, Cloudinary cloudinary) {
+    public StaffServices(OrderRepository orderRepository, ProductRepository productRepository, CategoryRepository categoryRepository, Cloudinary cloudinary, EmbeddingService embeddingService) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.cloudinary = cloudinary;
+        this.embeddingService = embeddingService;
     }
 
     public Product createProduct(Product product) {

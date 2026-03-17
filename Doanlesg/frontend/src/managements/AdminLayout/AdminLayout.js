@@ -19,30 +19,22 @@ export default function AdminLayout() {
 
   const isUserAdmin = hasRole(user, 'ROLE_ADMIN');
   const isUserStaff = hasRole(user, 'ROLE_STAFF');
+  const isAuthorized = isUserAdmin || isUserStaff;
 
-  // Effect to handle redirection for unauthorized users
   useEffect(() => {
-    // Wait until the initial loading is complete
-    if (!isLoading) {
-      // If user is not an Admin or Staff, redirect them
-      if (!isUserAdmin && !isUserStaff) {
-        navigate('/login');
-      }
+    if (!isLoading && !isAuthorized) {
+      navigate('/login');
     }
-  }, [user, isLoading, navigate, isUserAdmin, isUserStaff]);
+  }, [isLoading, isAuthorized, navigate]);
 
-
-  // Show a loading screen while we check for authentication
   if (isLoading) {
     return <div className="admin-loading">Đang tải...</div>;
   }
 
-  // If user is not authorized, render nothing while the redirect happens
-  if (!isUserAdmin && !isUserStaff) {
+  if (!isAuthorized) {
     return null;
   }
 
-  // If authorized, render the layout
   return (
       <div className="admin-layout">
         <aside className="admin-sidebar">
@@ -50,37 +42,26 @@ export default function AdminLayout() {
             <img src="/images/logo.png" alt="Logo" className="admin-logo-image" />
           </div>
           <div className="admin-menu-wrapper">
+            <div className="menu-section">
+              <div className="side-menu-title">NHÂN VIÊN</div>
+              <ul>
+                <li className={location.pathname.includes('/admin/products') ? 'active' : ''}>
+                  <Link to="/admin/products">Quản lí sản phẩm</Link>
+                </li>
+                <li className={location.pathname.includes('/admin/orders') ? 'active' : ''}>
+                  <Link to="/admin/orders">Quản lí đơn hàng</Link>
+                </li>
+              </ul>
+            </div>
 
-            {/* Staff and Admin Menu Section */}
-            {(isUserStaff || isUserAdmin) && (
-                <div className="menu-section">
-                  <div className="side-menu-title">NHÂN VIÊN</div>
-                  <ul>
-                    <li className={location.pathname.includes('/admin/products') ? 'active' : ''}>
-                      <Link to="/admin/products">Quản lí sản phẩm</Link>
-                    </li>
-                    <li className={location.pathname.includes('/admin/orders') ? 'active' : ''}>
-                      <Link to="/admin/orders">Quản lí đơn hàng</Link>
-                    </li>
-                    {/*<li className={location.pathname.includes('/admin/warehouse') ? 'active' : ''}>*/}
-                    {/*  <Link to="/admin/warehouse">Quản lí kho hàng</Link>*/}
-                    {/*</li>*/}
-                  </ul>
-                </div>
-            )}
-
-            {/* Admin-Only Menu Section */}
             {isUserAdmin && (
                 <div className="menu-section">
                   <div className="side-menu-title">ADMIN</div>
                   <ul>
-                    {/*<li className={location.pathname === '/admin/delivery' ? 'active' : ''}>*/}
-                    {/*  <Link to="/admin/delivery">Điều phối giao hàng</Link>*/}
-                    {/*</li>*/}
                     <li className={location.pathname === '/admin/dashboard' ? 'active' : ''}>
                       <Link to="/admin/dashboard">Báo cáo doanh thu</Link>
                     </li>
-                     <li className={location.pathname.includes('/admin/staff') ? 'active' : ''}>
+                    <li className={location.pathname.includes('/admin/staff') ? 'active' : ''}>
                       <Link to="/admin/staff">Quản lí nhân viên</Link>
                     </li>
                     <li className={location.pathname.includes('/admin/customer') ? 'active' : ''}>
@@ -96,7 +77,7 @@ export default function AdminLayout() {
         </aside>
 
         <main className="admin-content">
-          <Outlet /> {/* Child routes like Dashboard, Products, etc., will render here */}
+          <Outlet />
         </main>
       </div>
   );
