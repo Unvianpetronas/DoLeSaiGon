@@ -112,24 +112,41 @@ public class ChatProxyController {
                             .map(h -> h.get("name") + " x" + h.getOrDefault("times_bought", 1))
                             .collect(Collectors.joining(", "));
 
-            String systemPrompt = "Tư vấn viên DoleSaigon. Trả lời tiếng Việt ngắn gọn.\n"
-                    + "CHÍNH SÁCH:\n"
-                    + "- Thanh toán: tiền mặt tại cửa hàng (Đường D1, Khu CNC, Thủ Đức, HCM) hoặc chuyển khoản trước.\n"
-                    + "- Giao hàng: miễn phí Q1,2,3,Thủ Đức,Bình Thạnh,Gò Vấp,Tân Bình; phí theo khoảng cách (bán kính 60km); khung 10h-18h; giao trong 3-5h sau xác nhận.\n"
-                    + "- Đổi trả: 7 ngày kể từ khi nhận, hàng còn mới 100%.\n"
-                    + "- Bảo hành: 12 tháng với quà lễ.\n"
-                    + "- Khiếu nại: giải quyết trong 3 ngày làm việc, hotline 1900 0000.\n"
-                    + "QUY TẮC:\n"
-                    + "1) Chỉ dùng sản phẩm trong catalog.\n"
-                    + "2) Hỏi loại nào (chè/xôi/mâm...) chỉ gợi ý đúng loại đó.\n"
-                    + "3) Hỏi đích danh 1 sản phẩm thì chỉ trả về sản phẩm đó, không thêm.\n"
-                    + "4) Catalog không có sản phẩm phù hợp: recommendations=[], giải thích ngắn.\n"
-                    + "5) Hỏi chính sách: trả lời dựa vào CHÍNH SÁCH trên, không cần catalog.\n"
-                    + "Trả JSON: {\"reply\":\"...\",\"recommendations\":[{\"name\":\"...\",\"reason\":\"...\",\"price\":0,\"category\":\"...\"}],\"intent\":\"product_query|policy|recommendation|complaint|other\"}";
+            String systemPrompt = """
+/no_think
+Bạn là tư vấn viên của Dole Saigon – shop chuyên đồ lễ, mâm cúng truyền thống Việt Nam.
+Địa chỉ: Đường D1, Khu CNC, Thủ Đức, HCM.
 
-            String userPrompt = "KH: " + message
+PHONG CACH TRA LOI (bat buoc):
+- Luon xung "bên mình" hoặc "shop". Gọi khách là "bạn".
+- Mở đầu bằng câu xác nhận phù hợp thực tế (vd: "Dạ có ạ!", "Dạ rất tiếc...", "Dạ chào bạn!").
+- Neu tim thay san pham → reply phai neu TEN san pham, GIA, va 1 cau mo ta ngan.
+- Kết thúc bằng lời mời (vd: "Bạn muốn đặt hàng không ạ?", "Bạn cần tư vấn thêm không ạ?").
+- TUYET DOI khong tra loi chi 1-2 tu ("có", "không có", "Dạ bên mình có nhé!"). Phai viet it nhat 2 cau day du.
+- Giong than thien, nhiet tinh nhu nhan vien ban hang that.
+
+CHINH SACH:
+- Thanh toan: tien mat tai cua hang hoac chuyen khoan truoc.
+- Giao hang mien phi: Q1,Q2,Q3,Q4,Q5,Q7,Q8,Thủ Đức,Bình Thạnh,Gò Vấp,Tân Bình. Ngoai ra tinh phi (60km). Gio giao 10h-18h, giao trong 3-5h sau xac nhan.
+- Doi tra: 7 ngay, con moi 100%.
+
+QUY TAC SAN PHAM (bat buoc):
+[QT-1] Chi dung san pham co TEN KHOP trong danh sach. Khong bia san pham.
+[QT-2] KH hoi "shop co ban X khong" → kiem tra TEN san pham X co trong danh sach khong:
+  - Co ten khop → tra loi "co", goi y san pham do, neu gia va mo ta.
+  - Khong co ten khop → tra loi "shop khong ban X", goi y san pham tuong tu neu co (recommendations = []).
+[QT-3] Hoi dich danh 1 san pham (vd "xoi gac") → recommendations chi co DUNG 1 phan tu.
+[QT-4] Hoi danh muc (vd "xoi") → chi goi y san pham cung danh muc (toi da 5).
+[QT-5] Vi du SAI: KH hoi "banh mi" → catalog co "Mam banh" → KHONG duoc noi "co ban banh mi". Phai noi "shop khong ban banh mi" va goi y Mam banh thay the.
+
+CHI TRA VE JSON THUAN, KHONG markdown, KHONG text ngoai JSON:
+{"reply":"...","intent":"product_query|price_check|recommendation|policy_query|greeting|complaint|other","recommendations":[{"name":"...","sku":"...","category":"...","price":0,"unit":"...","description":"...","url":"...","reason":"..."}]}
+""";
+
+            String userPrompt = "KH hỏi: \"" + message + "\""
                     + "\nGiỏ: " + cartSummary
-                    + "\nCATALOG:\n" + productCatalog
+                    + "\nSản phẩm CÓ SẴN trong kho (CHỈ dùng những sản phẩm này, không bịa thêm):\n" + productCatalog
+                    + "\nNếu KH hỏi về sản phẩm có trong danh sách trên → trả lời CÓ và gợi ý ngay."
                     + "\nJSON:";
 
             // Build LM Studio request (OpenAI-compatible)
@@ -139,20 +156,30 @@ public class ChatProxyController {
                     Map.of("role", "system", "content", systemPrompt),
                     Map.of("role", "user", "content", userPrompt)
             ));
-            lmRequest.put("temperature", 0.4);
-            lmRequest.put("max_tokens", 2000);
+            lmRequest.put("temperature", 0.1);
+            lmRequest.put("max_tokens", 800);
             lmRequest.put("stream", false);
+            lmRequest.put("enable_thinking", false);
+            lmRequest.put("chat_template_kwargs", Map.of("enable_thinking", false));
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(lmRequest, headers);
 
-            ResponseEntity<Map> lmResponse = restTemplate.exchange(lmStudioUrl + "/v1/chat/completions", HttpMethod.POST, entity, Map.class);
+            ResponseEntity<Map> lmResponse = restTemplate.exchange(
+                    lmStudioUrl + "/v1/chat/completions", HttpMethod.POST, entity, Map.class);
+
+            Map responseBody = lmResponse.getBody();
+            if (responseBody == null) throw new IllegalStateException("Empty response from LM Studio");
 
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) lmResponse.getBody().get("choices");
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
+            if (choices == null || choices.isEmpty())
+                throw new IllegalStateException("No choices in LM Studio response: " + responseBody);
+
             @SuppressWarnings("unchecked")
             Map<String, Object> msgMap = (Map<String, Object>) choices.get(0).get("message");
+            if (msgMap == null) throw new IllegalStateException("Null message in LM Studio choice");
             String rawText = String.valueOf(msgMap.getOrDefault("content", ""));
 
             Map<String, Object> parsed = parseAiResponse(rawText);
@@ -191,12 +218,15 @@ public class ChatProxyController {
     private static final Set<String> STOPWORDS = Set.of(
             "co", "cac", "loai", "nao", "gi", "la", "va", "toi", "ban",
             "muon", "can", "the", "nhu", "vay", "khi", "duoc", "khong",
-            "mot", "hai", "nhung", "cung", "da", "dang", "se", "thi",
-            "len", "xuong", "ra", "vao", "tu", "den", "trong", "ngoai", "day",
-            "hay", "van", "ve", "oi", "nhe", "vui", "long", "xin", "cam", "on",
+            "mot", "hai", "nhung", "da", "dang", "se", "thi",
+            "len", "xuong", "ra", "vao", "tu", "den", "trong", "ngoai",
+            "hay", "van", "ve", "oi", "vui", "long", "xin", "cam", "on",
             "bao", "nhieu", "gia", "mua", "tim", "thich", "hoi", "xem",
-            "gioi", "thieu", "cho", "biet", "dung", "tot", "nhat", "noi"
+            "gioi", "thieu", "cho", "biet", "dung", "tot", "nhat", "noi",
+            "shop", "nhe", "nha"
     );
+    // NOTE: "cung" (cúng) removed — it is a core product-domain word.
+    // "day" (đầy) also removed — appears in "mâm cúng đầy tháng" product names.
 
     /** Strip Vietnamese diacritics and lowercase — "Chè" → "che", "Có" → "co" */
     private String normalize(String s) {
@@ -225,20 +255,30 @@ public class ChatProxyController {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseAiResponse(String rawText) {
+        // 1. Strip <think>...</think> blocks (Qwen3 reasoning traces).
+        //    Also handle unclosed <think> (model truncated mid-thought — no </think>).
+        String cleaned = rawText.replaceAll("(?s)<think>.*?</think>", "").trim();
+        if (cleaned.contains("<think>")) {
+            cleaned = cleaned.substring(0, cleaned.indexOf("<think>")).trim();
+        }
+
+        // 2. Strip markdown code fences  ```json ... ``` or ``` ... ```
+        cleaned = cleaned.replaceAll("(?s)```[a-zA-Z]*\\s*", "").replaceAll("```", "").trim();
+
         try {
-            return objectMapper.readValue(rawText, Map.class);
+            return objectMapper.readValue(cleaned, Map.class);
         } catch (Exception e1) {
             try {
-                int start = rawText.indexOf('{');
-                int end = rawText.lastIndexOf('}');
+                int start = cleaned.indexOf('{');
+                int end   = cleaned.lastIndexOf('}');
                 if (start >= 0 && end > start) {
-                    return objectMapper.readValue(rawText.substring(start, end + 1), Map.class);
+                    return objectMapper.readValue(cleaned.substring(start, end + 1), Map.class);
                 }
             } catch (Exception e2) {
                 // fall through
             }
             return Map.of(
-                    "reply", rawText.isBlank() ? "Xin lỗi, tôi không thể xử lý yêu cầu. Vui lòng thử lại." : rawText,
+                    "reply", cleaned.isBlank() ? "Xin lỗi, tôi không thể xử lý yêu cầu. Vui lòng thử lại." : cleaned,
                     "recommendations", List.of(),
                     "intent", "other"
             );

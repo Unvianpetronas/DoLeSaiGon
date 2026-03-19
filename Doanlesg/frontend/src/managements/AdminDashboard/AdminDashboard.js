@@ -4,8 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import './AdminDashboard.css';
 import {
-    LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
-    PieChart, Pie, Cell
+    LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Helmet } from 'react-helmet-async';
 
@@ -71,8 +70,11 @@ export default function AdminDashboard() {
         return null;
     }
 
-    const pieData = Object.entries(stats.totalRevenueByCategory).map(([name, value]) => ({
-        name, value
+    // Use per-month category data when available, fall back to annual totals
+    const currentCategoryMap =
+        stats.revenueByCategoryByMonth?.[selectedMonth] ?? stats.totalRevenueByCategory;
+    const pieData = Object.entries(currentCategoryMap).map(([name, value]) => ({
+        name, value: Number(value)
     }));
 
     return (
@@ -128,44 +130,26 @@ export default function AdminDashboard() {
 
                 <div className="dashboard-card chart-card">
                     <h3>Doanh thu theo danh mục</h3>
-                    <div className="pie-chart-wrapper">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    labelLine={false}
-                                    label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                                        const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
-                                        const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
-                                        return (
-                                            <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                                                {`${(percent * 100).toFixed(0)}%`}
-                                            </text>
-                                        );
-                                    }}
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip formatter={(value) => `${value.toLocaleString('vi-VN')}₫`} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <ul className="pie-legend">
-                            {pieData.map((entry, index) => (
-                                <li key={`item-${index}`} style={{ color: COLORS[index % COLORS.length] }}>
-                                    <span className="legend-dot" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                    {entry.name}
-                                </li>
-                            ))}
-                        </ul>
+                    <div className="bar-gauge-list">
+                        {[...pieData]
+                            .sort((a, b) => b.value - a.value)
+                            .map((entry, index) => {
+                                const total = pieData.reduce((s, d) => s + d.value, 0);
+                                const pct = total > 0 ? (entry.value / total * 100) : 0;
+                                return (
+                                    <div key={index} className="bar-gauge-row">
+                                        <div className="bar-gauge-label" title={entry.name}>{entry.name}</div>
+                                        <div className="bar-gauge-track">
+                                            <div
+                                                className="bar-gauge-fill"
+                                                style={{ width: `${pct}%`, backgroundColor: COLORS[index % COLORS.length] }}
+                                            />
+                                        </div>
+                                        <div className="bar-gauge-pct">{pct.toFixed(1)}%</div>
+                                        <div className="bar-gauge-value">{entry.value.toLocaleString('vi-VN')}đ</div>
+                                    </div>
+                                );
+                            })}
                     </div>
                 </div>
             </div>

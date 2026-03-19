@@ -14,13 +14,19 @@ public class DashboardStatsDTO {
     private long totalOrders;
     private long totalCustomers;
     private BigDecimal totalRevenue;
+
+    private Double revenueGrowth;
+    private Double orderGrowth;
+    private Double customerGrowth;
+
     private Map<String, BigDecimal> monthlyRevenueMap;
     private Map<String, BigDecimal> totalRevenueByCategory;
+    private Map<String, Map<String, BigDecimal>> revenueByCategoryByMonth;
     private List<MonthlyChartData> chartData;
 
     @Data
     public static class MonthlyChartData {
-        private String month;
+        private String month; // Định dạng YYYY-MM
         private long orders;
         private BigDecimal revenue;
         private long customers;

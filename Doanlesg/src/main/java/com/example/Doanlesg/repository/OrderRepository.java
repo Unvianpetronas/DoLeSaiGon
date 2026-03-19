@@ -29,14 +29,30 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findAllByAccountIdOrderByOrderDateDesc(Long accountId);
 
+    List<Order> findAllByOrderByOrderDateDesc();
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus <> 'Cancel'")
+    long countValidOrders();
+
+    @Query("SELECT YEAR(o.orderDate) as year, MONTH(o.orderDate) as month, COUNT(o.id) as orderCount, SUM(o.totalAmount) as totalRevenue " +
+           "FROM Order o WHERE o.orderStatus <> 'Cancel' " +
+           "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate) " +
+           "ORDER BY year ASC, month ASC")
+    List<Object[]> getMonthlyOrderStats();
+
+    @Query("SELECT c.categoryName, SUM(oi.total) " +
+           "FROM Order o JOIN o.orderItems oi JOIN oi.product p JOIN p.category c " +
+           "WHERE o.orderStatus <> 'Cancel' " +
+           "GROUP BY c.categoryName")
+    List<Object[]> getRevenueReportByCategory();
+
     @Query("SELECT p.category.categoryName, SUM(oi.total) " +
             "FROM Order o " +
             "JOIN o.orderItems oi " +
             "JOIN oi.product p " +
             "JOIN p.category c " +
-//            "WHERE o.orderStatus = '' " + // Optional: Only count completed orders for revenue
+            "WHERE o.orderDate >= ?1 AND o.orderDate < ?2 " +
             "GROUP BY c.categoryName")
-    List<Object[]> getRevenueReportByCategory();
+    List<Object[]> getRevenueByCategoryForMonth(java.time.Instant startInclusive, java.time.Instant endExclusive);
 
-    List<Order> findAllByOrderByOrderDateDesc();
 }

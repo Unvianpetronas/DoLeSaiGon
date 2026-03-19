@@ -8,14 +8,14 @@ import com.example.Doanlesg.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 @Service
 public class AdminService {
@@ -30,73 +30,115 @@ public class AdminService {
         this.accountRepository = accountRepository;
     }
 
-    /**
-     * Calculates all statistics for the dashboard in a single, efficient process.
-     */
     @Transactional(readOnly = true)
     public DashboardStatsDTO getDashboardStatistics() {
         DashboardStatsDTO stats = new DashboardStatsDTO();
 
-        // Giả sử trạng thái hủy là OrderStatus.CANCELLED
-        // Lấy danh sách các đơn hàng CHƯA BỊ HỦY để tính toán
-        List<Order> validOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus() != null && !order.getOrderStatus().equals("Cancel"))
-                .collect(Collectors.toList());
-
         stats.setTotalProducts(productRepository.count());
-        stats.setTotalOrders(validOrders.size());
+        stats.setTotalOrders(orderRepository.countValidOrders());
         stats.setTotalCustomers(accountRepository.countByCustomerIsNotNull());
 
-        Map<String, BigDecimal> revenueByCategory = validOrders.stream()
-                .flatMap(order -> order.getOrderItems().stream()) // Lấy tất cả các order items
-                .filter(item -> item.getProduct() != null && item.getProduct().getCategory() != null)
-                .collect(Collectors.groupingBy(
-                        item -> item.getProduct().getCategory().getCategoryName(), // Nhóm theo tên category
-                        Collectors.mapping(
-                                item -> item.getUnitPrice().multiply(new BigDecimal(item.getQuantity())), // Tính giá trị của item
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add) // Cộng dồn lại
-                        )
-                ));
+        Map < String, BigDecimal > revenueByCategory = new HashMap < > ();
+        List < Object[] > categoryResults = orderRepository.getRevenueReportByCategory();
+        for (Object[] row: categoryResults) {
+            String categoryName = (String) row[0];
+            BigDecimal revenue = (BigDecimal) row[1];
+            revenueByCategory.put(categoryName, revenue);
+        }
         stats.setTotalRevenueByCategory(revenueByCategory);
 
+        Map < String, DashboardStatsDTO.MonthlyChartData > monthlyDataMap = new TreeMap < > ();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        Map<String, DashboardStatsDTO.MonthlyChartData> monthMap = validOrders.stream()
-                .filter(order -> order.getOrderDate() != null && order.getTotalAmount() != null)
-                .collect(Collectors.groupingBy(
-                        order -> order.getOrderDate().atZone(ZoneId.systemDefault()).format(formatter),
-                        Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                list -> {
-                                    DashboardStatsDTO.MonthlyChartData data = new DashboardStatsDTO.MonthlyChartData();
-                                    data.setMonth(list.getFirst().getOrderDate().atZone(ZoneId.systemDefault()).format(formatter));
-                                    data.setOrders(list.size());
-                                    data.setRevenue(list.stream()
-                                            .map(Order::getTotalAmount)
-                                            .filter(Objects::nonNull)
-                                            .reduce(BigDecimal.ZERO, BigDecimal::add));
-                                    data.setCustomers(0);
-                                    return data;
-                                }
-                        )
-                ));
+        List < Object[] > orderStats = orderRepository.getMonthlyOrderStats();
+        BigDecimal totalRevenue = BigDecimal.ZERO;
 
-        List<DashboardStatsDTO.MonthlyChartData> chartData = monthMap.values().stream()
-                .sorted(Comparator.comparing(DashboardStatsDTO.MonthlyChartData::getMonth))
-                .collect(Collectors.toList());
-        stats.setChartData(chartData);
+        for (Object[] row: orderStats) {
+            String monthKey = formatMonthKey((Integer) row[0], (Integer) row[1]);
+            long orderCount = (Long) row[2];
+            BigDecimal revenue = (BigDecimal) row[3];
 
-        // Tính tổng doanh thu từ chartData đã được lọc
-        BigDecimal totalRevenue = chartData.stream()
-                .map(DashboardStatsDTO.MonthlyChartData::getRevenue)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            DashboardStatsDTO.MonthlyChartData data = new DashboardStatsDTO.MonthlyChartData();
+            data.setMonth(monthKey);
+            data.setOrders(orderCount);
+            data.setRevenue(revenue != null ? revenue : BigDecimal.ZERO);
+            data.setCustomers(0); // Sẽ được cập nhật ở bước sau
+
+            monthlyDataMap.put(monthKey, data);
+            totalRevenue = totalRevenue.add(data.getRevenue());
+        }
         stats.setTotalRevenue(totalRevenue);
 
-        stats.setMonthlyRevenueMap(chartData.stream().collect(Collectors.toMap(
-                DashboardStatsDTO.MonthlyChartData::getMonth,
-                DashboardStatsDTO.MonthlyChartData::getRevenue
-        )));
+        List < Object[] > customerStats = accountRepository.getMonthlyCustomerStats();
+        for (Object[] row: customerStats) {
+            String monthKey = formatMonthKey((Integer) row[0], (Integer) row[1]);
+            long customerCount = (Long) row[2];
+
+            DashboardStatsDTO.MonthlyChartData data = monthlyDataMap.getOrDefault(monthKey, new DashboardStatsDTO.MonthlyChartData());
+            data.setMonth(monthKey);
+            data.setCustomers(customerCount);
+            // Đề phòng tháng đó có khách tạo tài khoản nhưng không có đơn hàng
+            if (data.getRevenue() == null) {
+                data.setRevenue(BigDecimal.ZERO);
+                data.setOrders(0);
+            }
+            monthlyDataMap.put(monthKey, data);
+        }
+
+        // 4. Chuyển map thành list và tính toán chỉ số tăng trưởng (MoM)
+        List < DashboardStatsDTO.MonthlyChartData > chartData = new ArrayList < > (monthlyDataMap.values());
+        stats.setChartData(chartData);
+
+        Map < String, BigDecimal > monthlyRevenueMap = new HashMap < > ();
+        for (DashboardStatsDTO.MonthlyChartData data: chartData) {
+            monthlyRevenueMap.put(data.getMonth(), data.getRevenue());
+        }
+        stats.setMonthlyRevenueMap(monthlyRevenueMap);
+
+        // Per-month category breakdown so the frontend bar gauge reacts to month selection
+        Map < String, Map < String, BigDecimal >> revenueByCategoryByMonth = new HashMap < > ();
+        for (DashboardStatsDTO.MonthlyChartData data: chartData) {
+            String[] parts = data.getMonth().split("-");
+            java.time.LocalDate monthStart = java.time.LocalDate.of(
+                    Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), 1);
+            java.time.Instant start = monthStart.atStartOfDay(ZoneId.of("UTC")).toInstant();
+            java.time.Instant end   = monthStart.plusMonths(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Map < String, BigDecimal > catMap = new HashMap < > ();
+            for (Object[] row: orderRepository.getRevenueByCategoryForMonth(start, end)) {
+                catMap.put((String) row[0], (BigDecimal) row[1]);
+            }
+            revenueByCategoryByMonth.put(data.getMonth(), catMap);
+        }
+        stats.setRevenueByCategoryByMonth(revenueByCategoryByMonth);
+
+        calculateGrowthMetrics(stats, chartData);
 
         return stats;
+    }
+
+    private String formatMonthKey(Integer year, Integer month) {
+        return String.format("%d-%02d", year, month);
+    }
+
+    private void calculateGrowthMetrics(DashboardStatsDTO stats, List < DashboardStatsDTO.MonthlyChartData > chartData) {
+        if (chartData.size() < 2) {
+            stats.setRevenueGrowth(0.0);
+            stats.setOrderGrowth(0.0);
+            stats.setCustomerGrowth(0.0);
+            return;
+        }
+
+        DashboardStatsDTO.MonthlyChartData currentMonth = chartData.get(chartData.size() - 1);
+        DashboardStatsDTO.MonthlyChartData previousMonth = chartData.get(chartData.size() - 2);
+        stats.setRevenueGrowth(calculatePercentageChange(previousMonth.getRevenue(), currentMonth.getRevenue()));
+        stats.setOrderGrowth(calculatePercentageChange(BigDecimal.valueOf(previousMonth.getOrders()), BigDecimal.valueOf(currentMonth.getOrders())));
+        stats.setCustomerGrowth(calculatePercentageChange(BigDecimal.valueOf(previousMonth.getCustomers()), BigDecimal.valueOf(currentMonth.getCustomers())));
+    }
+
+    private Double calculatePercentageChange(BigDecimal previous, BigDecimal current) {
+        if (previous == null || previous.compareTo(BigDecimal.ZERO) == 0) {
+            return current != null && current.compareTo(BigDecimal.ZERO) > 0 ? 100.0 : 0.0;
+        }
+        BigDecimal change = current.subtract(previous);
+        return change.divide(previous, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).doubleValue();
     }
 }
