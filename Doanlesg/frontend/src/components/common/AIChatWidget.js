@@ -142,7 +142,7 @@ export default function AIChatWidget() {
             clearInterval(cycleIntervalRef.current);
             setIsLongWait(true);
             setStatusMsg(LONG_WAIT_MSG);
-        }, 20000);
+        }, 60000);
     };
 
     const stopLoadingEffects = () => {
